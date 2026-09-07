@@ -1,0 +1,33 @@
+# Gate accounting and run data — belongs to the host project, never to this repo
+.gates/
+*.ledger.csv
+
+# Real client profiles. Only TEMPLATE and the fictional example are tracked.
+clients/*
+!clients/TEMPLATE/
+!clients/example-northwind-cycles/
+
+# Local design-system mirrors and asset caches
+design-system/
+assets/
+renders/
+*.fig
+
+# Secrets
+.env
+.env.*
+*.pem
+*_secret*
+*credentials*
+service-account*.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Node
+node_modules/
+npm-debug.log*

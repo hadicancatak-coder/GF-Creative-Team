@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "_comment": "Records that a design-tool WRITE happened, for gate accounting. The matcher covers the Figma MCP write tools by default — widen or narrow it for your own design tool.",
+        "matcher": "mcp__.*__(use_figma|create_new_file|upload_assets|update_shader|create_shader)",
+        "hooks": [
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/log-build.sh\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_comment": "Blocks ending a session with ungated builds. Loop-guarded; the human can waive it with a .gates/<date>-skipped.md note.",
+        "hooks": [
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/gate-check.sh\"" }
+        ]
+      }
+    ]
+  }
+}

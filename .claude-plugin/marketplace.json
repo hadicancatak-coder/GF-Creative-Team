@@ -1,0 +1,14 @@
+{
+  "name": "gf-creative-team",
+  "owner": {
+    "name": "Hadican Catak",
+    "url": "https://github.com/hadicancatak-coder"
+  },
+  "plugins": [
+    {
+      "name": "gf-creative-team",
+      "source": "./",
+      "description": "Seven-role creative production and review team: gated builds, failure-derived evals, and a cost ledger."
+    }
+  ]
+}
