@@ -1,9 +1,9 @@
 # GF Creative Team
 
-**A creative production team for Claude Code that cannot show you its work until it has reviewed it.**
+**Seven agents that design your ad creative in Figma — and review it before you see it.**
 
-Seven roles, a gate that enforces itself, verified platform specs, and 32 eval cases that record whether
-a gate caught the failure or a human did.
+A copywriter, a creative director, an art director, a production designer, a design analyst, a quality
+officer and a financial controller. You give them a brief; they give you built, checked artwork.
 
 > The team is the product; clients are configuration. Role definitions carry no client facts.
 
@@ -11,13 +11,19 @@ a gate caught the failure or a human did.
 
 ## What it does for you
 
-You point it at built creative. It comes back with severity-ranked findings — location, cause, exact fix —
-and one of `SHIP` / `FIX-THEN-REGATE` / `BLOCK`. It applies the confirmed fixes, re-gates only the roles
-that failed, and refuses to say SHIP if any reviewer stalled.
+```
+/create-ad  Spring campaign for the Drift commuter e-bike, UK + DE, Meta Feed and Stories
+```
 
-It knows the platforms. Before design starts, `/format-matrix` tells you exactly which assets to build.
-During review, it measures against sourced specs — so it catches the CTA sitting under the Instagram
-Stories UI, the 4:5 variant you didn't build, the export that passes Meta's 30 MB but fails Google's 5 MB.
+The copywriter writes to the real character limits. The creative director picks the one idea and the
+hero that proves it. The art director chooses the shot from your whole asset folder — or tells you the
+right shot doesn't exist and asks for it. The designer builds it in Figma: artboard, safe-zone guides,
+hero placed by measured ratio, type from your token scale, legal line to spec. Then the art director
+verifies the render before you ever see it.
+
+Then `/creative-gate` runs the review roles over it — and it knows the platforms, so it catches the CTA
+sitting under the Instagram Stories UI, the 4:5 variant you didn't build, and the export that passes
+Meta's 30 MB but fails Google's 5 MB.
 
 ## Why this exists
 
@@ -73,7 +79,8 @@ Then: **[Quickstart](docs/QUICKSTART.md)** · **[The team](docs/THE-TEAM.md)** �
 
 | | |
 |---|---|
-| `/format-matrix` | Which assets to build for these platforms — sizes, ratios, safe zones, text limits. Run this before design. |
+| **`/create-ad`** | **Brief to built artwork.** Copy → concept → asset selection → build in Figma → verify. The main one. |
+| `/format-matrix` | Which assets to build for these platforms — sizes, ratios, safe zones, text limits. |
 | `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. |
 | `/new-client` | Scaffold a client profile in your project and seed its evals. |
 | `/use-client` | Switch the active profile, or show which one is live. |
@@ -184,6 +191,7 @@ expired, never asserted.
 
 | | |
 |---|---|
+| `create-ad.js` | Copy → concept → select → build → verify, with one fix round. Halts and returns a client ask if no available asset proves the headline. |
 | `creative-gate.js` | Plan → **validate** → gate → fix → re-gate (max 2) → verdict. Refuses a plan that puts the quality-officer anywhere but last, or leaves a target unreviewed. Refuses to report SHIP on missing results. |
 | `build-verify-loop.js` | AD selects → Designer builds → AD verifies → one fix round → PASS or ESCALATE. Declining to select is a first-class outcome: when the right asset doesn't exist, the chain halts and returns a client ask. |
 

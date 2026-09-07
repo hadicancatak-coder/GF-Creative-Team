@@ -39,3 +39,22 @@ inventory of nothing but text-bearing cards. When a direction removes the subjec
 direction is wrong — differentiate by MESSAGE and TREATMENT, never by removing the category's subject
 matter. Pattern that works: a real artefact of the product as hero, the campaign's claim as an
 annotation chip.
+
+## Building from zero
+Most builds start with nothing — no frame, no slot. Order of operations:
+
+1. **Artboards from the format matrix**, not from habit. Read the sizes out of the brief or
+   `knowledge/platforms/`. Build the master size first (usually 1080×1080 or the client's stated
+   master); derive the rest from it once the master is approved. Never build ten sizes of an unapproved idea.
+2. **Lay the frame before the content.** Margins and the vertical rhythm from the client profile;
+   for any vertical placement, mark the platform's safe zone as a guide **before** placing anything,
+   converting the published percentage to px for this canvas. Nothing load-bearing goes inside it.
+3. **Structure, then hero, then type, then legal.** Place the hero by the source's measured ratios.
+   Set type from the profile's scale — never a size that is not on the scale. The mandated legal line
+   is placed last and to spec, never squeezed into what is left.
+4. **Tokens only.** Every fill, radius and gap comes from the profile. If a value you need is not in
+   the profile, that is a question for the human, not a number for you to choose.
+5. **Name it** by the client's convention. An unnamed artboard is an untraceable one.
+
+If the profile lacks a token you need, or the format matrix lacks the size, STOP and ask. Building on a
+guessed value produces a whole set that has to be rebuilt.

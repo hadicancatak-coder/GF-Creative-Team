@@ -143,3 +143,21 @@ originating client's profile is not part of this repository.
   tightest ceiling of any platform here.
 - **LinkedIn:** document ads (flatten layers, normalise page sizes — both silently break the upload) and
   message ads (subject 60, body 1,500, CTA 20; the "Not Interested" button is added automatically).
+
+## [2.0.0] — 2026-09-07
+
+The team could review creative. It could not make any. This adds the missing half.
+
+### Added
+- **`/create-ad`** — brief to built artwork, the main entry point. Copy deck → concept → asset
+  selection → build in Figma → verify, with one fix round. Halts and returns a client ask if nothing in
+  the inventory proves the headline.
+- **`workflows/create-ad.js`** — the same chain, deterministic and schema-checked end to end.
+- **Designer: "Building from zero."** Every build path previously assumed an artboard and a slot already
+  existed. Now: artboards from the format matrix, master size first, frame and margins, safe-zone guides
+  converted to px *before* anything is placed, then hero by measured ratio, type from the scale, legal
+  line last and to spec. Tokens only — a value not in the profile is a question, not a choice.
+
+### Changed
+- README leads with making the ad rather than gating it. Four of the five commands were review, planning
+  or setup; nothing made anything.

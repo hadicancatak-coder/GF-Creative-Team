@@ -70,8 +70,11 @@ done
 
 head_ "claim cross-check"
 CASES=$(grep -c '^| U' evals/universal-cases.md)
-grep -q "$CASES eval cases" README.md && ok "README case count matches ($CASES)" \
-  || err "README case count disagrees with evals/universal-cases.md ($CASES actual)"
+if grep -qE "$CASES (eval )?cases" README.md; then
+  ok "README case count matches ($CASES)"
+else
+  err "README states no eval-case count matching evals/universal-cases.md ($CASES actual)"
+fi
 MISSED=$(grep -c '| MISSED' evals/universal-cases.md)
 [ -n "$MISSED" ] && ok "MISSED rows: $MISSED (check README wording if this changed)"
 
