@@ -5,6 +5,9 @@ review_by: 2026-12-07
 sources:
   - https://developers.google.com/google-ads/api/performance-max/asset-requirements
   - https://support.google.com/google-ads/answer/13676244
+  - https://support.google.com/google-ads/answer/7684791   (responsive search ads)
+  - https://support.google.com/google-ads/answer/9050310   (responsive display ads)
+  - https://support.google.com/adspolicy/answer/10347108   (image asset policy)
 ---
 
 # Google Ads — asset specs
@@ -55,13 +58,57 @@ would consider impossible without deliberate optimization.
 Google's own specs page names **1200 × 628 (1.91:1)** and **1200 × 1200 (1:1)** as the two sizes used
 across most placements. Build those first.
 
+## Responsive Search Ads
+
+| Asset | Char limit | Min | Max |
+|---|---|---|---|
+| Headline | 30 | 3 | 15 |
+| Description | 90 | 2 | **4** |
+| Display path | 15 each | — | 2 |
+
+Note the difference from Performance Max: RSA allows **4** descriptions, PMax **5**. Copy decks are not
+interchangeable between the two.
+
+**Pinning:** assets pinned to headline 1, headline 2 or description 1 always show. Positions 3 and
+description 2 are not guaranteed. Google's own guidance is that pinning "is not recommended for most
+advertisers" — it shrinks the match pool and lowers Ad Strength.
+
+## Responsive Display Ads
+
+| Asset | Limit |
+|---|---|
+| Marketing images | up to 15 |
+| Logos | up to 5 — supply **both** 1:1 and 4:1 |
+| Short headline | up to 5, 30 characters each |
+| Long headline | 1, 90 characters |
+| Description | up to 5, 90 characters each |
+
+Google's help page does not publish pixel dimensions or file ceilings for RDA specifically; use the image
+asset policy figures below, which govern the same uploads.
+
+## Image asset policy (governs uploads across campaign types)
+
+| Ratio | Status | Minimum | Recommended |
+|---|---|---|---|
+| 1:1 square | **Required** | 300 × 300 | 1200 × 1200 |
+| 1.91:1 landscape | Optional, recommended | 600 × 314 | 1200 × 628 |
+
+Formats **PNG, JPG**. Max **5120 KB**.
+
+### Google's safe zone
+> "Place the most important content in the center 80% of the image."
+
+Google crops images per surface. That centre-80% rule is the Google equivalent of Meta's percentage safe
+zone — a logo or claim in the outer 10% on any edge is at risk. It is looser than Meta's, and differently
+shaped: Meta reserves top and bottom asymmetrically for UI chrome; Google trims all four edges for
+placement fitting.
+
 ## Gaps — not verified
 
 Google publishes several spec sheets **as images with no text equivalent**, so these could not be
 extracted from the source and are deliberately not transcribed from memory:
 
-- Responsive Display Ad sizes and limits — `TBD — unverified`
 - Demand Gen asset specs — `TBD — unverified`
-- Responsive Search Ad character limits — `TBD — unverified`
 - App campaign asset specs — `TBD — unverified`
 - Fixed-size Display banner inventory (300×250, 728×90 etc.) — `TBD — unverified`
+- Responsive Display pixel dimensions specific to RDA — Google publishes none separately

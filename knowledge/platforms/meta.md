@@ -8,6 +8,8 @@ sources:
   - https://www.facebook.com/business/ads-guide/update/image/instagram-reels
   - https://www.facebook.com/business/ads-guide/update/image/instagram-story
   - https://www.facebook.com/business/help/980593475366490/
+  - https://www.facebook.com/business/ads-guide/update/video
+  - https://www.facebook.com/business/ads-guide/update/carousel
 ---
 
 # Meta — image ad specs
@@ -51,9 +53,44 @@ This is the single most common spec defect in vertical creative, and it is eval 
 **Reels truncates at 44 characters** — roughly a third of what Stories allows. Copy written once for
 "vertical" and reused across both will be cut in Reels.
 
+## Video — Facebook Feed
+
+| Property | Value |
+|---|---|
+| Ratio | 4:5 |
+| Resolution | ≥ 1440 × 1800; absolute minimum 120 × 120 |
+| Formats | MP4, MOV, GIF |
+| Max file | 4 GB |
+| Duration | 1 second – 241 minutes |
+| Encoding | H.264, square pixels, constant frame rate, progressive scan; stereo AAC ≥ 128 kbps |
+| Primary text | 50–150 recommended |
+| Headline | 27 |
+
+**The ad footer disappears on mobile.** For awareness objectives — and when optimizing for reach, video
+views, impressions or engagement — the headline, description and CTA button do **not** render in the
+mobile Facebook feed. Anything load-bearing must be inside the video frame, not in the footer fields.
+
+## Carousel
+
+| Property | Value |
+|---|---|
+| Cards | 2 – 10 |
+| Image resolution | ≥ 1080 × 1080 |
+| Ratio | 1:1, 3% tolerance |
+| Image formats / max | JPG, PNG / 30 MB per card |
+| Video formats / max | MP4, MOV, GIF / 4 GB, 1s – 240 min |
+
+| Text per card | Limit |
+|---|---|
+| Primary text | 80 |
+| Headline | 20 |
+| Description | 18 |
+
+**Carousel copy is far tighter than single-image copy** — 80/20/18 against 150/27. A headline written for
+a single image will not survive being reused on a carousel card.
+
 ## Gaps — not verified
 
-- Video ad specs (duration, bitrate, captions) — `TBD — unverified`
-- Carousel and Collection specs — `TBD — unverified`
-- Description field limits per placement — `TBD — unverified`
+- Collection ad specs — `TBD — unverified`
+- Description field limits for single-image feed placements — `TBD — unverified`
 - Audience Network and Messenger placements — `TBD — unverified`

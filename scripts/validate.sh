@@ -76,12 +76,26 @@ MISSED=$(grep -c '| MISSED' evals/universal-cases.md)
 [ -n "$MISSED" ] && ok "MISSED rows: $MISSED (check README wording if this changed)"
 
 head_ "links"
+# Links resolve RELATIVE TO THE FILE THEY APPEAR IN, not the repo root.
 BROKEN=0
-for p in $(grep -rhoE '\]\(([A-Za-z0-9_./-]+)\)' README.md docs/*.md knowledge/README.md 2>/dev/null \
-           | sed -E 's/^\]\(//;s/\)$//' | grep -v '^http' | sort -u); do
-  [ -e "$p" ] || { err "broken link: $p"; BROKEN=1; }
+for f in $(find . -name '*.md' -not -path './.git/*' | sort); do
+  d=$(dirname "$f")
+  for p in $(grep -oE '\]\(([A-Za-z0-9_./#-]+)\)' "$f" 2>/dev/null \
+             | sed -E 's/^\]\(//;s/\)$//' | grep -v '^http' | grep -v '^#' | sed 's/#.*//' | sort -u); do
+    [ -z "$p" ] && continue
+    [ -e "$d/$p" ] || { err "broken link in $f: $p"; BROKEN=1; }
+  done
 done
-[ "$BROKEN" -eq 0 ] && ok "internal links resolved"
+[ "$BROKEN" -eq 0 ] && ok "internal links resolved (relative to each file)"
+
+# Every referenced image must exist and be non-empty
+for f in $(find . -name '*.md' -not -path './.git/*' | sort); do
+  d=$(dirname "$f")
+  for p in $(grep -oE '!\[[^]]*\]\(([A-Za-z0-9_./-]+)\)' "$f" 2>/dev/null \
+             | sed -E 's/^!\[[^]]*\]\(//;s/\)$//' | grep -v '^http' | sort -u); do
+    if [ -s "$d/$p" ]; then ok "image $p"; else err "missing or empty image in $f: $p"; fi
+  done
+done
 
 head_ "hygiene"
 if grep -rlE '/Users/|/home/[a-z]' --include='*.md' --include='*.js' --include='*.sh' --include='*.json' \

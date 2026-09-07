@@ -39,6 +39,13 @@ The Creative Director does not review here. It decides who reviews what, and why
 final state, after group 1's fixes land — and all four targets have a reviewer. A plan failing either
 test is refused with `INVALID PLAN`, not quietly executed.
 
+## What one of these findings looks like
+
+![Before and after: CTA and legal line inside, then clear of, Meta's Stories and Reels safe zone](images/meta-safezone-before-after.png)
+
+The safe-zone finding below is the one people find hardest to believe until they see it measured. The
+design file looks fine at 100% zoom; the placement covers the bottom third.
+
 ## Phase 2 — findings
 
 **art-director** — `FAIL`

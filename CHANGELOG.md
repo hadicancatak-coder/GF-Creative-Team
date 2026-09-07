@@ -100,3 +100,27 @@ originating client's profile is not part of this repository.
 - Full install tested end to end: `claude plugin validate` clean, marketplace added, plugin installed
   and enabled at the reported version, with all 4 commands, 7 agents, the skill, the knowledge layer
   and both hooks present and executable in the install cache.
+
+## [1.4.0] — 2026-09-07
+
+### Added
+- **Knowledge gaps filled: 16 → 10 remaining.** All from primary sources, dated.
+  - Meta: Feed video (4:5, ≥1440×1800, 4 GB, H.264/AAC) and Carousel (2–10 cards, 80/20/18 text limits —
+    far tighter than single image). Plus the rule that the ad footer does not render on mobile Feed for
+    awareness objectives.
+  - Google: Responsive Search Ads (3–15 headlines @30, 2–**4** descriptions @90 — RSA differs from PMax),
+    pinning guidance, Responsive Display asset counts, and the image asset policy including Google's own
+    safe-zone equivalent: "place the most important content in the center 80% of the image".
+  - TikTok: image ad specs, and the character rules that reject uploads (no emoji in names; no emoji,
+    `{`, `}` or `#` in descriptions).
+  - LinkedIn: video (4 ratios, 3s–30min, 75 KB–500 MB, <30 FPS) and carousel — including that cards
+    render at 312 × 312, so type legible in the file is not legible in the feed.
+- **First diagram**, generated from checked-in HTML source so it is reproducible:
+  `examples/images/meta-safezone-before-after.png`. Same creative before and after, with Meta's published
+  Stories/Reels reserve drawn to scale. Labelled a constructed illustration on the fictional profile —
+  not real client work, not the output of a live gate run.
+
+### Fixed
+- The validator resolved markdown links from the repo root, so a link relative to its own file could
+  break undetected. It now resolves per-file and also verifies every referenced image exists and is
+  non-empty.

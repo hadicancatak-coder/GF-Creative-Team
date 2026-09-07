@@ -47,6 +47,25 @@ hidden behind "See more".
 
 Account name: 20 characters, or 10 for Chinese, Japanese and Korean.
 
+## Image ads
+
+| Ratio | Minimum resolution |
+|---|---|
+| 9:16 — **recommended** | ≥ 720 × 1280 |
+| 16:9 | ≥ 1280 × 720 |
+| 1:1 | ≥ 640 × 640 |
+
+| Property | Value |
+|---|---|
+| Formats | JPG, JPEG, PNG |
+| Max file | 100 MB |
+| Ad description | 1–100 Latin characters (1–50 Asian) |
+| App name | 4–40 Latin (2–20 Asian) |
+| Brand name | 2–20 Latin (1–10 Asian) |
+
+**Character rules that reject uploads:** no emoji in app or brand names; descriptions cannot contain
+emoji or the characters `{`, `}`, `#`. Punctuation and spaces count toward the totals.
+
 ## ⚠️ The safe zone is not a fixed number
 
 TikTok does **not** publish a single safe-zone measurement. Per their own documentation the safe area
@@ -65,7 +84,6 @@ Point 3 is the trap: on TikTok, editing copy is a design change.
 
 ## Gaps — not verified
 
-- Image-only ad specs (Global App Bundle) — partially documented, `TBD — unverified`
 - Exact safe-zone template dimensions per format — TikTok ships these as downloadable files, not as
   published figures. Not transcribable.
 - TopView, Branded Effect and reservation formats — `TBD — unverified`

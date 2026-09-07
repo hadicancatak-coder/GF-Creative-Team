@@ -32,3 +32,6 @@ Thumbs.db
 node_modules/
 npm-debug.log*
 .creative-team/
+
+# local render harness for regenerating examples/images/*
+.claude/launch.json

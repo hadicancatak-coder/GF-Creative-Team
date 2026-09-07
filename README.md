@@ -41,6 +41,12 @@ Three things here are unusual enough to be the reason to look:
   for an ungated set a human rejected. One data point, on one account — reported as an observation, not
   a benchmark.
 
+![Meta Stories and Reels safe zone: the same creative before and after, with Meta's published reserve drawn to scale](examples/images/meta-safezone-before-after.png)
+
+*Constructed illustration on the fictional example profile — not real client work, and not the output of
+a live gate run. The geometry is real: those bands are Meta's published Stories/Reels reserve, drawn to
+scale, sourced and dated in [`knowledge/platforms/meta.md`](knowledge/platforms/meta.md).*
+
 **[→ A worked gate run, start to finish](examples/worked-gate-run.md)** — the fastest way to judge
 whether this is worth installing.
 
