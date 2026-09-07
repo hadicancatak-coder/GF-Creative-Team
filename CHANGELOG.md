@@ -57,3 +57,23 @@ originating client's profile is not part of this repository.
   quality-officer anywhere but the final group, or that leaves any target unreviewed.
 - Findings can be marked `contested` and are never auto-applied.
 - README and METHOD claims corrected to match what the repo actually contains.
+
+## [1.2.0] — 2026-09-07
+
+### Fixed
+- **Client profiles were being written into the plugin directory**, where `/plugin update` would destroy
+  them. Profiles now live in the working project at `.creative-team/clients/<name>/`, alongside the
+  `.gates/` directory the hooks already use. The plugin's `clients/TEMPLATE/` is read-only source.
+- **Five of seven agents said "load the active client profile" without saying where it was**, and the
+  one that did named two conflicting paths. All seven now carry the same resolution rule:
+  `.creative-team/active` → `.creative-team/clients/<name>/` → declare reduced scope. Resolved every
+  run, never from memory.
+- Restored the final step of the gate skill ("only now present the work"), dropped by an earlier edit.
+
+### Added
+- **Reduced-scope mode.** With no client profile the gate still runs platform and universal checks and
+  opens its report with what it skipped. The quality-officer returns `UNVERIFIED`, never `SHIP`. This
+  makes the first run useful before any setup.
+- `/use-client` — switch the active profile, or report which is live and what is therefore unchecked.
+- README: "How it works", "What people use it for", and where a user's data lives.
+- U31 (agent works from a remembered profile) and U32 (reduced-scope gate reported as SHIP).

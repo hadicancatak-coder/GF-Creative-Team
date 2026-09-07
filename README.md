@@ -2,7 +2,7 @@
 
 **A creative production team for Claude Code that cannot show you its work until it has reviewed it.**
 
-Seven roles, a gate that enforces itself, verified platform specs, and 30 eval cases that record whether
+Seven roles, a gate that enforces itself, verified platform specs, and 32 eval cases that record whether
 a gate caught the failure or a human did.
 
 > The team is the product; clients are configuration. Role definitions carry no client facts.
@@ -25,12 +25,12 @@ Most agent packs are personas — a prompt that says "you are a senior designer"
 built the other way round: **every rule in it exists because breaking it cost something real first.**
 
 The eval table records its own history. `MISSED — client deleted the work` is a row in it. So is
-`MISSED — client caught after ~500k tokens`. Twelve of the thirty are marked MISSED — meaning a
+`MISSED — client caught after ~500k tokens`. Twelve of the thirty-two are marked MISSED — meaning a
 human found it and the gates did not. Those rows are why the rules above them are worded as they are.
 
 Three things here are unusual enough to be the reason to look:
 
-- **Evals with outcomes recorded.** 30 cases, each naming the agent that must catch it *unhinted*, each
+- **Evals with outcomes recorded.** 32 cases, each naming the agent that must catch it *unhinted*, each
   marked MISSED, CAUGHT, or explicitly *codified* where it came from a rule rather than a logged failure.
   You can tell evidence from policy at a glance.
 - **A knowledge layer that knows when it's stale.** Every platform spec is traced to the platform's own
@@ -69,7 +69,52 @@ Then: **[Quickstart](docs/QUICKSTART.md)** · **[The method](docs/METHOD.md)**
 |---|---|
 | `/format-matrix` | Which assets to build for these platforms — sizes, ratios, safe zones, text limits. Run this before design. |
 | `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. |
-| `/new-client` | Scaffold a client profile and seed its evals. |
+| `/new-client` | Scaffold a client profile in your project and seed its evals. |
+| `/use-client` | Switch the active profile, or show which one is live. |
+
+---
+
+## How it works
+
+**Nothing runs on its own.** The commands are the entry points; they dispatch the agents.
+
+| Day-one, no setup | `/format-matrix Meta and Google, UK + DE` → the exact asset list. No profile, no design tool, no config. |
+|---|---|
+| **Then, optionally** | `/new-client Acme` → scaffolds a profile in **your project** at `.creative-team/`, and interviews you for what it needs. |
+| **After a build round** | `/creative-gate the four square masters` → CD plans, reviewers run in parallel, designer applies confirmed fixes, failed roles re-gate, you get a verdict. |
+| **Switching accounts** | `/use-client acme` — agents re-read the active profile every run, never from memory. |
+
+### Without a client profile
+
+The gate still runs, in **reduced scope**: platform specs plus the universal failure classes. It opens
+its report by naming what it skipped — brand system, tokens, source law, compliance — and the
+quality-officer returns `UNVERIFIED`, never `SHIP`. A reduced-scope gate is useful. A reduced-scope gate
+presented as a full one is not, which is eval U32.
+
+### Where your data lives
+
+```
+your-project/
+├── .creative-team/
+│   ├── active              # which profile is live
+│   └── clients/<name>/     # client.md · compliance.md · evals.md
+└── .gates/                 # gate markers + ledger.csv, written by the hooks
+```
+
+**In your project, never in the plugin directory** — so `/plugin update` cannot destroy your profiles.
+
+## What people use it for
+
+| Moment | What you run | Who |
+|---|---|---|
+| Before the brief — what do we even build? | `/format-matrix` | Anyone running paid social |
+| Before design — copy that fits the real limits | `content-creator` | Performance marketer, copywriter |
+| After a build round — did we ship a defect? | `/creative-gate` | Creative lead, agency PM |
+| Before ship — region and compliance sweep | `quality-officer` | Regulated advertisers, multi-market teams |
+| Every ~10 dispatches — what is this costing? | `financial-controller` | Anyone paying for tokens |
+
+The sharpest one: **six built creatives, a client call in an hour.** One command, and you know which
+three have blockers and exactly why.
 
 ---
 

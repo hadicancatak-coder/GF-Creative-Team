@@ -1,7 +1,7 @@
 {
   "name": "gf-creative-team",
   "description": "A seven-role creative production and review team with deterministic orchestration, failure-derived evals, and cost accounting. Client-agnostic: role definitions carry no client facts; each engagement is a profile under clients/.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Hadican Catak"
   },

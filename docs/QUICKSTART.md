@@ -12,15 +12,28 @@ Or clone it and point Claude Code at the directory as a local marketplace.
 Verify: `/help` should list `/gf-creative-team:creative-gate` and `/gf-creative-team:new-client`,
 and the seven agents should appear in your agent list.
 
-## 2. Create a client profile
+## 2. Create a client profile (optional — see "Running without a profile" below)
 
 ```
 /gf-creative-team:new-client Northwind Cycles
 ```
 
-This scaffolds `clients/<name>/` from `clients/TEMPLATE/` and interviews you for what it needs.
-Read `clients/example-northwind-cycles/` first — it shows the level of specificity that actually works.
-Vague profiles produce vague gates.
+This scaffolds the profile **in your working project**, not in the plugin:
+
+```
+.creative-team/
+├── active                  # one line: the live profile name
+└── clients/northwind/
+    ├── client.md
+    ├── compliance.md
+    └── evals.md
+```
+
+It sits next to `.gates/`, and it survives `/plugin update`. Read
+`clients/example-northwind-cycles/` in the plugin first — it shows the level of specificity that
+actually works. Vague profiles produce vague gates.
+
+`/use-client <name>` switches profiles; with no argument it reports which is live.
 
 **Nothing about a client belongs in `agents/`.** If you are editing a role brief with a fact that is only
 true for one engagement, it goes in the profile.
@@ -67,9 +80,18 @@ different design tool? Widen or replace that regex — it is the only tool-speci
 
 ## 6. Run the evals
 
-`evals/universal-cases.md` holds 30 domain-agnostic failure classes with their outcomes recorded. Give
+`evals/universal-cases.md` holds 32 domain-agnostic failure classes with their outcomes recorded. Give
 an agent a case input with **no hint**, and check whether it raises the expected catch. Do this after any
 brief edit — a case that used to pass and now fails is a regression.
+
+## Running without a profile
+
+You do not need one to start. With no profile the gate runs in **reduced scope** — platform specs and
+the universal failure classes — and names exactly which checks it skipped. The quality-officer returns
+`UNVERIFIED` rather than `SHIP`.
+
+That is a real first run: install, gate something you already built, get genuine platform findings, then
+decide whether a profile is worth writing.
 
 ## What you need
 

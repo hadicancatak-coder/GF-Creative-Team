@@ -12,12 +12,20 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
 
 ## Steps
 
-0. **Orchestration.** Get the dispatch plan from the `creative-director` agent (its *Orchestration
+0. **Resolve the active client profile.** Read `.creative-team/active` in the working project, then
+   load `.creative-team/clients/<name>/`. Never use a profile remembered from earlier in the session.
+
+   **No profile? Run anyway, in reduced scope.** Gate against `knowledge/platforms/` and the universal
+   failure classes, and open your report with exactly which checks were skipped — brand system, tokens,
+   source law and compliance. The quality-officer returns `UNVERIFIED`, never `SHIP`, without a
+   compliance layer. A reduced-scope gate is useful; a reduced-scope gate presented as a full one is not.
+
+1. **Orchestration.** Get the dispatch plan from the `creative-director` agent (its *Orchestration
    authority* section defines the decision table and the plan format) — or run `workflows/creative-gate.js`
    via the Workflow tool, which does plan + gates + consolidated verdict deterministically. The CD's plan
    overrides the default dispatch below.
 
-1. **Default dispatch** (when no plan). One message, multiple Agent calls, IN PARALLEL. Each agent reads
+2. **Default dispatch** (when no plan). One message, multiple Agent calls, IN PARALLEL. Each agent reads
    its own brief and the active client profile first:
    - `creative-director` — concept, hierarchy of intent, asset lineage
    - `art-director` — full-size + squint render review, reference geometry, device realism
@@ -26,16 +34,16 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
    Add `design-analyst` for token-level measurement passes. Run `content-creator` on copy decks *before*
    build, not after.
 
-2. Reviewers are **READ-ONLY** on the artifact. They return severity-ranked findings.
+3. Reviewers are **READ-ONLY** on the artifact. They return severity-ranked findings.
 
-3. Apply BLOCKER and MAJOR fixes. Note contested findings for the human instead of acting unilaterally —
+4. Apply BLOCKER and MAJOR fixes. Note contested findings for the human instead of acting unilaterally —
    anything touching content the client explicitly told you to keep is a decision, not a defect.
 
-4. Re-render at ≥0.5 scale and re-check the specific findings. Scope the re-gate to the failed roles
+5. Re-render at ≥0.5 scale and re-check the specific findings. Scope the re-gate to the failed roles
    only, and to their own prior findings — a re-gate that opens new dimensions is a new gate.
    Cap at 2 fix→re-gate rounds, then escalate to the human.
 
-5. **Write what the workflow returned.** `workflows/creative-gate.js` returns a `marker` object and a
+6. **Write what the workflow returned.** `workflows/creative-gate.js` returns a `marker` object and a
    `ledger` array but cannot write them — workflow scripts have no filesystem access and cannot read the
    clock (pass the date in as `args.date`). So the caller writes:
    - `marker.path` → the gate marker file, from `marker.decision`, `marker.rounds` and `marker.openItems`
@@ -49,7 +57,10 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
    Without the marker, the Stop hook blocks the session even though the gate passed. That is the hook
    working correctly: a gate whose result was never recorded did not happen.
 
-6. Surface `contested` findings to the human as decisions. Never auto-apply them.
+7. Surface `contested` findings to the human as decisions. Never auto-apply them.
+
+8. **Only now present the work.** If the gate ran in reduced scope, say so in the first line of
+   what you present — not in a footnote.
 
 ## Non-negotiables
 - A definition is not a gate run. Agents only work when dispatched — this skill is the dispatch.

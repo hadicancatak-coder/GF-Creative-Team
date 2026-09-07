@@ -40,6 +40,8 @@ difference between evidence and policy.
 | U28 | An output schema makes the escape hatch a required field, so the agent must nominate something rather than decline | A required field is a forced answer — every escalation path stays optional in the schema | orchestration engine | CAUGHT in engine audit — `PICK` required `chosenPath`, structurally forbidding "ask the client" |
 | U29 | A verdict names an action the engine never performs (returns FIX-THEN-REGATE with no re-gate loop) | Documented behaviour must be implemented behaviour | orchestration engine | CAUGHT in engine audit — zero of the promised 2 rounds existed |
 | U30 | A gate runs and passes, but nothing writes the marker or the ledger rows | A gate whose result was never recorded did not happen | orchestration engine, financial-controller | CAUGHT in engine audit — workflows have no filesystem access; the caller must write |
+| U31 | An agent works from a client profile remembered from earlier in the session, or from a previous client, without re-reading it | A remembered profile is a fabricated one — resolve `.creative-team/active` every run, or declare reduced scope | all roles | Codified from the state model |
+| U32 | A gate runs with no client profile loaded and reports SHIP | No compliance layer means UNVERIFIED, never SHIP. A reduced-scope gate presented as a full one is worse than no gate | quality-officer | Codified from the state model |
 
 ## Scoring
 A team revision passes when every case is caught by the named agent without hints. A case that used to
