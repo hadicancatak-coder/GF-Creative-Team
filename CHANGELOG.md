@@ -77,3 +77,26 @@ originating client's profile is not part of this repository.
 - `/use-client` — switch the active profile, or report which is live and what is therefore unchecked.
 - README: "How it works", "What people use it for", and where a user's data lives.
 - U31 (agent works from a remembered profile) and U32 (reduced-scope gate reported as SHIP).
+
+## [1.3.0] — 2026-09-07
+
+### Added
+- `scripts/validate.sh` — one command that checks workflow and hook syntax, executable bits, JSON and
+  plugin manifests, frontmatter on every agent/command/skill, that no workflow references a missing
+  agent, that knowledge files carry frontmatter and cite sources, that README counts match the eval
+  table, that links resolve, and that no absolute path or plugin-directory write leaked into the docs.
+- GitHub Actions running the validator on push, PR, and **weekly** — so a knowledge file passing its
+  `review_by` date fails CI with no code change. Eval U27, enforced by the harness.
+- Issue templates: a failure the team did not catch, and a platform spec correction (which requires a
+  primary source, per U22).
+- `metadata.description` on the marketplace manifest.
+
+### Changed
+- Worked example rewritten against the current pipeline: plan validation, platform-spec findings
+  (wrong ratio, missing vertical, file-size ceiling, PMax asset-group minimum), the real fix→re-gate
+  loop, and the ledger/marker handoff.
+
+### Verified
+- Full install tested end to end: `claude plugin validate` clean, marketplace added, plugin installed
+  and enabled at the reported version, with all 4 commands, 7 agents, the skill, the knowledge layer
+  and both hooks present and executable in the install cache.

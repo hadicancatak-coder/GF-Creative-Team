@@ -208,6 +208,18 @@ Keep the skeleton: roles from failure modes, ground-truth files, ranked laws, fa
 autonomous chains with a legal ESCALATE, a financial controller on the meter. Swap the domain facts.
 The method transfers; the briefs are the domain.
 
+## Validation
+
+```bash
+./scripts/validate.sh
+```
+
+Checks syntax, manifests, frontmatter, agent registry, knowledge-file sourcing, README counts against the
+eval table, link resolution, and that nothing leaked an absolute path. CI runs the same script.
+
+It also **fails when a knowledge file's `review_by` date passes** — on a weekly schedule, with no code
+change. That is deliberate: it is eval U27 enforced by the harness, so the specs cannot rot quietly.
+
 ## Contributing
 
 The most valuable contribution is **a failure this team did not catch.** See [CONTRIBUTING.md](CONTRIBUTING.md).

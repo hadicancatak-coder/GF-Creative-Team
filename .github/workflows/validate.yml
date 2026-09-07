@@ -1,0 +1,22 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly. This is what makes the staleness rule real: once a knowledge file's
+    # review_by date passes, this run fails and the repo tells you its specs have rotted.
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate plugin
+        run: ./scripts/validate.sh

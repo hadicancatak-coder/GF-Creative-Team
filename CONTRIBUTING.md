@@ -60,8 +60,30 @@ No emoji in briefs — they cost tokens on every dispatch and add nothing an age
 
 ## Before you open a PR
 
-- [ ] `node --check` passes on any changed workflow
-- [ ] `sh -n` passes on any changed hook
-- [ ] JSON manifests parse
-- [ ] No absolute paths, real client names, or design-file keys anywhere in the diff
-- [ ] Evals re-run if you touched a brief, with regressions noted
+Run the validator. CI runs the same script, so this is the whole gate:
+
+```bash
+./scripts/validate.sh
+```
+
+It checks workflow and hook syntax, executable bits, JSON manifests, the plugin manifest via
+`claude plugin validate`, frontmatter on every agent/command/skill, that no workflow references an agent
+that does not exist, that every knowledge file carries its frontmatter and cites sources, that README
+counts match the eval table, that internal links resolve, that no absolute path leaked, and that no doc
+tells a user to write into the plugin directory.
+
+Then, by hand:
+
+- [ ] Evals re-run if you touched a brief, with any regressions noted in the PR
+- [ ] No real client names, compliance text, or design-file keys in the diff
+
+## Why CI fails on a green codebase
+
+The validator **fails when a knowledge file's `review_by` date has passed**, and a weekly scheduled run
+means it will eventually fail on its own with no code change at all. That is the feature, not a bug — it
+is eval U27 enforced by the harness. Ad platforms change specs without notice, and a confidently-stated
+stale number is worse than no number because it gets built against.
+
+When it fires: open the file's `sources`, re-verify each figure, correct what changed, mark what vanished
+`TBD — unverified`, and bump `verified` and `review_by`. Do not bump the dates without re-reading the
+sources — that converts an honest expiry into a false claim of freshness.

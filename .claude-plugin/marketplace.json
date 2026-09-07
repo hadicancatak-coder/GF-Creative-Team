@@ -10,5 +10,8 @@
       "source": "./",
       "description": "Seven-role creative production and review team: gated builds, failure-derived evals, and a cost ledger."
     }
-  ]
+  ],
+  "metadata": {
+    "description": "Creative production and review tooling for Claude Code — gated builds, verified platform specs, and failure-derived evals."
+  }
 }
