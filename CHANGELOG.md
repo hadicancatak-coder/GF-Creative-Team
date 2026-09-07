@@ -124,3 +124,22 @@ originating client's profile is not part of this repository.
 - The validator resolved markdown links from the repo root, so a link relative to its own file could
   break undetected. It now resolves per-file and also verifies every referenced image exists and is
   non-empty.
+
+## [1.5.0] — 2026-09-07
+
+### Added
+- **`docs/THE-TEAM.md`** — a job description per role: what you give it, what you get back, when to call
+  it, an illustrative sample of its output, and what it will not do. Plus how the seven work together
+  and how to hire one without the others. The README's role table described ownership, not jobs.
+
+### Knowledge — gaps 16 → 4, all remaining ones are reservation formats
+- **Google is now complete (0 gaps):** Responsive Display full asset table, Demand Gen (headlines run to
+  40 where PMax and RSA stop at 30 — and one must still be ≤30), App campaigns (CJK characters count
+  double, and Google may auto-generate a video that serves under your brand without passing your gate),
+  and the full uploaded-display size list with its **150 KB** ceiling.
+- **Meta:** Collection ads, plus a per-format text-limit table — five surfaces, five different limits.
+  Feed 150/27, Stories 125, Reels 44, Carousel 80/20/18, Collection 125/40.
+- **TikTok:** carousel — 2–35 images uploaded but only 20 ever displayed, at **100 KB per image**, the
+  tightest ceiling of any platform here.
+- **LinkedIn:** document ads (flatten layers, normalise page sizes — both silently break the upload) and
+  message ads (subject 60, body 1,500, CTA 20; the "Not Interested" button is added automatically).

@@ -6,6 +6,8 @@ sources:
   - https://www.linkedin.com/help/lms/answer/a426534/single-image-ads-advertising-specifications
   - https://www.linkedin.com/help/lms/answer/a424737   (video ads)
   - https://www.linkedin.com/help/linkedin/answer/a427022   (carousel ads)
+  - https://www.linkedin.com/help/lms/answer/a493903   (document ads)
+  - https://www.linkedin.com/help/lms/answer/a425533   (message ads)
 ---
 
 # LinkedIn — single image ad specs
@@ -72,6 +74,30 @@ truncating in-feed. Writing to the maximum produces copy that is legal and invis
 **Cards render at 312 × 312.** A 1080px card is displayed at under a third of its size — type that is
 legible in the design file will not be legible in the feed. Check every carousel at 312px.
 
+## Document ads
+
+| Property | Value |
+|---|---|
+| Formats | PDF, DOC, DOCX, PPT, PPTX |
+| Max file | 100 MB |
+| Pages | **under 10 recommended**; 300 pages or 1 million words maximum |
+| Ratios | vertical, horizontal, square |
+
+Multi-layer PDFs **must be flattened**, and a PDF whose pages differ in size must be normalised to one
+page size. Both are export settings, not design decisions — and both silently break the upload.
+
+## Message ads
+
+| Field | Limit |
+|---|---|
+| Subject line | 60 |
+| Message body | 1,500 (up to 10 emoji, rich text supported) |
+| CTA text | 20 |
+
+Optional banner: **300 × 250 max**, JPG / PNG / non-animated GIF, 2 MB, **desktop only**.
+A "Not Interested" button is added automatically alongside your CTA — you cannot remove it, and it is
+part of the layout the reader sees.
+
 ## Cross-platform note
 
 LinkedIn's 1200 × 628 (1.91:1) and 1200 × 1200 (1:1) match Google's two most common sizes exactly, and
@@ -80,5 +106,5 @@ LinkedIn without a re-export; a Meta asset at 30 MB is not.
 
 ## Gaps — not verified
 
-- Document, Conversation and Message ad specs — `TBD — unverified`
+- Conversation ad specs — `TBD — unverified`
 - Audience Network placement differences — `TBD — unverified`

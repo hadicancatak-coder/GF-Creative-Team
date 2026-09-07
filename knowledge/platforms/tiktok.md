@@ -66,6 +66,23 @@ Account name: 20 characters, or 10 for Chinese, Japanese and Korean.
 **Character rules that reject uploads:** no emoji in app or brand names; descriptions cannot contain
 emoji or the characters `{`, `}`, `#`. Punctuation and spaces count toward the totals.
 
+## Carousel
+
+| Property | Value |
+|---|---|
+| Images | 2 – 35 uploaded; **maximum 20 displayed** |
+| Recommended resolutions | vertical 720 × 1280 · square 640 × 640 · horizontal 1200 × 628 |
+| Formats | JPG, JPEG, PNG |
+| Max file | **100 KB per image** |
+| Caption / CTA | one caption and one CTA for the whole carousel; one URL |
+| Music | required — Commercial Music Library or your own |
+
+**100 KB per image** is the tightest ceiling on any platform here — 300× tighter than Meta's 30 MB.
+Photography at 720 × 1280 inside 100 KB needs deliberate compression, and it is the single most common
+reason a TikTok carousel upload fails.
+
+Note also that you can upload 35 images but only 20 ever render. Anything past the 20th is wasted work.
+
 ## ⚠️ The safe zone is not a fixed number
 
 TikTok does **not** publish a single safe-zone measurement. Per their own documentation the safe area
@@ -87,4 +104,3 @@ Point 3 is the trap: on TikTok, editing copy is a design change.
 - Exact safe-zone template dimensions per format — TikTok ships these as downloadable files, not as
   published figures. Not transcribable.
 - TopView, Branded Effect and reservation formats — `TBD — unverified`
-- Carousel specs — `TBD — unverified`

@@ -10,6 +10,7 @@ sources:
   - https://www.facebook.com/business/help/980593475366490/
   - https://www.facebook.com/business/ads-guide/update/video
   - https://www.facebook.com/business/ads-guide/update/carousel
+  - https://www.facebook.com/business/ads-guide/update/collection
 ---
 
 # Meta — image ad specs
@@ -89,8 +90,35 @@ mobile Facebook feed. Anything load-bearing must be inside the video frame, not 
 **Carousel copy is far tighter than single-image copy** — 80/20/18 against 150/27. A headline written for
 a single image will not survive being reused on a carousel card.
 
+## Collection
+
+| Property | Value |
+|---|---|
+| Cover image / video | ≥ 1080 × 1080, ratio 1.91:1 to 1:1 |
+| Image formats / max | JPG, PNG / 30 MB |
+| Video formats / max | MP4, MOV, GIF / 4 GB |
+| Structure | cover asset + 3 product images |
+| Primary text | 125 |
+| Headline | 40 |
+
+An **Instant Experience page is mandatory** for Collection. It is not a creative you can hand over as
+four flat files.
+
+## Text limits differ per format — check before writing
+
+| Format | Primary text | Headline | Description |
+|---|---|---|---|
+| Single image / video, Feed | 50–150 rec. | 27 | — |
+| Stories | 125 | — | — |
+| Reels | 44 | — | — |
+| Carousel (per card) | 80 | 20 | 18 |
+| Collection | 125 | 40 | — |
+
+Five Meta surfaces, five different limits. A headline written for Feed at 27 characters overruns
+Carousel's 20; copy written for Stories at 125 is cut to 44 in Reels. This table is the reason the
+content-creator runs before design, not after.
+
 ## Gaps — not verified
 
-- Collection ad specs — `TBD — unverified`
-- Description field limits for single-image feed placements — `TBD — unverified`
-- Audience Network and Messenger placements — `TBD — unverified`
+- Audience Network and Messenger placement differences — `TBD — unverified`
+- Description field for single-image Feed — Meta does not publish one for this placement

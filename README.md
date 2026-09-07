@@ -67,7 +67,7 @@ whether this is worth installing.
 /plugin install gf-creative-team
 ```
 
-Then: **[Quickstart](docs/QUICKSTART.md)** · **[The method](docs/METHOD.md)**
+Then: **[Quickstart](docs/QUICKSTART.md)** · **[The team](docs/THE-TEAM.md)** · **[The method](docs/METHOD.md)**
 
 ## Commands
 
@@ -126,17 +126,21 @@ three have blockers and exactly why.
 
 ## The roles
 
-| Agent | Owns | Fails if |
-|---|---|---|
-| **creative-director** | Concept, hierarchy of intent, asset direction, the dispatch plan | The set means nothing, or the wrong reviewers were sent |
-| **art-director** | Asset selection, then verification of the render — full size and at squint | A defect survives that a good eye would have caught |
-| **designer** | The build. The only agent that writes to the design tool | Craft laws broken, or something was invented rather than escalated |
-| **design-analyst** | Measurement: tokens, type, spacing, alignment, lineage, platform spec conformance | A deviation that was measurable went unmeasured |
-| **quality-officer** | Final gate: regulation, mandated text, claims, regional rules, platform completeness | Something shipped that should not have |
-| **content-creator** | Copy decks before design; copy audits after | A claim went out that the client's own facts contradict |
-| **financial-controller** | The run ledger, cost per confirmed finding, waste sources | Spend happened that nobody can account for |
+Seven agents, each owning a failure class. **[→ Full job descriptions: what each does, what you give it,
+what you get back](docs/THE-TEAM.md)**
 
-Each role exists because it owns a *failure class*. If you cannot name the class, it is not a role.
+| Agent | The job | You get back |
+|---|---|---|
+| **creative-director** | Judges concept and meaning; decides who reviews what | Verdict + max 5 notes + the set's biggest weakness; a dispatch plan |
+| **art-director** | Picks the asset, then verifies the render at full size and at squint | A selection with reasoning — or a refusal and a client ask; findings with pixel fixes |
+| **designer** | Builds. The only agent that writes to the design tool | Changed node IDs, measured deviations, its own verification |
+| **design-analyst** | Measures: tokens, spacing, alignment, lineage, platform spec conformance | A violation table — measured vs expected, with node IDs. Numbers only |
+| **quality-officer** | The last gate: regulation, mandated text, claims, regional rules | SHIP or BLOCK, numbered findings, region-matrix status |
+| **content-creator** | Copy decks before design; copy audits after | Deck per concept + a CLIENT-VERIFY list of what it could not confirm |
+| **financial-controller** | Audits the ledger | Cost per confirmed finding, top waste sources, optimizations with expected savings |
+
+**They can be hired separately.** A copy deck is one agent. A second pair of eyes on a finished set is
+two. The full chain is for producing and shipping a set.
 
 ## The chain
 

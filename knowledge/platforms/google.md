@@ -8,6 +8,10 @@ sources:
   - https://support.google.com/google-ads/answer/7684791   (responsive search ads)
   - https://support.google.com/google-ads/answer/9050310   (responsive display ads)
   - https://support.google.com/adspolicy/answer/10347108   (image asset policy)
+  - https://support.google.com/google-ads/answer/17090561  (responsive display specs)
+  - https://support.google.com/google-ads/answer/1722096   (uploaded display ad sizes)
+  - https://support.google.com/google-ads/answer/17091672  (Demand Gen specs)
+  - https://support.google.com/google-ads/answer/9234183   (App campaign assets)
 ---
 
 # Google Ads — asset specs
@@ -75,16 +79,71 @@ advertisers" — it shrinks the match pool and lowers Ad Strength.
 
 ## Responsive Display Ads
 
+| Text asset | Limit | Count | Required |
+|---|---|---|---|
+| Headline | 30 | 1–5 | yes |
+| Long headline | 90 | 1 | yes |
+| Description | 90 | 1–5 | yes |
+| Business name | 25 | 1 | yes |
+
+| Image asset | Ratio | Recommended | Minimum | Count | Required |
+|---|---|---|---|---|---|
+| Horizontal | 1.91:1 | 1200 × 628 | 600 × 314 | 1–15 (5 rec.) | yes |
+| Square | 1:1 | 600 × 600 | 300 × 300 | 1–15 (5 rec.) | yes |
+| Logo square | 1:1 | 1200 × 1200 | 128 × 128 | 1–5 | no |
+| Logo landscape | 4:1 | 1200 × 300 | 512 × 128 | 1–5 | no |
+
+Video optional: 16:9, 1:1 and 2:3, ~30 seconds, 1–5 per ratio.
+Google publishes no max file size on this page — the image asset policy's 5120 KB governs the uploads.
+
+## Demand Gen
+
+| Text asset | Limit | Count |
+|---|---|---|
+| Headline | 40 — **at least one must be ≤ 30** | 1–5 (5 rec.) |
+| Description | 90 | 1–5 (3 rec.) |
+| Business name | 25 | 1 |
+| Final URL | 2,048 | 1 |
+
+| Image asset | Ratio | Recommended | Minimum | Count |
+|---|---|---|---|---|
+| Horizontal | 1.91:1 | 1200 × 628 | 600 × 314 | 1–20 (3 rec.) |
+| Square | 1:1 | 1200 × 1200 | 300 × 300 | 1–20 (3 rec.) |
+| Vertical | 4:5 | 960 × 1200 | 480 × 600 | 1–20 (optional) |
+| Logo | 1:1 | 1200 × 1200 | 144 × 144 | 1–5 |
+
+**Demand Gen headlines run to 40, PMax and RSA stop at 30** — and at least one Demand Gen headline must
+still be ≤ 30. Three campaign types, three headline rules.
+
+## App campaigns
+
 | Asset | Limit |
 |---|---|
-| Marketing images | up to 15 |
-| Logos | up to 5 — supply **both** 1:1 and 4:1 |
-| Short headline | up to 5, 30 characters each |
-| Long headline | 1, 90 characters |
-| Description | up to 5, 90 characters each |
+| Headline | 30 |
+| Description | 90, up to 5 |
+| Images | JPG or PNG, max 5 MB |
+| Video | **must be hosted on YouTube**; landscape, portrait or square |
 
-Google's help page does not publish pixel dimensions or file ceilings for RDA specifically; use the image
-asset policy figures below, which govern the same uploads.
+Character limits are identical across languages, but **double-width characters (Chinese, Japanese,
+Korean) count as two.** A 30-character headline is 15 CJK glyphs. Localized copy decks must be counted
+in the target script, not translated and hoped for.
+
+If you supply no video, Google may generate one from your other assets and your app store listing —
+which means an auto-assembled creative can serve under your brand without passing any gate you run.
+
+## Uploaded display ads (fixed sizes)
+
+Formats **GIF, JPG, PNG**. **Maximum 150 KB** — not 5 MB. Animation ≤ 30 seconds and slower than 5 FPS.
+
+| Group | Sizes |
+|---|---|
+| Square & rectangle | 200×200 · 240×400 · 250×250 · 250×360 · 300×250 · 336×280 · 580×400 |
+| Skyscraper | 120×600 · 160×600 · 300×600 · 300×1050 |
+| Leaderboard | 468×60 · 728×90 · 930×180 · 970×90 · 970×250 · 980×120 |
+| Mobile | 300×50 · 320×50 · 320×100 |
+
+That 150 KB ceiling is the one that breaks builds. A 970 × 250 banner has roughly 242,500 pixels to
+express in 150 KB — photography usually has to become flat colour or the ad is rejected.
 
 ## Image asset policy (governs uploads across campaign types)
 
@@ -108,7 +167,5 @@ placement fitting.
 Google publishes several spec sheets **as images with no text equivalent**, so these could not be
 extracted from the source and are deliberately not transcribed from memory:
 
-- Demand Gen asset specs — `TBD — unverified`
-- App campaign asset specs — `TBD — unverified`
-- Fixed-size Display banner inventory (300×250, 728×90 etc.) — `TBD — unverified`
-- Responsive Display pixel dimensions specific to RDA — Google publishes none separately
+- Demand Gen max file sizes — Google publishes none on the specs page; the image asset policy's
+  5120 KB is the governing figure
