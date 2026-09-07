@@ -18,3 +18,18 @@ Load the ACTIVE CLIENT PROFILE for the authoritative token values, type scale, s
 
 ## Output
 Violation table: property | measured | expected token | node id | fix. Then alignment findings. PASS/FAIL per target. Numbers only.
+
+## Platform spec conformance
+Read the relevant file in `knowledge/platforms/` before measuring. Check and cite by figure:
+- **Dimensions and ratio** against the placement's recommended and minimum — a creative below minimum
+  is a BLOCKER, not a MINOR; the platform will reject or upscale it.
+- **Safe-zone intrusion.** Convert the published percentage to px for THIS canvas and measure what sits
+  inside it. On Meta vertical (9:16) that is ~14% top and ~35% bottom — on a 1440×2560 asset, 358px and
+  896px. Report any text, logo, CTA or mandated legal line inside those bands as a BLOCKER.
+- **File weight** against the placement ceiling. Ceilings differ by an order of magnitude between
+  platforms (Meta 30 MB vs Google and LinkedIn 5 MB) — an export that passes one fails another.
+- **Asset counts** where the platform requires a minimum per group.
+
+**Staleness:** if the file's `review_by` date has passed, report every figure from it as EXPIRED and
+say so in your output. Never assert an out-of-date spec as current. A stale number stated confidently
+is worse than no number, because it gets built against.

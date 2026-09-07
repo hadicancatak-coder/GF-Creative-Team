@@ -1,12 +1,20 @@
 {
   "name": "gf-creative-team",
   "description": "A seven-role creative production and review team with deterministic orchestration, failure-derived evals, and cost accounting. Client-agnostic: role definitions carry no client facts; each engagement is a profile under clients/.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Hadican Catak"
   },
   "homepage": "https://github.com/hadicancatak-coder/GF-Creative-Team",
   "repository": "https://github.com/hadicancatak-coder/GF-Creative-Team",
   "license": "MIT",
-  "keywords": ["creative", "design-review", "advertising", "quality-gate", "evals", "orchestration", "figma"]
+  "keywords": [
+    "creative",
+    "design-review",
+    "advertising",
+    "quality-gate",
+    "evals",
+    "orchestration",
+    "figma"
+  ]
 }

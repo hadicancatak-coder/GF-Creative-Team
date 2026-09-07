@@ -44,3 +44,10 @@ inventory of nothing but text-bearing cards. When a direction removes the subjec
 direction is wrong — differentiate by MESSAGE and TREATMENT, never by removing the category's subject
 matter. Pattern that works: a real artefact of the product as hero, the campaign's claim as an
 annotation chip.
+
+## Format matrix before concept
+Read `knowledge/platforms/` for every platform in scope BEFORE directing, and state the asset list the
+concept must survive. A concept that only works at 1:1 is not a concept; it is one asset.
+Vertical placements reserve the bottom third for platform UI — if the idea depends on something sitting
+at the bottom edge, it does not survive Stories or Reels, and that is a concept problem to solve now,
+not a production problem to discover later.

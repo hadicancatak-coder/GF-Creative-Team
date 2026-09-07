@@ -19,3 +19,18 @@ Load the ACTIVE CLIENT PROFILE's compliance layer EVERY time — never from memo
 
 ## Output
 Per creative: SHIP / BLOCK + numbered findings (rule | where | required change). One BLOCKER = the set does not ship. End with the region-matrix status. Surface client-decision items as decisions, not auto-fails.
+
+## Platform completeness
+Against `knowledge/platforms/`, per platform in scope:
+- **Required asset counts** met (e.g. Performance Max will not serve an asset group with fewer than
+  3 headlines, 2 descriptions, 1 landscape and 1 square image).
+- **Character limits** — flag both hard overruns AND copy written past the *recommended* figure, which
+  is where in-feed truncation begins. Legal-but-invisible copy is a defect.
+- **Dominant placement present.** A set that ships only 1:1 where the platform's own recommendation is
+  4:5 or 9:16 has forfeited the placement carrying most impressions. Name the missing ratio.
+- **Staleness:** if `review_by` has passed, the spec check is UNVERIFIED. Say so explicitly rather than
+  passing the creative on an expired figure.
+
+Where a platform publishes no fixed figure — TikTok's safe zone varies with caption length and add-ons —
+do not substitute one. Require the platform's own template for the actual caption in use, and treat a
+later copy change as invalidating the check.

@@ -25,7 +25,22 @@ Vague profiles produce vague gates.
 **Nothing about a client belongs in `agents/`.** If you are editing a role brief with a fact that is only
 true for one engagement, it goes in the profile.
 
-## 3. Gate something
+## 3. Work out what to build
+
+Before any design work:
+
+```
+/gf-creative-team:format-matrix Meta and Google, UK + DE, spring campaign
+```
+
+You get the exact asset list — ratios, pixel dimensions, safe zones, character limits, and which assets
+are reusable across platforms. Building the wrong sizes is the cheapest mistake to prevent and the most
+expensive to find late.
+
+The specs come from `knowledge/platforms/`, traced to each platform's own documentation and dated. If a
+file's `review_by` has passed, the command tells you before it tells you anything else.
+
+## 4. Gate something
 
 After any build round:
 
@@ -39,7 +54,7 @@ consolidated **SHIP / FIX-THEN-REGATE / BLOCK**. Findings come back with severit
 For a deterministic run with a schema-checked plan, call `workflows/creative-gate.js` through the
 Workflow tool instead.
 
-## 4. Turn on enforcement (optional but the point)
+## 5. Turn on enforcement (optional but the point)
 
 The bundled hooks do two things:
 - log every design-tool write to `.gates/builds.log`
@@ -50,10 +65,11 @@ The Stop hook has a human waiver hatch: write `.gates/<date>-skipped.md` naming 
 The PostToolUse matcher in `hooks/hooks.json` targets the Figma MCP write tools by default. Using a
 different design tool? Widen or replace that regex — it is the only tool-specific line in the repo.
 
-## 5. Run the evals
+## 6. Run the evals
 
-`evals/universal-cases.md` holds 23 domain-agnostic failure classes. Give an agent a case input with
-**no hint**, and check whether it raises the expected catch. Do this after any brief edit.
+`evals/universal-cases.md` holds 30 domain-agnostic failure classes with their outcomes recorded. Give
+an agent a case input with **no hint**, and check whether it raises the expected catch. Do this after any
+brief edit — a case that used to pass and now fails is a regression.
 
 ## What you need
 

@@ -35,8 +35,8 @@ ranking is the whole point of writing them down.
 
 ## Evals from failures, not from imagination
 A rule invented in advance is a guess. A rule derived from something that already cost you a client
-rejection is evidence. Every case in `evals/` was a real failure first, and each records its historical
-outcome — whether a gate caught it or a human did.
+rejection is evidence. Most cases in `evals/` were a real failure first, and each records its historical
+outcome — whether a gate caught it, a human did, or it was codified from a rule rather than a logged failure.
 
 The loop, run the same day the failure happens:
 1. the failure becomes a rule in the responsible agent's brief, and

@@ -17,8 +17,13 @@ export const meta = {
 //   constraints:   string  — OPTIONAL extra craft or compliance constraints
 // }
 
-const PICK = { type: 'object', required: ['chosenPath','reasoning'], properties: {
+// outcome is REQUIRED and chosenPath is NOT — the Art Director must be able to decline.
+// A schema that forces a path forces the team to nominate a least-bad asset, which is
+// exactly the failure law 3 (ask-the-client-first) and eval U10 exist to prevent.
+const PICK = { type: 'object', required: ['outcome','reasoning'], properties: {
+  outcome: { type: 'string', enum: ['SELECTED','ASK-CLIENT','NO-VIABLE-ASSET'] },
   chosenPath: { type: 'string' }, backupPath: { type: 'string' }, reasoning: { type: 'string' },
+  clientAsk: { type: 'string' }, rejected: { type: 'string' },
   cropNotes: { type: 'string' }, complianceFlags: { type: 'string' } } }
 
 const BUILD = { type: 'object', required: ['status','changedIds','notes'], properties: {
@@ -38,10 +43,18 @@ const pick = await agent(
   `Audit the COMPLETE inventory at: ${args.inventoryPath} (open every candidate; a pre-filtered menu is ` +
   `not an inventory). The build: ${args.task}. Target: ${args.target}. ` +
   `Selection criteria: ${args.selectionSpec}.${extra} ` +
-  `Note each rejected option in one line. If nothing in the inventory can prove the claim, say so and ` +
-  `return an ask for the client rather than nominating the least-bad option. ` +
-  `Return chosenPath (absolute), backupPath, reasoning, cropNotes, complianceFlags.`,
+  `Note each rejected option in one line under 'rejected'. ` +
+  `Set outcome: SELECTED when an asset genuinely proves the claim; ASK-CLIENT when the client could ` +
+  `supply the right asset quickly (put the exact request in clientAsk); NO-VIABLE-ASSET when neither ` +
+  `applies. Declining is a legal, expected answer — never nominate a least-bad option to fill the field.`,
   { agentType: 'art-director', schema: PICK, phase: 'Select' })
+
+if (!pick || pick.outcome !== 'SELECTED') {
+  log(`AD declined to select: ${pick ? pick.outcome : 'NO RESULT'}`)
+  return { outcome: pick ? pick.outcome : 'NO-RESULT', halted: 'Select',
+    reasoning: pick && pick.reasoning, clientAsk: pick && pick.clientAsk,
+    note: 'Chain halted before build. Asking beats composite surgery (law 3, eval U10).' }
+}
 log('AD chose: ' + pick.chosenPath)
 
 phase('Build')

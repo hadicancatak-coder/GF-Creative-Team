@@ -31,16 +31,25 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
 3. Apply BLOCKER and MAJOR fixes. Note contested findings for the human instead of acting unilaterally —
    anything touching content the client explicitly told you to keep is a decision, not a defect.
 
-4. Re-render at ≥0.5 scale and re-check the specific findings. Scope the re-gate to the failed roles only.
+4. Re-render at ≥0.5 scale and re-check the specific findings. Scope the re-gate to the failed roles
+   only, and to their own prior findings — a re-gate that opens new dimensions is a new gate.
+   Cap at 2 fix→re-gate rounds, then escalate to the human.
 
-5. Write the gate marker: `.gates/<ISO-date>-<target>.md` in the project root — verdicts, fixes applied,
-   open items. The Stop hook checks builds against these markers.
+5. **Write what the workflow returned.** `workflows/creative-gate.js` returns a `marker` object and a
+   `ledger` array but cannot write them — workflow scripts have no filesystem access and cannot read the
+   clock (pass the date in as `args.date`). So the caller writes:
+   - `marker.path` → the gate marker file, from `marker.decision`, `marker.rounds` and `marker.openItems`
+   - each `ledger` row appended to `.gates/ledger.csv`
+     (`date,agent,purpose,tokens,tool_uses,duration_ms,outcome`)
 
-6. **Log every dispatch** to `.gates/ledger.csv`
-   (`date,agent,purpose,tokens,tool_uses,duration_ms,outcome`) from the task usage stats. The Financial
-   Controller audits this ledger; unlogged spend is a defect in itself (eval U15).
+   The workflow fills `date`, `agent`, `purpose` and `outcome`. **You fill `tokens`, `tool_uses` and
+   `duration_ms` from the task usage stats** — the script cannot see them. Rows with null tokens are
+   incomplete, and the Financial Controller will report the gap rather than the cost (eval U15).
 
-7. Only now present the work.
+   Without the marker, the Stop hook blocks the session even though the gate passed. That is the hook
+   working correctly: a gate whose result was never recorded did not happen.
+
+6. Surface `contested` findings to the human as decisions. Never auto-apply them.
 
 ## Non-negotiables
 - A definition is not a gate run. Agents only work when dispatched — this skill is the dispatch.
