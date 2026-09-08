@@ -250,3 +250,17 @@ a role can be measurably right about the wrong question. Evals **U35** and **U36
 ### Added — public-repo safety
 `validate.sh` now fails on any former-client name, domain or file key. Verified clean across the working
 tree and the entire git history.
+
+## [2.1.1] — 2026-09-08
+
+### Fixed
+- **`creative-gate.js` carried the same unguarded-args bug as `create-ad.js`.** `args.targets.map()`
+  dereferences before any check, so a call missing `targets` throws instead of explaining itself. The
+  existing `date` guard only caught a bare string by luck. Now both workflows preflight their inputs,
+  name every missing field with what it is for, give an example call, and dispatch nothing until valid.
+
+### Added
+- Eval **U37** — a gate that passes but records nothing has no provable review status, and the
+  enforcement hook keeps blocking. The marker and the ledger rows *are* the pass. Workflow scripts have
+  no filesystem access, so the caller must write them; that path existed in the skill and had never once
+  been exercised.

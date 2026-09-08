@@ -53,20 +53,39 @@ const FIX_SCHEMA = {
   },
 }
 
-if (!args.date) return { decision: 'INVALID CALL — pass args.date (ISO); workflows cannot read the clock' }
+// ── Preflight ─────────────────────────────────────────────────────────────────
+// Guard before any dereference. a.targets.map() throws if targets is absent, and a
+// crash tells the caller nothing about what it should have passed.
+const a = (typeof args === 'string') ? { context: args } : (args || {})
 
-const where = args.location ? ` They live in: ${args.location}.` : ''
-const targetIds = args.targets.map(t => t.id || t.name)
+const problemsIn = []
+if (!Array.isArray(a.targets) || a.targets.length === 0)
+  problemsIn.push({ arg: 'targets', needs: 'array of { id, name, note } — what to gate' })
+if (!a.date)
+  problemsIn.push({ arg: 'date', needs: 'ISO date, e.g. "2026-09-08" — workflows cannot read the clock' })
+
+if (problemsIn.length) {
+  problemsIn.forEach(p => log(`missing arg: ${p.arg} — ${p.needs}`))
+  return {
+    decision: 'INVALID CALL — nothing dispatched', missing: problemsIn, got: a,
+    example: { targets: [{ id: '25:2', name: 'Spring_NotACyclist_UK_EN_1080x1080_v2' }],
+               date: '2026-09-08', location: 'Figma file <fileKey>, page "03 Ad Kit"',
+               context: 'master for approval, UK + DE' },
+  }
+}
+
+const where = a.location ? ` They live in: ${a.location}.` : ''
+const targetIds = a.targets.map(t => t.id || t.name)
 const ledger = []
 
 const record = (agent, purpose, outcome) =>
-  ledger.push({ date: args.date, agent, purpose, outcome, tokens: null, duration_ms: null })
+  ledger.push({ date: a.date, agent, purpose, outcome, tokens: null, duration_ms: null })
 
 // ── Plan ──────────────────────────────────────────────────────────────────────
 phase('Plan')
 const planRes = await agent(
-  `Work item: built creatives ready for gate. Targets: ${JSON.stringify(args.targets)}.${where} ` +
-  `Context: ${args.context || 'none'}. Load the ACTIVE CLIENT PROFILE first. ` +
+  `Work item: built creatives ready for gate. Targets: ${JSON.stringify(a.targets)}.${where} ` +
+  `Context: ${a.context || 'none'}. Load the ACTIVE CLIENT PROFILE first. ` +
   `Per your Orchestration authority section, output ONLY the dispatch plan. ` +
   `quality-officer MUST be in the final group — it gates final state, after other roles' fixes land. ` +
   `Every target must appear in at least one step.`,
@@ -167,7 +186,7 @@ return {
   plan,
   ledger,
   marker: {
-    path: `.gates/${args.date}-${(args.targets[0] && (args.targets[0].name || args.targets[0].id)) || 'set'}.md`,
+    path: `.gates/${a.date}-${(a.targets[0] && (a.targets[0].name || a.targets[0].id)) || 'set'}.md`,
     decision, rounds: round,
     blockers: blockers.length, majors: majors.length, minors: pick('MINOR').length,
     openItems: blockers.concat(majors),
