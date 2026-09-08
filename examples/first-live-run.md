@@ -72,8 +72,31 @@ entries were logged for a session in which no creative ever existed.
 A gate that fires on work that does not exist teaches people to waive gates. Fixed in v2.0.1: the
 matcher now covers only tools that change a design, and is anchored. Recorded as eval **U33**.
 
+## What happened next — five runs
+
+The first run halted at Select. So did the next three, each for a different and progressively more
+legitimate reason, and each exposed a defect that got fixed:
+
+| Run | Outcome | What it exposed |
+|---|---|---|
+| 1 | `ASK-CLIENT` at Select | Forged provenance — a manifest logged an illustration as a photograph |
+| 2 | `ASK-CLIENT` at Select | Both font premises in the brief were false; the AD verified rather than complied |
+| 3 | `ASK-CLIENT` at Select | The concept's subject was topologically incapable of being a subject, proved by flood-fill |
+| 4 | `ASK-CLIENT` at Select | **The copywriter built the artwork itself** — role separation was prose, not policy |
+| 5 | `ESCALATED`, **built in Figma** | The chain completed. The designer produced 8 nodes and flagged a HOLD on the canvas |
+
+Run 4 is the important one. The chain had officially halted, and a PNG appeared anyway — rendered
+locally with PIL by an agent that had no business building. A creative made outside the design tool is
+invisible to the gate, the build log and the ledger: it was a route around every safeguard here at once,
+taken by an agent trying to be helpful. Every non-designer role now lacks a write tool, and `validate.sh`
+fails if that ever changes.
+
+Run 5 produced the first artwork this system has built through its own chain. It is not gate-passed and
+the designer said so — in the file, as a HOLD notice parked outside the artboard so nobody could mistake
+it for approved.
+
 ## What is still unproven
 
-**The build step has never run.** The chain halted at asset selection and the operator stopped the run
-before the Designer dispatch. Nothing in this plugin has yet produced artwork in Figma, and this page
-will say so until it has.
+**No creative has passed a gate.** The quality-officer and the financial-controller have never been
+dispatched. No gate marker and no ledger row has ever been written. And nothing here has been run
+against a real brand.

@@ -104,12 +104,23 @@ every review role works on rendered screenshots from any source, the `designer` 
 
 ## What is proven, and what is not
 
-**Proven:** installs from this URL and runs. Seven agents produce the findings quoted above,
-unprompted. 48 eval cases, CI green, validator clean.
+**Proven, by running it.** Five orchestration runs, zero agent errors, no prompting from me:
+the workflow dispatches its own roles, finds the active client profile on its own, carries context
+between agents through schemas, and **the designer builds real nodes in Figma** with geometry verified
+by pixel measurement rather than assertion — margins and rhythm hit to the exact token, seams sampled
+across five points to confirm no discontinuity.
 
-**Not proven:** no creative has yet gone through end to end to a shipped `SHIP`. Three comps exist; the
-run is written up in [examples/first-live-run.md](examples/first-live-run.md) — including what it cost
-and the bug it found in this plugin.
+Role boundaries are enforced by tooling, not asked for: only the designer holds a write tool, and CI
+fails if that changes.
+
+**Not proven.** No creative has passed a gate. The quality-officer and financial-controller have never
+been dispatched; no gate marker and no ledger row has ever been written. And it has never been run on a
+real brand — every run so far used a fictional profile and a single house illustration.
+
+The runs are written up in [examples/first-live-run.md](examples/first-live-run.md), including what they
+cost, what they refused to do, and the bugs they found in this plugin — a copywriter that built the
+artwork itself, a command that would have spent 600k tokens on the word `undefined`, and a gate that
+fired on work that did not exist.
 
 ## Read next
 

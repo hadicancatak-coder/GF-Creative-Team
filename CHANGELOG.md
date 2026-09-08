@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] — 2026-09-08
+
+### Changed
+- **Docs updated to what five live runs actually established.** The README claimed nothing had gone
+  end-to-end; run 5 completed the chain and the designer built 8 nodes in Figma with geometry verified
+  by pixel measurement. That is now stated, alongside what remains unproven: **no creative has passed a
+  gate**, the quality-officer and financial-controller have never been dispatched, no marker or ledger
+  row exists, and nothing has been run against a real brand.
+- `examples/first-live-run.md` now records all five runs as a table — four refusals, each exposing a
+  different defect, then the completed build. Run 4 is called out specifically: the chain had halted and
+  a PNG appeared anyway, rendered locally by an agent with no business building. A creative made outside
+  the design tool is invisible to the gate, the build log and the ledger.
+
 ## [2.8.0] — 2026-09-08
 
 The fifth live run completed the chain and built in Figma. Reviewing what it built exposed four defects —
