@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] — 2026-09-08
+
+### Added
+- **`docs/METHOD.md` now carries the nine lessons from building this**, each bought by a real failure
+  during development and each mapped to its eval case: role separation must be enforced by tooling not
+  prose; escape hatches that all point at "stop" produce a team that never ships; a gate that can only
+  say "not yet" gets waived; order the chain so each role has what it needs; "verified" means nothing
+  unless verified where it matters; preflight inputs or spend real money on the word "undefined";
+  instrument what changes the artifact, not what touches the tool; speed is a correctness property;
+  make fidelity match intent.
+  The thread: **the system does what it is built to do, not what the documentation says it should.**
+- README surfaces the five sharpest of those, and the two-speed model — produce fast, review in parallel.
+
 ## [2.9.1] — 2026-09-08
 
 ### Changed

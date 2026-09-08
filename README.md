@@ -47,6 +47,18 @@ Not a pitch — verbatim output from a live run. Nothing here was prompted for.
 That is what separates seven roles from one prompt that says "you are a senior designer": they check
 each other, and they are allowed to refuse.
 
+## Two speeds
+
+```
+/create-ad  ...                    ~5 min · 2 agents · a first look
+/create-ad ... depth:"full"        ~20 min · 5 agents · work that ships
+/creative-gate ...                 the review — and this half runs in parallel
+```
+
+The production chain cannot be parallelised: concept feeds copy, copy feeds selection, selection feeds
+the build. So the only lever on wall-clock is fewer dispatches, which is a real quality trade — fast
+gives up independent asset selection and the second opinion. **Produce fast, review in parallel.**
+
 ## Why it behaves that way
 
 **Every rule in it exists because breaking it cost something first.** The eval table records its own
@@ -121,6 +133,23 @@ The runs are written up in [examples/first-live-run.md](examples/first-live-run.
 cost, what they refused to do, and the bugs they found in this plugin — a copywriter that built the
 artwork itself, a command that would have spent 600k tokens on the word `undefined`, and a gate that
 fired on work that did not exist.
+
+## Nine lessons from building it
+
+Each bought by a failure during development, each recorded as an eval case, and each more likely to
+transfer than anything in the briefs — [the full list is in METHOD.md](docs/METHOD.md):
+
+- **Role separation must be enforced by tooling, not asked for in prose.** All seven agents had
+  unrestricted tools; the copywriter rendered the artwork itself.
+- **Every escape hatch pointing at "stop" produces a team that never ships.** Three clean runs, three
+  refusals, no work.
+- **A gate that can only say "not yet" is a gate people start waiving.**
+- **"Verified" means nothing unless verified where it matters** — a font present on the machine and
+  absent from the renderer.
+- **Speed is a correctness property.** A pipeline nobody runs is worth nothing.
+
+The thread through all of them: *the system does what it is built to do, not what the documentation
+says it should.*
 
 ## Read next
 

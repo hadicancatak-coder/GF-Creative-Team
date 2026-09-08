@@ -58,6 +58,57 @@ The ratio of findings caught by humans versus by gates.
 - **Flat** → the briefs are not improving; you are adding rules that do not bind.
 - **Rising** → check for a regression; a brief edit probably removed something load-bearing.
 
+## What building this taught us
+
+Nine lessons, each bought by a failure during development, each recorded as an eval case. They are the
+part most likely to transfer to a team that has nothing to do with advertising.
+
+**1. Role separation must be enforced by tooling, not asked for in prose.**
+Seven briefs said who does what. All seven agents had unrestricted tools. The copywriter rendered the
+artwork itself with a script — not maliciously, just helpfully. A boundary that lives only in a prompt
+is a suggestion. Give the building role write access and take it from everyone else. *(U44)*
+
+**2. Every escape hatch pointing at "stop" produces a team that never ships.**
+`ASK-CLIENT`, `NO-VIABLE-ASSET`, `HOLD`, `BLOCKER` — and nothing meaning *build the best you can and
+mark what is compromised.* Three clean runs produced three refusals and no work. Refusal is for output
+that would be harmful, illegal or misleading. "Weaker than I'd like" is a reservation that travels with
+the delivered work. *(U43)*
+
+**3. A gate that can only ever say "not yet" is a gate people start waiving.**
+A missing font was never going to install, so every gate correctly returned a permanent failure. Give
+the system a terminal state for *"the work is clean and the only thing outstanding is something nobody
+here can fix."* Otherwise the honest verdict and the useless one look identical. *(U41)*
+
+**4. Order the chain so each role has what it needs to do its job well.**
+Copy ran before concept, so the copywriter invented an implicit idea and the director reverse-engineered
+one from it. The headline came out as a specification. Reordering cost nothing and changed the output.
+*(U45)*
+
+**5. "Verified" means nothing unless verified where it matters.**
+A font confirmed installed on the build machine was absent from the environment that actually renders.
+Check the thing that will do the work, not the thing that resembles it. *(U48)*
+
+**6. Preflight inputs or spend real money on the word "undefined".**
+A command sent a bare string to a workflow expecting five fields. Without a guard it would have
+dispatched five agents against undefined values — silently, with no error, at real cost. Validate before
+you dispatch and name exactly what is missing. *(U34)*
+
+**7. Instrument what changes the artifact, not what touches the tool.**
+Creating an empty file counted as a build, so the enforcement hook demanded review of work that did not
+exist. A gate that fires on phantom work teaches people to bypass gates. *(U33)*
+
+**8. Speed is a correctness property.**
+Five sequential specialists is twenty minutes for one draft. A pipeline nobody runs is worth nothing, so
+"it produces better work" is not a defence. Offer a fast path, state what it gives up, and let the
+parallelisable half — the review — carry the quality. *(U49)*
+
+**9. Make the fidelity of a thing match its intent.**
+A schematic dressed as finished work gets judged as finished work, and rightly. This applied to our own
+README diagram before it applied to anything a client saw. *(U42)*
+
+The thread through all nine: **the system will do exactly what it is built to do, not what the
+documentation says it should.** Every one of these was a gap between a stated rule and an enforced one.
+
 ## Generalizing to another domain
 Keep the skeleton — roles derived from failure modes, ground-truth files the agents must re-read, ranked
 laws, failure-derived evals, autonomous chains with a legal ESCALATE, and a financial controller on the
