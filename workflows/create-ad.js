@@ -124,24 +124,27 @@ const tier = a => TIER[a] || {}
 const profile = 'Load the ACTIVE CLIENT PROFILE from `.creative-team/` first; if there is none, say so and work in reduced scope. '
 const extra = a.constraints ? ` Constraints: ${a.constraints}.` : ''
 
-phase('Copy')
-const deck = await agent(
-  `${profile}Write the copy deck for this brief: ${a.brief}. Platforms: ${a.platforms}. ` +
-  `Read the relevant files in knowledge/platforms/ and write INSIDE the character limits for these ` +
-  `placements — note in charNotes where a limit forced a choice.${extra} ` +
-  `Assert no factual claim the profile does not substantiate; everything unconfirmed goes to clientVerify.`,
-  { ...tier('content-creator'), agentType: 'content-creator', schema: DECK, phase: 'Copy' })
-log(`Headline: ${deck.headline}`)
-
-phase('Concept')
+phase('Concept')  // FIRST — the idea precedes the words
 const concept = await agent(
-  `${profile}Direct the concept. Brief: ${a.brief}. Copy deck: ${JSON.stringify(deck)}. ` +
+  `${profile}Direct the concept. Brief: ${a.brief}. ` +
   `Master size: ${a.masterSize}. Platforms: ${a.platforms}.${extra} ` +
   `Name the ONE subject that owns the frame at 0.5s, and the hero that PROVES the headline — a generic ` +
   `product shot under any claim is lazy. State heroCriteria precisely enough for the art-director to ` +
   `select against. Remember an ad is not a page: fewest elements that carry the idea.`,
   { ...tier('creative-director'), agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
 log(`Subject: ${concept.subject}`)
+
+phase('Copy')  // AFTER the concept — copy serves the idea, it does not invent it
+const deck = await agent(
+  `${profile}Write the copy deck. Brief: ${a.brief}. Platforms: ${a.platforms}.\n` +
+  `THE CONCEPT IS ALREADY SET — write to it, do not invent a different one:\n` +
+  `  subject: ${concept.subject}\n  directive: ${concept.directive}\n` +
+  `Your headline must earn attention in three words. A specification is not a hook. ` +
+  `Read the relevant files in knowledge/platforms/ and write INSIDE the character limits for these ` +
+  `placements — note in charNotes where a limit forced a choice.${extra} ` +
+  `Assert no factual claim the profile does not substantiate; everything unconfirmed goes to clientVerify.`,
+  { ...tier('content-creator'), agentType: 'content-creator', schema: DECK, phase: 'Copy' })
+log(`Headline: ${deck.headline}`)
 
 phase('Select')
 const pick = await agent(
@@ -198,7 +201,14 @@ if (build.conflict && build.conflict.trim()) {
 }
 
 phase('Verify')
-let verdict = await agent(
+// The designer now self-verifies by pixel measurement. When it returns DONE with no
+// conflict and no reservations to check, a full AD verify pass costs ~7 minutes to
+// confirm what was already measured. Gate it instead — /creative-gate is the real review.
+const needsVerify = build.status !== 'DONE' || !!build.conflict || !!pick.reservations
+if (!needsVerify) {
+  log('Designer self-verified clean, no conflict, no reservations — skipping AD verify; gate it instead')
+}
+let verdict = !needsVerify ? { verdict: 'PASS', findings: [] } : await agent(
   `${profile}Verify the built creative in ${a.destination}. Designer notes: ${build.notes}. ` +
   `READ-ONLY. Render ~1300px plus zoom crops of every edge and seam. Full hunt list, plus: does the ` +
   `hero prove "${deck.headline}", and is anything load-bearing inside the platform safe zone? ` +

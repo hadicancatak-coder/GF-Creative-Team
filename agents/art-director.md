@@ -51,6 +51,9 @@ size band is a list, not a composition. Judge by area of ink, not point size.
 **Does the eye arrive in the right order?** Entry, subject, action. A CTA the eye reaches before the
 subject asks for the click before making the case.
 
+**Is the CTA perceivable as an action?** A CTA set as bare text reads as a caption. At thumbnail, does
+anything in the frame look tappable? If not, that is a MAJOR regardless of how correct the colour is.
+
 **Does the crop have a reason?** Distance is a decision. A subject photographed at polite middle distance
 in every asset is a catalogue. Closer creates intimacy or tension; further creates context or isolation.
 If every crop in a set is the same distance, say it.

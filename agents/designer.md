@@ -76,6 +76,25 @@ Display type is not body type made bigger.
 - **Line length**: 4–7 words per line for a headline. Longer and it stops being a headline.
 - **Break lines on meaning**, never on width. The break is punctuation — it is where the turn happens.
 
+### The CTA is a button, not a sentence
+Default to a **filled shape** — a pill or a rectangle with the CTA colour behind the label. Set as bare
+text it is indistinguishable from a caption, and a viewer who does not perceive an affordance does not
+perceive an offer. It should read as tappable at thumbnail, which means it needs an edge.
+
+If the accent colour is already spent elsewhere in the frame — a product detail carrying it, say — the
+answer is **not** to withhold the fill and leave naked text. Use the ink colour as the button fill, or
+an outline, or reverse it out. Keep the shape. Losing the affordance costs more than a third accent
+region does.
+
+### Emptiness has a ceiling
+"Composed emptiness" is a real thing and it is also the easiest excuse in design. It is composed only
+when it is **bounded by content on at least two sides** and it is doing work — separating, framing,
+directing. A band of nothing along a frame edge is not composed; it is unfilled.
+
+Hard cap: **no single empty region above ~20% of the canvas.** Past that, the composition is not using
+its space, whatever you call it in your notes. Fix it by moving the hero, enlarging the type, or
+changing layout system — not by renaming the gap.
+
 ### Colour weight
 One accent, used where you want the eye. An accent used three times is not an accent. If the product
 itself carries the accent colour, that IS one of your uses — count it, and place the deliberate accent

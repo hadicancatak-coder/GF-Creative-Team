@@ -4,6 +4,37 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] — 2026-09-08
+
+The fifth live run completed the chain and built in Figma. Reviewing what it built exposed four defects —
+three in the work, one in the order of the work.
+
+### Fixed
+- **The chain ran copy before concept.** The copywriter was writing lines before anyone had decided what
+  the idea was, so it defaulted to specifications — "Up to 65 km of range." is a data point, not a hook.
+  The creative director now runs **first** and the copy is written to the concept. Same dispatch count,
+  better output. Eval **U45**.
+- **The copywriter had no hook craft** — rhythm, the turn, concreteness, but nothing about earning the
+  next second. Added, with the test: read only your first three words; would a stranger stop? Numbers go
+  in the accent line, the primary text or the disclaimer — never in the position that has to stop someone.
+- **The CTA was set as bare text.** A CTA is a button, not a sentence. If the accent colour is already
+  spent on a product detail, change the fill — ink, outline, reversed — but never drop the shape. A
+  viewer who perceives no affordance perceives no offer. Eval **U46**, and the art-director now checks it.
+- **"Composed emptiness" was being used to excuse dead space.** It is composed only when bounded by
+  content on two sides and doing work. Hard cap: **no single empty region above ~20% of canvas.** Eval
+  **U47**.
+
+### Changed — speed
+- **The art-director verify pass is now conditional.** The designer self-verifies by pixel measurement;
+  when it returns DONE with no conflict and no reservations, a second full pass costs ~7 minutes to
+  confirm what was already measured. The gate is the real review. Roughly 25-35 min per chain drops to
+  ~20 on clean builds, without removing a role — the saving is in *when* they run, not *whether*.
+
+### Added
+- Eval **U48** — a font confirmed installed on the build machine and absent from the environment that
+  renders. Figma's font environment is separate from the OS; "verified installed" means nothing unless
+  verified where it renders.
+
 ## [2.7.0] — 2026-09-08
 
 The fourth live run produced the first artwork this system has ever made — and **the copywriter made

@@ -31,6 +31,17 @@ When briefed on a new audience, research before writing: who they are in income/
 - Localization: provide the mirrored language with matched meaning, not literal translation; note RTL and font implications.
 
 ## Craft — how a line earns its place
+**The hook comes first, and a specification is not one.** "Up to 65 km of range." is a data point. It
+tells someone who already wants the product which product to buy — it does nothing for the 99% scrolling
+past. A hook earns the next second by naming a situation the reader recognises, a tension they feel, or
+a thing they did not expect. The number can follow; it cannot lead.
+
+Test: read only your first three words. Would a stranger stop? "Up to 65 km" — no. "Coat on, hands
+full" — yes, because it is a moment, and the reader is already in it.
+
+Where the numbers go: into the accent line, the primary text, or the disclaimer — never into the
+position that has to do the stopping.
+
 **Rhythm.** Read every line aloud. Display copy is heard before it is parsed, and a line that stumbles in
 the mouth stumbles in the eye. Short-long or long-short beats two lines of equal length; two equal lines
 read as a form field.
