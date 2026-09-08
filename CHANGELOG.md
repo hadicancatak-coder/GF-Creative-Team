@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] — 2026-09-08
+
+### Changed
+- **"GF" now decodes.** The name opened with an unexplained initialism, which to a stranger is noise —
+  unsearchable and unmemorable. It is **Growth Fabric**, and the README, the plugin manifest, the
+  marketplace manifest and the GitHub description now all say so.
+
 ## [2.4.0] — 2026-09-08
 
 ### Changed

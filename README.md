@@ -5,6 +5,9 @@
 Seven roles: copywriter, creative director, art director, production designer, design analyst, quality
 officer, financial controller. You give them a brief; they give you built, checked artwork.
 
+<sub>GF is **Growth Fabric**. The team is the product; clients are configuration — role definitions carry
+no client facts, so it works for any brand you point it at.</sub>
+
 ```bash
 claude plugin marketplace add hadicancatak-coder/GF-Creative-Team
 claude plugin install gf-creative-team@gf-creative-team
