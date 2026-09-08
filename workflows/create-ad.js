@@ -47,12 +47,47 @@ const VERDICT = { type: 'object', required: ['verdict','findings'], properties: 
     properties: { severity: { type: 'string' }, where: { type: 'string' },
       issue: { type: 'string' }, fix: { type: 'string' } } } } } }
 
+// ── Preflight ─────────────────────────────────────────────────────────────────
+// Normalise: a bare string is the brief. `/create-ad give me a trading ad` sends a
+// string, not an object, and without this every prompt below reads "undefined".
+const a = (typeof args === 'string') ? { brief: args } : (args || {})
+
+const REQUIRED = [
+  ['brief',         'what the ad is for — audience, the offer, the claim to prove'],
+  ['platforms',     'e.g. "Meta Feed + Stories" or "Google PMax"'],
+  ['masterSize',    'e.g. "1080x1080" — one size first, derive the rest after approval'],
+  ['inventoryPath', 'folder or catalog holding the COMPLETE asset inventory'],
+  ['destination',   'where to build — a Figma file key, and the page'],
+]
+const missing = REQUIRED.filter(([k]) => !a[k] || String(a[k]).trim() === '')
+
+if (missing.length) {
+  missing.forEach(([k, why]) => log(`missing arg: ${k} — ${why}`))
+  return {
+    outcome: 'INVALID CALL — nothing dispatched',
+    missing: missing.map(([k, why]) => ({ arg: k, needs: why })),
+    got: a,
+    why: 'Every agent prompt is built from these. Running without them spends five dispatches ' +
+         'on the word "undefined". Nothing was dispatched and nothing was charged.',
+    example: {
+      brief: 'Spring promo for the Drift commuter e-bike. Audience 28-45 replacing a second car. ' +
+             'Claim to prove: it is not a sports object.',
+      platforms: 'Meta Feed 4:5 + Stories 9:16',
+      masterSize: '1080x1080',
+      inventoryPath: './photography/2026-approved/',
+      destination: 'Figma file <fileKey>, page "03 Ad Kit"',
+    },
+    note: 'No client profile? The chain still runs, but tokens, source law and compliance go ' +
+          'unchecked — set one up with /new-client first if this is real work.',
+  }
+}
+
 const profile = 'Load the ACTIVE CLIENT PROFILE from `.creative-team/` first; if there is none, say so and work in reduced scope. '
-const extra = args.constraints ? ` Constraints: ${args.constraints}.` : ''
+const extra = a.constraints ? ` Constraints: ${a.constraints}.` : ''
 
 phase('Copy')
 const deck = await agent(
-  `${profile}Write the copy deck for this brief: ${args.brief}. Platforms: ${args.platforms}. ` +
+  `${profile}Write the copy deck for this brief: ${a.brief}. Platforms: ${a.platforms}. ` +
   `Read the relevant files in knowledge/platforms/ and write INSIDE the character limits for these ` +
   `placements — note in charNotes where a limit forced a choice.${extra} ` +
   `Assert no factual claim the profile does not substantiate; everything unconfirmed goes to clientVerify.`,
@@ -61,8 +96,8 @@ log(`Headline: ${deck.headline}`)
 
 phase('Concept')
 const concept = await agent(
-  `${profile}Direct the concept. Brief: ${args.brief}. Copy deck: ${JSON.stringify(deck)}. ` +
-  `Master size: ${args.masterSize}. Platforms: ${args.platforms}.${extra} ` +
+  `${profile}Direct the concept. Brief: ${a.brief}. Copy deck: ${JSON.stringify(deck)}. ` +
+  `Master size: ${a.masterSize}. Platforms: ${a.platforms}.${extra} ` +
   `Name the ONE subject that owns the frame at 0.5s, and the hero that PROVES the headline — a generic ` +
   `product shot under any claim is lazy. State heroCriteria precisely enough for the art-director to ` +
   `select against. Remember an ad is not a page: fewest elements that carry the idea.`,
@@ -71,9 +106,9 @@ log(`Subject: ${concept.subject}`)
 
 phase('Select')
 const pick = await agent(
-  `${profile}Select the hero. Audit the COMPLETE inventory at: ${args.inventoryPath} — open every ` +
+  `${profile}Select the hero. Audit the COMPLETE inventory at: ${a.inventoryPath} — open every ` +
   `candidate; a shortlist someone else made is a decision already taken. Criteria: ${concept.heroCriteria}. ` +
-  `It must prove: "${deck.headline}". Target ${args.masterSize}, and it must read at small size.${extra} ` +
+  `It must prove: "${deck.headline}". Target ${a.masterSize}, and it must read at small size.${extra} ` +
   `Set outcome SELECTED only if an asset genuinely proves the claim. If the client could supply the right ` +
   `asset quickly, return ASK-CLIENT with the exact request in clientAsk. Declining is expected, not a failure.`,
   { agentType: 'art-director', schema: PICK, phase: 'Select' })
@@ -87,7 +122,7 @@ if (!pick || pick.outcome !== 'SELECTED') {
 
 phase('Build')
 const build = await agent(
-  `${profile}Build the master creative at ${args.masterSize} in: ${args.destination}. ` +
+  `${profile}Build the master creative at ${a.masterSize} in: ${a.destination}. ` +
   `Directive: ${concept.directive}. Copy: ${JSON.stringify(deck)}. Hero: ${pick.chosenPath} ` +
   `(crop notes: ${pick.cropNotes || 'none'}).${extra} ` +
   `Follow your "Building from zero" order: artboard from the format matrix, frame and margins, ` +
@@ -100,7 +135,7 @@ if (!build || build.status === 'ESCALATE') return { outcome: 'ESCALATED', deck, 
 
 phase('Verify')
 let verdict = await agent(
-  `${profile}Verify the built creative in ${args.destination}. Designer notes: ${build.notes}. ` +
+  `${profile}Verify the built creative in ${a.destination}. Designer notes: ${build.notes}. ` +
   `READ-ONLY. Render ~1300px plus zoom crops of every edge and seam. Full hunt list, plus: does the ` +
   `hero prove "${deck.headline}", and is anything load-bearing inside the platform safe zone? ` +
   `Judge at full size AND at squint. Findings with px fixes. PASS/FAIL.`,
@@ -108,12 +143,12 @@ let verdict = await agent(
 
 if (verdict && verdict.verdict === 'FAIL') {
   const fix = await agent(
-    `${profile}Fix round (FINAL — 2-strike applies) on ${args.destination}. ` +
+    `${profile}Fix round (FINAL — 2-strike applies) on ${a.destination}. ` +
     `Apply exactly: ${JSON.stringify(verdict.findings)}. Self-verify. ESCALATE if it cannot be clean.`,
     { agentType: 'designer', schema: BUILD, phase: 'Verify', label: 'designer-fix' })
   if (!fix || fix.status === 'ESCALATE') return { outcome: 'ESCALATED-AFTER-VERIFY', deck, concept, pick, verdict, fix }
   verdict = await agent(
-    `${profile}Final re-verify of ${args.destination} after: ${fix.notes}. Scoped to the prior findings only. PASS/FAIL.`,
+    `${profile}Final re-verify of ${a.destination} after: ${fix.notes}. Scoped to the prior findings only. PASS/FAIL.`,
     { agentType: 'art-director', schema: VERDICT, phase: 'Verify', label: 'ad-reverify' })
 }
 

@@ -193,3 +193,24 @@ First live run of the chain. It found a bug in this plugin, so the run is docume
   (`claude plugin marketplace add …`), the slash-command alternative clearly labelled as in-Claude only,
   a `claude plugin list` verification step, and the Figma MCP requirement stated at install time rather
   than further down the page.
+
+## [2.0.3] — 2026-09-08
+
+Found by the first real invocation of `/create-ad` by a user rather than a hand-driven test.
+
+### Fixed
+- **`create-ad.js` dispatched on invalid input.** The workflow reads five fields off `args`, and the
+  command form sends a bare string. `args.brief` was `undefined`, so every one of the five agent prompts
+  would have been built around the word "undefined" — roughly 600k tokens spent producing nonsense, with
+  no error. There was no guard of any kind.
+  Now: a bare string is normalised to the brief, and a preflight names every missing field with what it
+  is for and an example call. **Nothing is dispatched until the inputs are valid.** Recorded as U34.
+- `/create-ad` now gathers the five inputs up front and tells the user to stop and ask when given only a
+  sentence, instead of guessing.
+
+### Known, not fixed
+- The role briefs carry **74 prohibitions and 1 composition rule** between them. No agent is taught how
+  to make something good — only how to avoid being wrong. This is why a built creative is correct and
+  boring, and it is the next thing to fix.
+- The art-director and designer can disagree with no route to a ruling. The creative-director owns that
+  authority in its brief; nothing calls it.

@@ -43,6 +43,7 @@ difference between evidence and policy.
 | U31 | An agent works from a client profile remembered from earlier in the session, or from a previous client, without re-reading it | A remembered profile is a fabricated one — resolve `.creative-team/active` every run, or declare reduced scope | all roles | Codified from the state model |
 | U32 | A gate runs with no client profile loaded and reports SHIP | No compliance layer means UNVERIFIED, never SHIP. A reduced-scope gate presented as a full one is worse than no gate | quality-officer | Codified from the state model |
 | U33 | A tool that creates an empty container (a blank file, an upload with nothing placed) is counted as a build, so the gate demands review of work that does not exist | Instrument what CHANGES the artifact, not what touches the tool. A false gate teaches people to waive gates | orchestration engine | CAUGHT in the first live run — creating an empty Figma file blocked the session with nothing to review |
+| U34 | A chain is invoked with incomplete inputs and dispatches anyway, building every agent prompt around undefined values | Preflight the inputs. Dispatch nothing until they are valid, and name exactly what is missing — a run that spends real money producing nonsense is worse than a refusal | orchestration engine | CAUGHT on the first real command invocation — a bare string brief would have run five agents on "undefined" |
 
 ## Scoring
 A team revision passes when every case is caught by the named agent without hints. A case that used to

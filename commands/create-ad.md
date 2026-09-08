@@ -6,6 +6,23 @@ Create ad creative for: $ARGUMENTS
 
 This is the full chain. Use it when there is a brief and no artwork yet.
 
+## Gather the inputs FIRST — before dispatching anyone
+
+The chain needs five things. A one-line brief is not enough, and running without them spends five
+agent dispatches on the word "undefined". Ask for whatever is missing:
+
+| | |
+|---|---|
+| **brief** | audience, the offer, and the claim the creative must prove |
+| **platforms** | e.g. "Meta Feed 4:5 + Stories 9:16" |
+| **masterSize** | one size first — derive the rest only after it is approved |
+| **inventoryPath** | the folder holding the COMPLETE asset inventory |
+| **destination** | the Figma file key and page to build into |
+
+If the user gave you only a sentence — "give me a trading ad for Meta" — **stop and ask.** Name the
+gaps in one message rather than guessing, and say plainly that without assets there is nothing to
+build from and without a profile the brand tokens and compliance go unchecked.
+
 ## Before anything
 1. Resolve the active client profile (`.creative-team/active`). No profile? Say so — you can still build,
    but tokens, source law and compliance will be unchecked, and say that up front.
