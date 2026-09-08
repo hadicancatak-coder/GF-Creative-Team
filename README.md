@@ -90,10 +90,14 @@ thing you judge. Sourced and dated in [`knowledge/platforms/meta.md`](knowledge/
 
 | | |
 |---|---|
-| **`/create-ad`** | Brief to built artwork. Copy → concept → asset selection → build in Figma → verify. |
-| `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. |
+| **`/create-ad`** | Brief to built artwork. **Concept → copy → asset → build in Figma.** ~5 min on the default fast path; `depth:"full"` runs the five-role chain with independent selection and a verify pass. |
+| `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. **Its roles fan out in parallel**, so reviewing four costs about the wall-clock of one. |
 | `/format-matrix` | What to build for these platforms. **Works with no setup at all.** |
 | `/new-client` · `/use-client` | Scaffold and switch client profiles. |
+
+The order matters: **concept comes before copy.** Written the other way round, the copywriter invents an
+implicit idea and the headline comes out as a specification rather than a hook — that was a real defect,
+and it is eval U45.
 
 ## The roles
 
@@ -116,7 +120,7 @@ every review role works on rendered screenshots from any source, the `designer` 
 
 ## What is proven, and what is not
 
-**Proven, by running it.** Five orchestration runs, zero agent errors, no prompting from me:
+**Proven, by running it.** Six orchestration runs, zero agent errors, no prompting from me:
 the workflow dispatches its own roles, finds the active client profile on its own, carries context
 between agents through schemas, and **the designer builds real nodes in Figma** with geometry verified
 by pixel measurement rather than assertion — margins and rhythm hit to the exact token, seams sampled

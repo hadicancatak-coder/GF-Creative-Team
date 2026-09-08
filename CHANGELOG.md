@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.1] — 2026-09-08
+
+### Fixed
+- **The README's commands table still described the old `Copy → concept` order** — the exact defect
+  v2.8.0 fixed in the workflow. The docs were contradicting the code on the one thing that had just been
+  corrected. Now states `Concept → copy` with a note on why the order matters (eval U45), and carries
+  the two speeds: ~5 min fast by default, `depth:"full"` for the five-role chain.
+- The gate row now says its roles **fan out in parallel** — the reason "produce fast, review properly"
+  works at all.
+- Run count corrected to six.
+
 ## [2.10.0] — 2026-09-08
 
 ### Added
