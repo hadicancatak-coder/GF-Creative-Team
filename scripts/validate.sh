@@ -68,6 +68,15 @@ for f in knowledge/platforms/*.md; do
   grep -q 'https\?://' "$f" || err "$f cites no source URLs"
 done
 
+head_ "changelog"
+TOPV=$(grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | head -1 | tr -d '#[] ')
+PJV=$(python3 -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])" 2>/dev/null)
+if [ "$TOPV" = "$PJV" ]; then
+  ok "CHANGELOG newest-first and matches plugin.json ($PJV)"
+else
+  err "CHANGELOG top entry is $TOPV but plugin.json is $PJV — entries must be newest-first and current"
+fi
+
 head_ "claim cross-check"
 CASES=$(grep -c '^| U' evals/universal-cases.md)
 if grep -qE "$CASES (eval )?cases" README.md; then
