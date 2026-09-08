@@ -101,6 +101,18 @@ for f in $(find . -name '*.md' -not -path './.git/*' | sort); do
 done
 
 head_ "hygiene"
+# Real-client leakage. This repo is public: no former client's name, domain, file key or
+# personal path may ever appear. Extend CLIENT_PAT when you take on a named engagement.
+CLIENT_PAT='cfi[^a-z]|cfifinancial|cfi\.trade|MbsNhfIq'
+if grep -rliE "$CLIENT_PAT" --include='*.md' --include='*.js' --include='*.sh' --include='*.json' \
+     --exclude='validate.sh' . 2>/dev/null | grep -q .; then
+  grep -rliE "$CLIENT_PAT" --include='*.md' --include='*.js' --include='*.json' \
+    --exclude='validate.sh' . 2>/dev/null | while read -r f; do echo "       $f"; done
+  err "real-client reference found — this repo is public"
+else
+  ok "no real-client references"
+fi
+
 if grep -rlE '/Users/|/home/[a-z]' --include='*.md' --include='*.js' --include='*.sh' --include='*.json' \
      --exclude='validate.sh' . 2>/dev/null | grep -q .; then
   grep -rlE '/Users/|/home/[a-z]' --include='*.md' --include='*.js' --include='*.sh' --include='*.json' \

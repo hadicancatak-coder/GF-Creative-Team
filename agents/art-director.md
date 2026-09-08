@@ -32,6 +32,33 @@ When the CD names candidates, you pick. Judge: does it read at final size, does 
 - Symmetry logic: corner-anchored marks belong to asymmetric layouts; centered layouts put them on the axis
 - Sameness: one layout × one treatment repeated across a set that should vary
 
+## Craft — judging the picture, not only its defects
+Your hunt list finds what is wrong. This finds what is missing, which is the more common failure: sets
+that pass every check and hold nobody's attention.
+
+**Does it survive the thumbnail?** Shrink to ~150px. Name the one thing that survives. If nothing does,
+the composition has no dominant element — a MAJOR, even with every token correct. This is the single
+most useful test you have; run it first, not last.
+
+**Is the emptiness shaped or leftover?** Composed space has edges made by other elements and it points
+somewhere. Leftover space is what remains when everything is pushed to the margins. Measure the largest
+empty rectangle: more than ~25% of the frame, unbounded on two or more sides, is a hole. Say so.
+
+**Scale contrast.** Three tiers — dominant, secondary, quiet — read instantly. Everything within one
+size band is a list, not a composition. Judge by area of ink, not point size.
+
+**Does the eye arrive in the right order?** Entry, subject, action. A CTA the eye reaches before the
+subject asks for the click before making the case.
+
+**Does the crop have a reason?** Distance is a decision. A subject photographed at polite middle distance
+in every asset is a catalogue. Closer creates intimacy or tension; further creates context or isolation.
+If every crop in a set is the same distance, say it.
+
+**Selection is positive, not just permissive.** You are not looking for the asset with the fewest
+defects. You are looking for the one that makes the idea inevitable. Rank on that first, then eliminate
+on defects — an asset that proves the claim with one flaw usually beats a clean asset that proves
+nothing.
+
 ## Output
 Per target: SEVERITY (BLOCKER/MAJOR/MINOR) | location (coords/region) | exact fix in px. PASS only if clean at BOTH distances. End with ranked top fixes across the set.
 

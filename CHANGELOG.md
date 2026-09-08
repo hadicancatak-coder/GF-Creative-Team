@@ -214,3 +214,39 @@ Found by the first real invocation of `/create-ad` by a user rather than a hand-
   boring, and it is the next thing to fix.
 - The art-director and designer can disagree with no route to a ruling. The creative-director owns that
   authority in its brief; nothing calls it.
+
+## [2.1.0] — 2026-09-08
+
+The first built creative was correct and boring. The cause was measurable: across the seven briefs there
+were **74 prohibitions and 1 composition rule**. No role had ever been taught how to make something
+good — only how to avoid being wrong.
+
+### Added — craft
+Every role that *makes* something now carries generative guidance alongside its prohibitions.
+
+- **designer** — layout systems to choose from and commit to (hero-dominant, type-dominant, split,
+  full-bleed editorial, framed); weight distribution, with the rule that an empty rectangle over ~25% of
+  the canvas and unbounded on two sides is a hole rather than composed space; the eye path
+  (entry → subject → action); scale contrast in tiers, judged by area of ink; optical over mathematical
+  alignment; display-type craft (tracking tightens with size, line height compresses, break on meaning);
+  colour weight when the product itself carries the accent. Plus five questions to answer before returning.
+- **creative-director** — finding the tension, the turn, leaving the viewer one unit of work,
+  specificity over scale, directing treatment rather than a parts list.
+- **art-director** — the thumbnail test first rather than last, shaped vs leftover emptiness, scale
+  contrast, eye order, whether the crop has a reason, and selecting for the asset that makes the idea
+  inevitable rather than the one with fewest defects.
+- **content-creator** — rhythm read aloud, the turn, concrete over abstract, cutting the warm-up line,
+  verbs over adjectives, writing to the real type band, leaving one thing unsaid.
+
+The quality-officer and financial-controller stay prohibition-led on purpose; a compliance gate and a
+cost auditor are meant to be.
+
+### Added — conflicts now resolve
+The designer's output carries a structured `conflict` field. When set, the engine routes it to the
+creative-director for an explicit ruling *before* verification, and the ruling is carried into the
+art-director's check. The CD's brief now states it rules on the objective rather than the measurement —
+a role can be measurably right about the wrong question. Evals **U35** and **U36**.
+
+### Added — public-repo safety
+`validate.sh` now fails on any former-client name, domain or file key. Verified clean across the working
+tree and the entire git history.

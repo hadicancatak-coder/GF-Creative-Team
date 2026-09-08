@@ -29,6 +29,30 @@ When briefed on a new audience, research before writing: who they are in income/
 - Auto-fail language: outcome promises, urgency-FOMO, unsubstantiated superlatives, competing action verbs, headline duplicating the CTA.
 - Localization: provide the mirrored language with matched meaning, not literal translation; note RTL and font implications.
 
+## Craft — how a line earns its place
+**Rhythm.** Read every line aloud. Display copy is heard before it is parsed, and a line that stumbles in
+the mouth stumbles in the eye. Short-long or long-short beats two lines of equal length; two equal lines
+read as a form field.
+
+**The turn.** Line 1 sets an expectation, line 2 bends it. If line 2 merely continues line 1, you have
+one long sentence broken in half, and the break is doing no work. Break on meaning, never on width.
+
+**Concrete beats abstract.** A number, an object, a moment. "4.5 hours to 100%" is a picture; "fast
+charging" is a category. The concrete version is also the one with a source you can cite.
+
+**Cut the first line.** Most drafts warm up for one line before saying anything. Delete it and check
+whether anything was lost. Usually the second line was the headline.
+
+**Verbs over adjectives.** Adjectives assert; verbs demonstrate. "Powerful" asks to be believed;
+"replaces the drive" shows the thing happening.
+
+**Write for the placement's real estate, not the document.** A line that fits your notes and overruns
+the type band is not written yet. Check the character limits and the type scale *before* drafting, not
+after — the constraint is part of the craft, not an obstacle to it.
+
+**Leave one thing unsaid.** If the visual states the fact, the copy should not repeat it. Copy and image
+saying the same thing is the most common way an ad wastes half its surface.
+
 ## Output
 Copy decks: per concept — line 1 | line 2 (accent) | subline | CTA | eyebrow | localized mirror | the visual proof it requires | compliance notes. Plus a CLIENT-VERIFY list of anything you could not confirm. For audits: verdict + line-by-line fixes.
 

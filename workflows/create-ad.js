@@ -39,7 +39,15 @@ const PICK = { type: 'object', required: ['outcome','reasoning'], properties: {
 
 const BUILD = { type: 'object', required: ['status','changedIds','notes'], properties: {
   status: { type: 'string', enum: ['DONE','ESCALATE'] },
-  changedIds: { type: 'array', items: { type: 'string' } }, notes: { type: 'string' } } }
+  changedIds: { type: 'array', items: { type: 'string' } }, notes: { type: 'string' },
+  // A disagreement with the art-director is structured, not buried in prose — the engine
+  // routes it to the creative-director for a ruling instead of letting it ship unresolved.
+  conflict: { type: 'string' }, layoutSystem: { type: 'string' } } }
+
+const RULING = { type: 'object', required: ['ruling','rationale'], properties: {
+  ruling: { type: 'string' },        // what is to happen, concretely
+  rationale: { type: 'string' },     // which role's reasoning is set aside, and why
+  setAside: { type: 'string' } } }
 
 const VERDICT = { type: 'object', required: ['verdict','findings'], properties: {
   verdict: { type: 'string', enum: ['PASS','FAIL'] },
@@ -128,10 +136,29 @@ const build = await agent(
   `Follow your "Building from zero" order: artboard from the format matrix, frame and margins, ` +
   `safe-zone guides converted to px from knowledge/platforms/ BEFORE placing anything, then hero by ` +
   `measured ratio, then type from the profile's scale, then the mandated legal line to spec. ` +
-  `Tokens only — a value not in the profile is a question, not a choice. Self-verify at zoom before ` +
-  `returning. ESCALATE rather than invent or guess.`,
+  `Tokens only — a value not in the profile is a question, not a choice. ` +
+  `Apply your Craft section: choose a layout system and name it in layoutSystem, decide the eye path, ` +
+  `and make sure your largest empty area is shaped rather than leftover. ` +
+  `If you disagree with the art-director's direction, put it in the conflict field — do not decide silently. ` +
+  `Self-verify at zoom before returning. ESCALATE rather than invent or guess.`,
   { agentType: 'designer', schema: BUILD, phase: 'Build' })
 if (!build || build.status === 'ESCALATE') return { outcome: 'ESCALATED', deck, concept, pick, build }
+
+// A flagged disagreement goes to the creative-director, who owns the tiebreak.
+let ruling = null
+if (build.conflict && build.conflict.trim()) {
+  phase('Build')
+  log('Conflict raised — routing to the creative-director for a ruling')
+  ruling = await agent(
+    `${profile}The designer and the art-director disagree on this build and the designer escalated ` +
+    `rather than deciding. Rule on it — you own the tiebreak.\n\nCONFLICT: ${build.conflict}\n` +
+    `Layout system the designer chose: ${build.layoutSystem || 'not stated'}\n` +
+    `Build notes: ${build.notes}\nTarget: ${a.destination}. Directive was: ${concept.directive}\n\n` +
+    `Rule on the OBJECTIVE, not the measurement — a role can be measurably right about the wrong ` +
+    `question. Say concretely what should happen, and name whose reasoning you are setting aside.`,
+    { agentType: 'creative-director', schema: RULING, phase: 'Build', label: 'cd-ruling' })
+  if (ruling) log(`CD ruling: ${ruling.ruling}`)
+}
 
 phase('Verify')
 let verdict = await agent(
@@ -158,6 +185,8 @@ return {
   hero: { path: pick.chosenPath, why: pick.reasoning, flags: pick.complianceFlags },
   built: build.changedIds,
   findings: verdict ? verdict.findings : [],
+  ruling,
+  layoutSystem: build.layoutSystem,
   clientVerify: deck.clientVerify,
   next: 'Master only. Run /creative-gate before showing it, and derive the other sizes only after it passes.',
 }

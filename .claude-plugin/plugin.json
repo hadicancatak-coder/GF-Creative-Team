@@ -1,7 +1,7 @@
 {
   "name": "gf-creative-team",
   "description": "Seven agents that design ad creative in Figma with Claude — copy, concept, art direction, production, measurement, compliance and cost — and review it before anyone sees it.",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "author": {
     "name": "Hadican Catak"
   },
