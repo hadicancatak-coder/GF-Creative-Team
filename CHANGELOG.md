@@ -4,6 +4,32 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] — 2026-09-08
+
+The fourth live run produced the first artwork this system has ever made — and **the copywriter made
+it.** It wrote Python, rendered a 1440x1800 PNG to a local directory, and reported the build in a field
+meant for a copy deck. The designer never ran. The art director still returned ASK-CLIENT, so the chain
+had officially halted before the file existed.
+
+### Fixed
+- **Role separation was prose, not policy.** All seven agents had unrestricted tools; the boundaries
+  lived only in the briefs, and a brief does not bind. Every non-designer role now carries a `tools:`
+  restriction and **none of them can Write or Edit**. The designer is the only role that may produce an
+  artifact.
+- Bash goes only to the roles whose work is genuinely computational — art-director, design-analyst,
+  financial-controller — with explicit brief language that it is **for measuring, not making**, and that
+  analysis files belong in scratch while the creative belongs in the design tool.
+- `validate.sh` now **fails** if any non-designer role holds a write tool, or has no restriction at all.
+
+### Why it matters beyond one bug
+A creative built outside the design tool is invisible to the gate, the build log and the ledger. The
+`PostToolUse` hook watches design-tool writes; a PNG rendered by PIL leaves no trace. So this was not
+just a role violation — it was a route around every safeguard in the system, taken by an agent that was
+only trying to be helpful.
+
+### Added
+- Eval **U44**.
+
 ## [2.6.0] — 2026-09-08
 
 ### Added

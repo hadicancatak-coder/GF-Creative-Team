@@ -50,7 +50,7 @@ each other, and they are allowed to refuse.
 ## Why it behaves that way
 
 **Every rule in it exists because breaking it cost something first.** The eval table records its own
-history — 43 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
+history — 44 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
 
 **Twelve are marked MISSED.** A human found those, the gates did not. `MISSED — client deleted the
 work` is a row in this repo. So is `MISSED — client caught after ~500k tokens`. Eleven more were found
@@ -105,7 +105,7 @@ every review role works on rendered screenshots from any source, the `designer` 
 ## What is proven, and what is not
 
 **Proven:** installs from this URL and runs. Seven agents produce the findings quoted above,
-unprompted. 43 eval cases, CI green, validator clean.
+unprompted. 44 eval cases, CI green, validator clean.
 
 **Not proven:** no creative has yet gone through end to end to a shipped `SHIP`. Three comps exist; the
 run is written up in [examples/first-live-run.md](examples/first-live-run.md) — including what it cost

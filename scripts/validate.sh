@@ -41,6 +41,24 @@ for f in commands/*.md; do
     && ok "$f" || err "$f missing --- / description:"
 done
 
+head_ "role boundaries"
+for f in agents/*.md; do
+  n=$(basename "$f" .md)
+  line=$(grep -m1 '^tools:' "$f" || true)
+  if [ "$n" = "designer" ]; then
+    [ -z "$line" ] && ok "designer unrestricted (the only builder)" \
+      || err "designer should be unrestricted — it is the only role that builds"
+  else
+    if [ -z "$line" ]; then
+      err "$n has no tools: restriction — every non-designer role must be unable to build"
+    elif echo "$line" | grep -qE 'Write|Edit|NotebookEdit'; then
+      err "$n holds a write tool — only the designer may produce an artifact"
+    else
+      ok "$n cannot build"
+    fi
+  fi
+done
+
 head_ "agent registry"
 # every agentType referenced by a workflow must exist as an agent file
 for a in $(grep -ohE "agentType: '[a-z-]+'" workflows/*.js | sed "s/.*'\(.*\)'/\1/" | sort -u); do
