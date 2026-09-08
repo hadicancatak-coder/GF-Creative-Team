@@ -69,10 +69,31 @@ whether this is worth installing.
 
 ## Install
 
+**From your terminal:**
+
 ```bash
+claude plugin marketplace add hadicancatak-coder/GF-Creative-Team
+claude plugin install gf-creative-team@gf-creative-team
+```
+
+**Or from inside Claude Code**, type these as slash commands (not in a shell):
+
+```
 /plugin marketplace add hadicancatak-coder/GF-Creative-Team
 /plugin install gf-creative-team
 ```
+
+Check it landed:
+
+```bash
+claude plugin list
+```
+
+You should see `gf-creative-team@gf-creative-team` · enabled. Restart Claude Code, and `/help` will list
+the five commands below.
+
+**You also need the Figma MCP connected** for anything that builds or edits artwork. The review roles
+work on rendered screenshots from any source; the `designer` role does not.
 
 Then: **[Quickstart](docs/QUICKSTART.md)** · **[The team](docs/THE-TEAM.md)** · **[The method](docs/METHOD.md)**
 

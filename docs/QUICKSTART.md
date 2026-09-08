@@ -2,15 +2,25 @@
 
 ## 1. Install
 
+From your terminal:
+
 ```bash
-/plugin marketplace add hadicancatak-coder/GF-Creative-Team
-/plugin install gf-creative-team
+claude plugin marketplace add hadicancatak-coder/GF-Creative-Team
+claude plugin install gf-creative-team@gf-creative-team
 ```
 
-Or clone it and point Claude Code at the directory as a local marketplace.
+Or, **inside Claude Code**, as slash commands (these do not work in a shell):
+`/plugin marketplace add hadicancatak-coder/GF-Creative-Team` then `/plugin install gf-creative-team`.
 
-Verify: `/help` should list `/gf-creative-team:creative-gate` and `/gf-creative-team:new-client`,
-and the seven agents should appear in your agent list.
+Working on the plugin itself? Point it at a local directory:
+`claude plugin marketplace add /path/to/GF-Creative-Team`
+
+Verify with `claude plugin list` — you want `gf-creative-team@gf-creative-team` · enabled. Restart
+Claude Code, then `/help` should list all five `/gf-creative-team:*` commands and the seven agents
+should appear in your agent list.
+
+**Figma MCP** must be connected for anything that builds artwork. Review roles work on screenshots
+from any source; the `designer` role does not.
 
 ## 2. Create a client profile (optional — see "Running without a profile" below)
 

@@ -183,3 +183,13 @@ First live run of the chain. It found a bug in this plugin, so the run is docume
   findings; the art-director returned `NO-VIABLE-ASSET` and refused to select a hero, proving the
   v2.0.0 escalation fix. It states plainly that the build step remains unproven.
 - Eval U33.
+
+## [2.0.2] — 2026-09-08
+
+### Fixed
+- **The install instructions did not work in a terminal.** The README showed `/plugin marketplace add …`
+  in a ```bash fence — but those are in-Claude slash commands, so anyone pasting them into a shell got
+  `command not found`. Both README and Quickstart now give the real terminal commands
+  (`claude plugin marketplace add …`), the slash-command alternative clearly labelled as in-Claude only,
+  a `claude plugin list` verification step, and the Figma MCP requirement stated at install time rather
+  than further down the page.
