@@ -6,10 +6,15 @@ Create ad creative for: $ARGUMENTS
 
 **Two speeds. Fast is the default.**
 
-| Depth | Dispatches | Time | Use it when |
+| Depth | Dispatches | Target | Use it when |
 |---|---|---|---|
-| **`fast`** (default) | 2 | ~6–9 min | You want to see an idea. CD does concept + copy; designer selects + builds. |
-| `full` | 5 | ~20–30 min | The work is shipping. Independent asset selection and a verify pass before anyone sees it. |
+| **`fast`** (default) | 2 | **~5 min** | You want to see an idea. CD does concept + copy; designer selects + builds. |
+| `full` | 5 | ~20–30 min | The work is shipping. Independent selection and a verify pass first. |
+
+Fast gets to five minutes by spending less on every axis: sonnet at medium effort, a named-files-only
+reading rule, a single verification render instead of a zoom sweep, and hard brevity. **You lose depth
+of judgement, forensic asset inspection and the second opinion** — that is the deal, and it is why the
+gate exists.
 
 Fast trades the art-director's independent selection and the pre-build verify for speed. **The gate is
 where quality comes back** — run `/creative-gate` on the result; its roles fan out in parallel, so

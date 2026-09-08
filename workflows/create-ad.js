@@ -137,39 +137,53 @@ const BREVITY = ' Be brief: decisions, not deliberation. No preamble.'
 //   full — 5 dispatches, ~20-30 min. Independent selection and a verify pass before
 //     anyone sees it. For work that ships, not for a first look.
 const DEPTH = (a.depth || 'fast').toLowerCase()
+
+// Fast mode is tuned for a ~5 minute wall-clock, and every lever is a trade:
+//   sonnet + medium effort   — faster inference than the top tier
+//   surgical file reading    — named files only, no exploring
+//   one verification render  — not the designer's usual zoom sweep
+//   hard brevity             — the 3,000-word returns were pure latency
+// What you lose: depth of judgement, forensic asset inspection, and the second
+// opinion. Use depth:'full' when the work ships.
+const FAST_TIER = { model: 'sonnet', effort: 'medium' }
+const SURGICAL =
+  '\nREAD ONLY: .creative-team/active, then that profile\'s client.md and compliance.md, and the ' +
+  'MANIFEST in the inventory folder. Do not explore the tree, do not read evals, do not re-read files ' +
+  'you have already opened. Every extra tool call is time the person waiting does not have.'
 const BRIEF_RULE =
-  ' Be brief. Return the decisions, not the deliberation — a short, complete answer beats a long one, ' +
-  'and every extra paragraph is time the person waiting does not have. No preamble, no restating the brief.'
+  '\nBE BRIEF. Return decisions, not deliberation. No preamble, no restating the brief, no options you ' +
+  'rejected. A short complete answer beats a long one.'
 
 if (DEPTH === 'fast') {
   phase('Concept')
   const plan = await agent(
     `${profile}Direct AND write this creative in one pass. Brief: ${a.brief}. ` +
-    `Platforms: ${a.platforms}. Master: ${a.masterSize}.${extra}\n` +
+    `Platforms: ${a.platforms}. Master: ${a.masterSize}.${extra}` + SURGICAL + `\n` +
     `Give: the ONE subject that owns the frame at 0.5s; a two-line headline whose first three words ` +
-    `would stop a stranger (a specification is not a hook); the CTA from approved vocabulary; and a ` +
-    `directive precise enough to build from without guessing — layout system, where the hero sits, ` +
-    `where the eye enters and rests.${BRIEF_RULE}`,
-    { ...tier('creative-director'), agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
-  if (!plan) return { outcome: 'NO-RESULT', halted: 'Concept' }
+    `would stop a stranger (a specification is not a hook); a CTA from the approved vocabulary; and a ` +
+    `directive precise enough to build from — layout system, where the hero sits, where the eye enters ` +
+    `and rests.` + BRIEF_RULE,
+    { ...FAST_TIER, agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
+  if (!plan) return { outcome: 'NO-RESULT', halted: 'Concept', depth: 'fast' }
   log(`Subject: ${plan.subject}`)
 
   phase('Build')
   const b = await agent(
-    `${profile}Select the hero from ${a.inventoryPath} and BUILD it, in one pass. ` +
-    `Directive: ${plan.directive}. Subject: ${plan.subject}. Target: ${a.destination}, ${a.masterSize}.${extra}\n` +
-    `Open the inventory and pick the asset that best proves the idea — an imperfect asset is expected; ` +
-    `note the compromises and build anyway. Then build: artboard, margins, safe-zone guides in px, hero ` +
-    `by measured ratio, type from the profile scale, CTA as a BUTTON with a fill. Tokens only. ` +
-    `Verify your own work by measurement before returning.${BRIEF_RULE}`,
-    { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Build' })
+    `${profile}Select the hero and BUILD it, one pass. Directive: ${plan.directive}. ` +
+    `Subject: ${plan.subject}. Inventory: ${a.inventoryPath}. Target: ${a.destination}, ${a.masterSize}.${extra}` +
+    SURGICAL + `\nPick the asset that best proves the idea — imperfect is expected, note it and build. ` +
+    `Then build: artboard, margins, hero by measured ratio, type from the profile scale, CTA as a ` +
+    `BUTTON with a fill. Tokens only, integer coordinates, cite sources in layer names.\n` +
+    `VERIFY ONCE: a single full-size render to confirm nothing collides or clips. Do not zoom-sweep ` +
+    `every region — the gate does that.` + BRIEF_RULE,
+    { ...FAST_TIER, agentType: 'designer', schema: BUILD, phase: 'Build' })
 
   return {
-    outcome: b && b.status === 'DONE' ? 'BUILT (fast path — ungated)' : 'ESCALATED',
-    depth: 'fast', concept: plan, built: b && b.changedIds, layoutSystem: b && b.layoutSystem,
-    notes: b && b.notes, conflict: b && b.conflict,
-    next: 'Ungated. Run /creative-gate on it — that is where the review roles come in, and they run ' +
-          'in parallel. Use depth:"full" when the work is shipping rather than being looked at.',
+    outcome: b && b.status === 'DONE' ? 'BUILT (fast — ungated)' : 'ESCALATED',
+    depth: 'fast', concept: plan, built: b && b.changedIds,
+    layoutSystem: b && b.layoutSystem, notes: b && b.notes, conflict: b && b.conflict,
+    next: 'Ungated, and built at reduced depth. Run /creative-gate — its roles fan out in parallel, so ' +
+          'the review is the cheap half. Use depth:"full" when the work ships.',
   }
 }
 

@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.1] — 2026-09-08
+
+### Changed
+- **Fast path retuned from ~6–9 min to a ~5 min target.** Two dispatches was not enough on its own;
+  each was still 5–7 minutes. Cut on four axes at once, because no single one gets there:
+  - **sonnet at medium effort** — top-tier inference was the largest single cost
+  - **surgical reading** — name the files, forbid exploring. Agents were re-reading the tree every run
+  - **one verification render** instead of the designer's zoom sweep — the gate does that job
+  - **hard brevity** — decisions, not deliberation; the long returns were pure latency
+- The trade is stated in the command and the workflow README: fast loses depth of judgement, forensic
+  asset inspection and the second opinion. That is what the gate is for.
+
 ## [2.9.0] — 2026-09-08
 
 Five sequential specialists is twenty to thirty minutes for one ad. Nobody waits that to look at an

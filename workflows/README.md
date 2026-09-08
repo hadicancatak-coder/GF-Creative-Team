@@ -61,11 +61,16 @@ forced answer.
 
 `create-ad.js` takes `depth`:
 
-- **`fast`** (default) — **2 dispatches, ~6–9 minutes.** The creative director does concept and copy in
+- **`fast`** (default) — **2 dispatches, ~5 minutes.** The creative director does concept and copy in
   one pass; the designer selects and builds in one pass. No independent asset selection, no pre-build
   verify. Ungated by design: run `/creative-gate` after, where the review roles fan out **in parallel**.
 - **`full`** — 5 dispatches, ~20–30 minutes. The whole chain with independent selection and a verify
   pass before anyone sees the work.
+
+Fast hits five minutes by cutting on four axes at once, because no single one gets there:
+**sonnet at medium effort** (top-tier inference is the largest single cost), **surgical reading** (name
+the files, forbid exploring — agents were re-reading the tree every run), **one verification render**
+instead of the designer's usual zoom sweep, and **hard brevity** (3,000-word returns were pure latency).
 
 The production chain cannot be parallelised — each role needs the last one's output — so the only real
 lever on wall-clock is **fewer dispatches**, not faster ones. Merging roles is a genuine quality trade
