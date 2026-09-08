@@ -94,6 +94,33 @@ if (missing.length) {
   }
 }
 
+
+// ── Model and effort tiering ──────────────────────────────────────────────────
+// Measured from live runs: every role was costing 120-200k tokens at one tier.
+// The work is not equally hard. Judgement and visual forensics need the top tier;
+// measurement and arithmetic do not.
+//
+//   role                 tier            why
+//   creative-director    high effort     concept, tiebreak rulings — the hardest reasoning
+//   art-director         high effort     pixel forensics, squint judgement, the quality backbone
+//   designer             medium effort   execution against a directive; craft matters, novelty does not
+//   content-creator      medium effort   writing inside known constraints
+//   design-analyst       sonnet, low     reading node properties and comparing them to tokens
+//   quality-officer      high effort     a compliance miss is the most expensive error in the set
+//   financial-controller haiku,  low     arithmetic over a CSV
+//
+// Override per call, never globally — a role's tier belongs to the task, not the roster.
+const TIER = {
+  'creative-director':    { effort: 'high' },
+  'art-director':         { effort: 'high' },
+  'designer':             { effort: 'medium' },
+  'content-creator':      { effort: 'medium' },
+  'design-analyst':       { model: 'sonnet', effort: 'low' },
+  'quality-officer':      { effort: 'high' },
+  'financial-controller': { model: 'haiku',  effort: 'low' },
+}
+const tier = a => TIER[a] || {}
+
 const profile = 'Load the ACTIVE CLIENT PROFILE from `.creative-team/` first; if there is none, say so and work in reduced scope. '
 const extra = a.constraints ? ` Constraints: ${a.constraints}.` : ''
 
@@ -103,7 +130,7 @@ const deck = await agent(
   `Read the relevant files in knowledge/platforms/ and write INSIDE the character limits for these ` +
   `placements — note in charNotes where a limit forced a choice.${extra} ` +
   `Assert no factual claim the profile does not substantiate; everything unconfirmed goes to clientVerify.`,
-  { agentType: 'content-creator', schema: DECK, phase: 'Copy' })
+  { ...tier('content-creator'), agentType: 'content-creator', schema: DECK, phase: 'Copy' })
 log(`Headline: ${deck.headline}`)
 
 phase('Concept')
@@ -113,7 +140,7 @@ const concept = await agent(
   `Name the ONE subject that owns the frame at 0.5s, and the hero that PROVES the headline — a generic ` +
   `product shot under any claim is lazy. State heroCriteria precisely enough for the art-director to ` +
   `select against. Remember an ad is not a page: fewest elements that carry the idea.`,
-  { agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
+  { ...tier('creative-director'), agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
 log(`Subject: ${concept.subject}`)
 
 phase('Select')
@@ -127,7 +154,7 @@ const pick = await agent(
   `Reserve ASK-CLIENT and NO-VIABLE-ASSET for work that would be harmful, illegal, off-brand beyond ` +
   `repair, or actively misleading. "Weaker than I would like" is a reservation, not a refusal — a ` +
   `client who asked for an ad expects an ad, with your objections attached.`,
-  { agentType: 'art-director', schema: PICK, phase: 'Select' })
+  { ...tier('art-director'), agentType: 'art-director', schema: PICK, phase: 'Select' })
 
 const PROCEED = ['SELECTED', 'SELECTED-WITH-RESERVATIONS']
 if (!pick || !PROCEED.includes(pick.outcome)) {
@@ -151,7 +178,7 @@ const build = await agent(
   `and make sure your largest empty area is shaped rather than leftover. ` +
   `If you disagree with the art-director's direction, put it in the conflict field — do not decide silently. ` +
   `Self-verify at zoom before returning. ESCALATE rather than invent or guess.`,
-  { agentType: 'designer', schema: BUILD, phase: 'Build' })
+  { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Build' })
 if (!build || build.status === 'ESCALATE') return { outcome: 'ESCALATED', deck, concept, pick, build }
 
 // A flagged disagreement goes to the creative-director, who owns the tiebreak.
@@ -166,7 +193,7 @@ if (build.conflict && build.conflict.trim()) {
     `Build notes: ${build.notes}\nTarget: ${a.destination}. Directive was: ${concept.directive}\n\n` +
     `Rule on the OBJECTIVE, not the measurement — a role can be measurably right about the wrong ` +
     `question. Say concretely what should happen, and name whose reasoning you are setting aside.`,
-    { agentType: 'creative-director', schema: RULING, phase: 'Build', label: 'cd-ruling' })
+    { ...tier('creative-director'), agentType: 'creative-director', schema: RULING, phase: 'Build', label: 'cd-ruling' })
   if (ruling) log(`CD ruling: ${ruling.ruling}`)
 }
 
@@ -176,17 +203,17 @@ let verdict = await agent(
   `READ-ONLY. Render ~1300px plus zoom crops of every edge and seam. Full hunt list, plus: does the ` +
   `hero prove "${deck.headline}", and is anything load-bearing inside the platform safe zone? ` +
   `Judge at full size AND at squint. Findings with px fixes. PASS/FAIL.`,
-  { agentType: 'art-director', schema: VERDICT, phase: 'Verify' })
+  { ...tier('art-director'), agentType: 'art-director', schema: VERDICT, phase: 'Verify' })
 
 if (verdict && verdict.verdict === 'FAIL') {
   const fix = await agent(
     `${profile}Fix round (FINAL — 2-strike applies) on ${a.destination}. ` +
     `Apply exactly: ${JSON.stringify(verdict.findings)}. Self-verify. ESCALATE if it cannot be clean.`,
-    { agentType: 'designer', schema: BUILD, phase: 'Verify', label: 'designer-fix' })
+    { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Verify', label: 'designer-fix' })
   if (!fix || fix.status === 'ESCALATE') return { outcome: 'ESCALATED-AFTER-VERIFY', deck, concept, pick, verdict, fix }
   verdict = await agent(
     `${profile}Final re-verify of ${a.destination} after: ${fix.notes}. Scoped to the prior findings only. PASS/FAIL.`,
-    { agentType: 'art-director', schema: VERDICT, phase: 'Verify', label: 'ad-reverify' })
+    { ...tier('art-director'), agentType: 'art-director', schema: VERDICT, phase: 'Verify', label: 'ad-reverify' })
 }
 
 return {

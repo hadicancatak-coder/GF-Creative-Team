@@ -20,6 +20,33 @@ export const meta = {
 // outcome is REQUIRED and chosenPath is NOT — the Art Director must be able to decline.
 // A schema that forces a path forces the team to nominate a least-bad asset, which is
 // exactly the failure law 3 (ask-the-client-first) and eval U10 exist to prevent.
+
+// ── Model and effort tiering ──────────────────────────────────────────────────
+// Measured from live runs: every role was costing 120-200k tokens at one tier.
+// The work is not equally hard. Judgement and visual forensics need the top tier;
+// measurement and arithmetic do not.
+//
+//   role                 tier            why
+//   creative-director    high effort     concept, tiebreak rulings — the hardest reasoning
+//   art-director         high effort     pixel forensics, squint judgement, the quality backbone
+//   designer             medium effort   execution against a directive; craft matters, novelty does not
+//   content-creator      medium effort   writing inside known constraints
+//   design-analyst       sonnet, low     reading node properties and comparing them to tokens
+//   quality-officer      high effort     a compliance miss is the most expensive error in the set
+//   financial-controller haiku,  low     arithmetic over a CSV
+//
+// Override per call, never globally — a role's tier belongs to the task, not the roster.
+const TIER = {
+  'creative-director':    { effort: 'high' },
+  'art-director':         { effort: 'high' },
+  'designer':             { effort: 'medium' },
+  'content-creator':      { effort: 'medium' },
+  'design-analyst':       { model: 'sonnet', effort: 'low' },
+  'quality-officer':      { effort: 'high' },
+  'financial-controller': { model: 'haiku',  effort: 'low' },
+}
+const tier = a => TIER[a] || {}
+
 const PICK = { type: 'object', required: ['outcome','reasoning'], properties: {
   outcome: { type: 'string', enum: ['SELECTED','ASK-CLIENT','NO-VIABLE-ASSET'] },
   chosenPath: { type: 'string' }, backupPath: { type: 'string' }, reasoning: { type: 'string' },
@@ -47,7 +74,7 @@ const pick = await agent(
   `Set outcome: SELECTED when an asset genuinely proves the claim; ASK-CLIENT when the client could ` +
   `supply the right asset quickly (put the exact request in clientAsk); NO-VIABLE-ASSET when neither ` +
   `applies. Declining is a legal, expected answer — never nominate a least-bad option to fill the field.`,
-  { agentType: 'art-director', schema: PICK, phase: 'Select' })
+  { ...tier('art-director'), agentType: 'art-director', schema: PICK, phase: 'Select' })
 
 if (!pick || pick.outcome !== 'SELECTED') {
   log(`AD declined to select: ${pick ? pick.outcome : 'NO RESULT'}`)
@@ -66,7 +93,7 @@ const build = await agent(
   `Self-verify before returning: render at >=0.5 scale AND zoom every risky region. ` +
   `Return status DONE or ESCALATE, changedIds, notes. ` +
   `If you are blocked, ESCALATE with the exact blocker — never hand-build or invent the missing content.`,
-  { agentType: 'designer', schema: BUILD, phase: 'Build' })
+  { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Build' })
 if (build.status === 'ESCALATE') return { outcome: 'ESCALATED', pick, build }
 
 phase('Verify')
@@ -76,19 +103,19 @@ let verdict = await agent(
   `Check your full hunt list: reference geometry vs the source, device/object realism, figure-ground, ` +
   `clipped or leftover content, collisions and clearspace, and the squint read. ` +
   `Findings with px fixes. PASS/FAIL.`,
-  { agentType: 'art-director', schema: VERDICT, phase: 'Verify' })
+  { ...tier('art-director'), agentType: 'art-director', schema: VERDICT, phase: 'Verify' })
 
 if (verdict.verdict === 'FAIL') {
   const round2 = await agent(
     `Production Designer — fix round (FINAL round, 2-strike rule applies) on ${args.target}. ` +
     `Apply exactly these AD findings: ${JSON.stringify(verdict.findings)}. ` +
     `Craft laws; self-verify; return status/changedIds/notes. If it cannot be made clean, ESCALATE.`,
-    { agentType: 'designer', schema: BUILD, phase: 'Verify', label: 'designer-fix-round' })
+    { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Verify', label: 'designer-fix-round' })
   if (round2.status === 'ESCALATE') return { outcome: 'ESCALATED-ROUND2', pick, verdict, round2 }
   verdict = await agent(
     `Art Director — final re-verify of ${args.target} after the fix round: ${round2.notes}. ` +
     `Same checks, scoped to the prior findings only. PASS/FAIL.`,
-    { agentType: 'art-director', schema: VERDICT, phase: 'Verify', label: 'ad-reverify' })
+    { ...tier('art-director'), agentType: 'art-director', schema: VERDICT, phase: 'Verify', label: 'ad-reverify' })
 }
 
 return {

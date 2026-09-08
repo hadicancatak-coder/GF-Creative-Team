@@ -57,6 +57,31 @@ a least-bad asset — structurally guaranteeing the failure that law 3 and eval 
 If you adapt these prompts, **keep every escape hatch optional in the schema.** A required field is a
 forced answer.
 
+## Cost and speed
+
+Measured on live runs, before tiering: **120–200k tokens per role dispatch**, and a full
+brief-to-verified chain around **20 minutes**. Every agent ran at the same tier, which was the waste.
+
+Each dispatch now carries a tier chosen for the task:
+
+| Role | Tier | Why |
+|---|---|---|
+| creative-director | high effort | concept and tiebreak rulings — the hardest reasoning in the chain |
+| art-director | high effort | pixel forensics and squint judgement; the quality backbone |
+| quality-officer | high effort | a compliance miss is the most expensive error in a set |
+| designer | medium effort | execution against a directive — craft matters, novelty does not |
+| content-creator | medium effort | writing inside known constraints |
+| design-analyst | **sonnet**, low effort | reading node properties and comparing them to tokens |
+| financial-controller | **haiku**, low effort | arithmetic over a CSV |
+
+**On wall-clock: the production chain is sequential by design and cannot be parallelised.** The creative
+director needs the copy deck, the art director needs the concept, the designer needs the selection. Only
+the *gate* fans out — `creative-gate.js` runs its group-1 roles concurrently, which is why gating four
+creatives costs about the same wall-clock as gating one.
+
+Twenty minutes for brief → built → verified is the realistic floor. Judge it against the half-day it
+replaces, not against a single prompt.
+
 ## Adapting them
 
 Both take their domain facts from arguments and the active client profile. If you find yourself

@@ -4,6 +4,21 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] — 2026-09-08
+
+### Added
+- **Per-role model and effort tiering across all three workflows** — 16 dispatches, previously all at
+  one tier. Measured cost before this: 120–200k tokens per role. Judgement and visual forensics keep the
+  top tier (creative-director, art-director, quality-officer at high effort); execution and writing sit
+  at medium; **design-analyst drops to sonnet at low effort** (reading node properties and comparing
+  them to tokens) and **financial-controller to haiku** (arithmetic over a CSV).
+- The financial-controller now **audits the tiering itself** against the ledger: a high-effort role
+  producing no blockers in two audits drops a tier; a low-effort role whose findings get overturned
+  rises one; a role whose cost is dominated by tool calls is a scoping problem, not a tier problem.
+- `workflows/README.md` documents the cost and speed picture honestly, including that **the production
+  chain is sequential by design and cannot be parallelised** — only the gate fans out, which is why
+  gating four creatives costs roughly the wall-clock of gating one.
+
 ## [2.5.0] — 2026-09-08
 
 Three clean orchestration runs. Three refusals. Zero artwork. The orchestration was working; the team's

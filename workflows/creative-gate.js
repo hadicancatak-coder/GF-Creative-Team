@@ -20,6 +20,33 @@ export const meta = {
 // This workflow therefore RETURNS the ledger rows and the gate marker; the calling
 // skill writes them to .gates/. Do not add fs calls here — they will not run.
 
+
+// ── Model and effort tiering ──────────────────────────────────────────────────
+// Measured from live runs: every role was costing 120-200k tokens at one tier.
+// The work is not equally hard. Judgement and visual forensics need the top tier;
+// measurement and arithmetic do not.
+//
+//   role                 tier            why
+//   creative-director    high effort     concept, tiebreak rulings — the hardest reasoning
+//   art-director         high effort     pixel forensics, squint judgement, the quality backbone
+//   designer             medium effort   execution against a directive; craft matters, novelty does not
+//   content-creator      medium effort   writing inside known constraints
+//   design-analyst       sonnet, low     reading node properties and comparing them to tokens
+//   quality-officer      high effort     a compliance miss is the most expensive error in the set
+//   financial-controller haiku,  low     arithmetic over a CSV
+//
+// Override per call, never globally — a role's tier belongs to the task, not the roster.
+const TIER = {
+  'creative-director':    { effort: 'high' },
+  'art-director':         { effort: 'high' },
+  'designer':             { effort: 'medium' },
+  'content-creator':      { effort: 'medium' },
+  'design-analyst':       { model: 'sonnet', effort: 'low' },
+  'quality-officer':      { effort: 'high' },
+  'financial-controller': { model: 'haiku',  effort: 'low' },
+}
+const tier = a => TIER[a] || {}
+
 const MAX_ROUNDS = 2
 
 const PLAN_SCHEMA = {
@@ -92,7 +119,7 @@ const planRes = await agent(
   `Per your Orchestration authority section, output ONLY the dispatch plan. ` +
   `quality-officer MUST be in the final group — it gates final state, after other roles' fixes land. ` +
   `Every target must appear in at least one step.`,
-  { agentType: 'creative-director', schema: PLAN_SCHEMA, phase: 'Plan' })
+  { ...tier('creative-director'), agentType: 'creative-director', schema: PLAN_SCHEMA, phase: 'Plan' })
 record('creative-director', 'dispatch plan', 'plan')
 
 const plan = planRes.plan
@@ -119,7 +146,7 @@ const runGates = async (steps, phaseName) => {
             `Load the ACTIVE CLIENT PROFILE and any relevant knowledge/platforms/ file first. ` +
             `READ-ONLY — never modify the artifact. Render each target at ~1300px and judge per your brief. ` +
             `Mark a finding contested:true if it touches content the client explicitly asked to keep.`,
-        { agentType: s.agent, schema: FINDINGS_SCHEMA, phase: phaseName, label: s.agent })))
+        { ...tier(s.agent), agentType: s.agent, schema: FINDINGS_SCHEMA, phase: phaseName, label: s.agent })))
     res.forEach((r, i) => {
       record(wave[i].agent, phaseName.toLowerCase(), r ? r.verdict : 'NO RESULT')
       if (r) out.push({ agent: wave[i].agent, ...r })
@@ -155,7 +182,7 @@ while (round < MAX_ROUNDS && actionable().length > 0) {
     `Apply these confirmed findings: ${JSON.stringify(actionable())}. ` +
     `Do NOT act on anything you judge contested — list it under skipped for the human instead. ` +
     `Craft laws apply; self-verify before returning. If it cannot be made clean, ESCALATE.`,
-    { agentType: 'designer', schema: FIX_SCHEMA, phase: 'Fix', label: `designer-round-${round}` })
+    { ...tier('designer'), agentType: 'designer', schema: FIX_SCHEMA, phase: 'Fix', label: `designer-round-${round}` })
   record('designer', `fix round ${round}`, fix ? fix.status : 'NO RESULT')
   if (!fix || fix.status === 'ESCALATE') { escalated = fix; break }
 

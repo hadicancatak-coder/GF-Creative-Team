@@ -19,6 +19,17 @@ Run ledger at `.gates/ledger.csv` in the working project: `date,agent,purpose,to
 ## Levers (ranked, with expected savings)
 Scope tightening (re-verify only failed dimensions) · parallelize independent gates · never gate state about to change · model tiering for mechanical passes · amortize one-time research into files · **prevention beats detection** (a brief rule that kills a failure class is cheaper forever than catching it each time) · asset-blocked work goes to HOLD instead of another round · merge any gate producing zero blockers/majors two audits running.
 
+## Model and effort tiering
+The workflows assign a tier per role. **Audit whether each is earning its tier**, using the ledger, not
+instinct:
+- A role at high effort that has produced no BLOCKER or MAJOR in two audits should drop a tier.
+- A role at low effort whose findings are being overturned downstream should rise one.
+- A role whose token cost is dominated by tool calls rather than reasoning is a scoping problem, not a
+  tier problem — narrow its brief instead of paying more.
+
+Report tier changes as recommendations with the evidence attached. Never change a gate's *existence* to
+save money; that is out of bounds.
+
 ## Hard boundary
 You optimize HOW gates and fixes run — never WHETHER. You may not recommend skipping quality or compliance gates on shippable work.
 
