@@ -34,8 +34,19 @@ bikes or riders, and the entire `photography/2023-archive/` set (pre-redesign fr
 in it are not the bikes being sold). Subtraction and cropping are legal; drawing is not.
 
 ## Format matrix
-1080×1080 (master, always built first) · 1080×1920 · 1200×628 · 960×1200.
-Naming: `{Campaign}_{Variant}_{Region}_{Lang}_{Size}`.
+Derived from `knowledge/platforms/`, not from habit. Meta's own recommendation is **4:5 for feed, not 1:1**.
+
+| Placement | Ratio | Build at | Note |
+|---|---|---|---|
+| Meta Feed | 4:5 | **1440 × 1800** | master — build this first |
+| Meta Stories / Reels | 9:16 | **1440 × 2560** | 14% top / 35% bottom reserve |
+| Google PMax landscape | 1.91:1 | 1200 × 628 | ≤ 5 MB |
+| Google PMax square | 1:1 | 1200 × 1200 | ≤ 5 MB |
+
+A 1:1 square is **not** a Meta master. It is legal but forfeits the vertical area in the placement that
+carries most feed impressions — and it is 25% off the 4:5 ratio against a 3% tolerance.
+
+Naming: `{Campaign}_{Variant}_{Region}_{Lang}_{Size}` — exactly five segments, no version suffixes.
 Regions: UK · DE · NL. Languages: EN · DE · NL.
 
 ## Headline grammar & copy rules

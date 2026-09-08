@@ -24,7 +24,14 @@ What is forbidden: invention, third-party stock, legacy assets predating the cur
 Catalogs and inventories with IDs. Subtraction and cropping are legal; drawing is not.
 
 ## Format matrix
-Sizes, channels, naming convention, region × language matrix.
+**Derive this from `knowledge/platforms/`, not from what the team built last time.** For each placement
+in scope, take the platform's *recommended* resolution, not its minimum — minimums are rejection
+thresholds. Run `/format-matrix` and paste the result here.
+
+Then: naming convention (state the exact segments), and the region × language matrix.
+
+A size that matches no live placement is wasted work, and a master at the wrong ratio makes every
+derivative wrong too.
 
 ## Headline grammar & copy rules
 Structure, approved factual claims with exact numbers, banned language, CTA vocabulary.

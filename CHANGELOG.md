@@ -264,3 +264,26 @@ tree and the entire git history.
   enforcement hook keeps blocking. The marker and the ledger rows *are* the pass. Workflow scripts have
   no filesystem access, so the caller must write them; that path existed in the skill and had never once
   been exercised.
+
+## [2.2.0] — 2026-09-08
+
+The measurement gate ran on a real build for the first time and returned FAIL with three blockers. Every
+one of them was a defect in this repo, not in that particular artboard.
+
+### Fixed
+- **The example profile taught the wrong sizes.** Its format matrix listed 1080×1080 as the master for a
+  Meta Feed plan. Meta's own spec says build 4:5 — a 1:1 square is 25% off against a 3% tolerance, and
+  the matrix had no 9:16 entry at all. Now derived from `knowledge/platforms/` with the recommended
+  resolutions (1440×1800 feed, 1440×2560 stories) and a note on why a square is not a Meta master.
+- **`clients/TEMPLATE/` now tells you to derive the matrix from the platform specs** rather than from
+  what the team built last time, and to take recommended resolutions rather than minimums.
+- **designer — "Hand-off hygiene"**: integer coordinates (sub-pixel geometry resamples on export); cite
+  the source file in the layer name, because an assertion is not a citation; bleed properly or land on
+  the spacing scale, never 23px short of an edge; set container fills to a token rather than leaving
+  them black for the next line to inherit; follow the naming convention exactly, no `_v2` segments;
+  never invent a typographic value when the profile has no token for it; and treat a missing font plus
+  missing fallback as a blocking flag raised at the top, not a footnote.
+
+### Added
+- Evals **U38** (master built at a size matching no live placement), **U39** (provenance asserted rather
+  than cited), **U40** (silent font substitution).

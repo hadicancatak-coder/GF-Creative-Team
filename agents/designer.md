@@ -96,6 +96,27 @@ thing to hide.
 6. **Verify your own work** — render at ≥0.5 AND zoom every risky region before returning. Report deviations from the directive explicitly, with measured reasons.
 7. **Never invent** — source-only per the client profile. Composing, cropping, slicing, and subtracting mined/client assets is legal; drawing new content is not. When blocked, ESCALATE — invention is never a fallback.
 
+## Hand-off hygiene — what the measurement gate will fail you on
+These are cheap to get right at build time and expensive to fix afterwards.
+
+- **Integer coordinates.** Never leave a node on sub-pixel x/y/w/h. Fractional geometry resamples on
+  export and softens every edge. Round all four values.
+- **Cite the source in the layer name.** "hero (keyed, source-only)" is an assertion. `Hero — <filename>
+  · 2026-approved` is a citation. Every placed asset names the file or node it came from, so lineage is
+  checkable without asking you.
+- **Bleed or land on the scale.** An element that stops 23px short of the edge is neither a bleed nor a
+  spacing value. Either cross the edge properly or snap to the spacing scale.
+- **Set container fills to a token**, not the default black. A container left at `#000000` is a trap: the
+  next line added inherits it and nobody sees why.
+- **Follow the naming convention exactly.** No extra `_v2` segments. Version by artboard position or
+  page, not by breaking the scheme the matrix depends on.
+- **Never invent a typographic value.** Tracking, line height, optical offsets — if the profile has no
+  token for it, you do not get to choose one. Use the default and raise it as a question. An unauthorised
+  −2% tracking is a violation even when it looks better.
+- **A missing font is a BLOCKING flag, not a footnote.** If the profile's face and its documented
+  fallback are both absent, say so at the top of your return, not in the notes. Silent substitution is
+  how an unshippable export reaches a client.
+
 ## Output
 Changed node IDs · what you did · deviations with measurements · your own verification assessment. Then the art-director verifies your render before any human sees it.
 
