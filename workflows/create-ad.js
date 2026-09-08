@@ -33,7 +33,11 @@ const CONCEPT = { type: 'object', required: ['subject','directive'], properties:
   heroCriteria: { type: 'string' }, risks: { type: 'string' } } }
 
 const PICK = { type: 'object', required: ['outcome','reasoning'], properties: {
-  outcome: { type: 'string', enum: ['SELECTED','ASK-CLIENT','NO-VIABLE-ASSET'] },
+  // SELECTED-WITH-RESERVATIONS is the DEFAULT when an asset is imperfect but usable.
+  // Refusing outright is for work that would be harmful, illegal or actively misleading —
+  // not for work that would merely be weaker than you'd like. Build it and flag it.
+  outcome: { type: 'string', enum: ['SELECTED','SELECTED-WITH-RESERVATIONS','ASK-CLIENT','NO-VIABLE-ASSET'] },
+  reservations: { type: 'string' },
   chosenPath: { type: 'string' }, reasoning: { type: 'string' },
   clientAsk: { type: 'string' }, cropNotes: { type: 'string' }, complianceFlags: { type: 'string' } } }
 
@@ -117,15 +121,21 @@ const pick = await agent(
   `${profile}Select the hero. Audit the COMPLETE inventory at: ${a.inventoryPath} — open every ` +
   `candidate; a shortlist someone else made is a decision already taken. Criteria: ${concept.heroCriteria}. ` +
   `It must prove: "${deck.headline}". Target ${a.masterSize}, and it must read at small size.${extra} ` +
-  `Set outcome SELECTED only if an asset genuinely proves the claim. If the client could supply the right ` +
-  `asset quickly, return ASK-CLIENT with the exact request in clientAsk. Declining is expected, not a failure.`,
+  `DEFAULT TO BUILDING. Set SELECTED when an asset proves the claim cleanly. Set ` +
+  `SELECTED-WITH-RESERVATIONS — and name the best available asset anyway — when it is imperfect but ` +
+  `usable; put the compromises in 'reservations' and they travel to the gate as known issues. ` +
+  `Reserve ASK-CLIENT and NO-VIABLE-ASSET for work that would be harmful, illegal, off-brand beyond ` +
+  `repair, or actively misleading. "Weaker than I would like" is a reservation, not a refusal — a ` +
+  `client who asked for an ad expects an ad, with your objections attached.`,
   { agentType: 'art-director', schema: PICK, phase: 'Select' })
 
-if (!pick || pick.outcome !== 'SELECTED') {
+const PROCEED = ['SELECTED', 'SELECTED-WITH-RESERVATIONS']
+if (!pick || !PROCEED.includes(pick.outcome)) {
   log(`AD declined: ${pick ? pick.outcome : 'NO RESULT'}`)
   return { outcome: pick ? pick.outcome : 'NO-RESULT', halted: 'Select', deck, concept,
     clientAsk: pick && pick.clientAsk, reasoning: pick && pick.reasoning,
-    note: 'Stopped before build. Asking for the right asset beats hours of composite surgery (law 3).' }
+    note: 'Stopped before build. Reserved for harmful, illegal or actively misleading work — ' +
+          'an imperfect asset should have produced SELECTED-WITH-RESERVATIONS instead.' }
 }
 
 phase('Build')
@@ -183,6 +193,7 @@ return {
   outcome: verdict ? verdict.verdict : 'NO-VERDICT',
   deck, concept,
   hero: { path: pick.chosenPath, why: pick.reasoning, flags: pick.complianceFlags },
+  reservations: pick.reservations || null,
   built: build.changedIds,
   findings: verdict ? verdict.findings : [],
   ruling,

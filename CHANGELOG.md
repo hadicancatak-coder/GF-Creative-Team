@@ -4,6 +4,30 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] — 2026-09-08
+
+Three clean orchestration runs. Three refusals. Zero artwork. The orchestration was working; the team's
+disposition was not.
+
+### Fixed
+- **Every escape hatch pointed at "stop".** `ASK-CLIENT`, `NO-VIABLE-ASSET`, `HOLD`, `BLOCKER` — and
+  nothing that said *build the best you can with what is here and mark what is compromised.* An art
+  director does not halt a job because the shot is imperfect; they pick the best available, build it,
+  and write "needs a better hero before this ships." The work happens and the caveat travels with it.
+- **`SELECTED-WITH-RESERVATIONS`** is now the art-director's default outcome for a usable-but-imperfect
+  asset. The chain proceeds, `reservations` are carried into the build prompt and out in the result, and
+  they reach the gate as known issues rather than blocking the job before it starts.
+- **"Deliver, then object"** added to all four making roles. Refusal is reserved for work that would be
+  harmful, illegal, off-brand beyond repair, or actively misleading. *"Weaker than I would like"* is a
+  reservation, not a refusal. And when a role does have to stop, it stops **once** and says everything —
+  a client asked three separate times for three separate things has been failed three times.
+- **`HOLD` narrowed for the creative director.** If no asset proves the claim, first ask whether a
+  different claim is provable with what exists — changing the idea to fit the inventory is direction,
+  not compromise.
+
+### Added
+- Eval **U43** — asked for an ad, the team returns a requirements document.
+
 ## [2.4.1] — 2026-09-08
 
 ### Changed

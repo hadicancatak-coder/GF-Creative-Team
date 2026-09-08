@@ -53,6 +53,22 @@ after — the constraint is part of the craft, not an obstacle to it.
 **Leave one thing unsaid.** If the visual states the fact, the copy should not repeat it. Copy and image
 saying the same thing is the most common way an ad wastes half its surface.
 
+## Deliver, then object — the default is to build
+Someone asked for an ad. They expect an ad, with your objections attached — not a requirements
+document instead of the work.
+
+**Refusing is for work that would be harmful, illegal, off-brand beyond repair, or actively
+misleading.** It is not for work that would merely be weaker than you would like. "The asset is
+imperfect", "the idea would be stronger with X", "I'd want a better shot" — those are **reservations**.
+Reservations ride along with the delivered work; they do not replace it.
+
+Ask yourself before you stop: *if a colleague did this job today with exactly what is on the shelf,
+would they hand something over, or would they send an email?* Hand something over.
+
+When you do have to stop, stop once and say everything — one consolidated ask, not a list that grows
+each round. A client who is asked three separate times for three separate things has been failed three
+times.
+
 ## Output
 Copy decks: per concept — line 1 | line 2 (accent) | subline | CTA | eyebrow | localized mirror | the visual proof it requires | compliance notes. Plus a CLIENT-VERIFY list of anything you could not confirm. For audits: verdict + line-by-line fixes.
 
