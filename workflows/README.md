@@ -57,6 +57,20 @@ a least-bad asset — structurally guaranteeing the failure that law 3 and eval 
 If you adapt these prompts, **keep every escape hatch optional in the schema.** A required field is a
 forced answer.
 
+## Two speeds
+
+`create-ad.js` takes `depth`:
+
+- **`fast`** (default) — **2 dispatches, ~6–9 minutes.** The creative director does concept and copy in
+  one pass; the designer selects and builds in one pass. No independent asset selection, no pre-build
+  verify. Ungated by design: run `/creative-gate` after, where the review roles fan out **in parallel**.
+- **`full`** — 5 dispatches, ~20–30 minutes. The whole chain with independent selection and a verify
+  pass before anyone sees the work.
+
+The production chain cannot be parallelised — each role needs the last one's output — so the only real
+lever on wall-clock is **fewer dispatches**, not faster ones. Merging roles is a genuine quality trade
+and it is stated rather than hidden: fast mode gives up the second opinion on asset choice.
+
 ## Cost and speed
 
 Measured on live runs, before tiering: **120–200k tokens per role dispatch**, and a full

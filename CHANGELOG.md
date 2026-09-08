@@ -4,6 +4,28 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] — 2026-09-08
+
+Five sequential specialists is twenty to thirty minutes for one ad. Nobody waits that to look at an
+idea, so nobody would use it — and a correct pipeline nobody runs is worth nothing.
+
+### Added
+- **`depth: 'fast'` is now the default for `/create-ad` — 2 dispatches, ~6–9 minutes.** The creative
+  director does concept and copy in one pass; the designer selects and builds in one pass.
+- `depth: 'full'` keeps the five-role chain, ~20–30 min, for work that is shipping rather than being
+  looked at.
+- **The trade is stated, not hidden:** fast gives up the art-director's independent asset selection and
+  the pre-build verify. The gate is where quality comes back — and `/creative-gate` fans its roles out
+  **in parallel**, so reviewing costs far less wall-clock than producing.
+- Every prompt now carries a brevity instruction. Agents were returning 3,000-word deliberations; the
+  decisions are what the next role needs, and the prose was pure latency.
+- Eval **U49** — a pipeline optimised for thoroughness with no fast path.
+
+### Why not just make it faster
+The production chain cannot be parallelised: concept feeds copy, copy feeds selection, selection feeds
+the build. Model tiering helped at the margin. The only real lever on wall-clock is **fewer dispatches**,
+which means merging roles, which is a quality trade — so it is offered as a choice rather than imposed.
+
 ## [2.8.1] — 2026-09-08
 
 ### Changed

@@ -50,7 +50,7 @@ each other, and they are allowed to refuse.
 ## Why it behaves that way
 
 **Every rule in it exists because breaking it cost something first.** The eval table records its own
-history — 48 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
+history — 49 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
 
 **Twelve are marked MISSED.** A human found those, the gates did not. `MISSED — client deleted the
 work` is a row in this repo. So is `MISSED — client caught after ~500k tokens`. Eleven more were found

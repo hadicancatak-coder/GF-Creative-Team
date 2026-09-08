@@ -123,6 +123,55 @@ const tier = a => TIER[a] || {}
 
 const profile = 'Load the ACTIVE CLIENT PROFILE from `.creative-team/` first; if there is none, say so and work in reduced scope. '
 const extra = a.constraints ? ` Constraints: ${a.constraints}.` : ''
+const BREVITY = ' Be brief: decisions, not deliberation. No preamble.'
+
+
+// ── Depth ─────────────────────────────────────────────────────────────────────
+// Five sequential specialists is ~20-30 minutes. Nobody waits that for one ad.
+//
+//   fast (DEFAULT) — 2 dispatches, ~6-9 min.
+//     creative-director does concept AND copy; designer selects AND builds.
+//     Trade: no independent asset selection, no pre-build verify. The GATE is where
+//     quality comes back — run /creative-gate on the result, which fans out in parallel.
+//
+//   full — 5 dispatches, ~20-30 min. Independent selection and a verify pass before
+//     anyone sees it. For work that ships, not for a first look.
+const DEPTH = (a.depth || 'fast').toLowerCase()
+const BRIEF_RULE =
+  ' Be brief. Return the decisions, not the deliberation — a short, complete answer beats a long one, ' +
+  'and every extra paragraph is time the person waiting does not have. No preamble, no restating the brief.'
+
+if (DEPTH === 'fast') {
+  phase('Concept')
+  const plan = await agent(
+    `${profile}Direct AND write this creative in one pass. Brief: ${a.brief}. ` +
+    `Platforms: ${a.platforms}. Master: ${a.masterSize}.${extra}\n` +
+    `Give: the ONE subject that owns the frame at 0.5s; a two-line headline whose first three words ` +
+    `would stop a stranger (a specification is not a hook); the CTA from approved vocabulary; and a ` +
+    `directive precise enough to build from without guessing — layout system, where the hero sits, ` +
+    `where the eye enters and rests.${BRIEF_RULE}`,
+    { ...tier('creative-director'), agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
+  if (!plan) return { outcome: 'NO-RESULT', halted: 'Concept' }
+  log(`Subject: ${plan.subject}`)
+
+  phase('Build')
+  const b = await agent(
+    `${profile}Select the hero from ${a.inventoryPath} and BUILD it, in one pass. ` +
+    `Directive: ${plan.directive}. Subject: ${plan.subject}. Target: ${a.destination}, ${a.masterSize}.${extra}\n` +
+    `Open the inventory and pick the asset that best proves the idea — an imperfect asset is expected; ` +
+    `note the compromises and build anyway. Then build: artboard, margins, safe-zone guides in px, hero ` +
+    `by measured ratio, type from the profile scale, CTA as a BUTTON with a fill. Tokens only. ` +
+    `Verify your own work by measurement before returning.${BRIEF_RULE}`,
+    { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Build' })
+
+  return {
+    outcome: b && b.status === 'DONE' ? 'BUILT (fast path — ungated)' : 'ESCALATED',
+    depth: 'fast', concept: plan, built: b && b.changedIds, layoutSystem: b && b.layoutSystem,
+    notes: b && b.notes, conflict: b && b.conflict,
+    next: 'Ungated. Run /creative-gate on it — that is where the review roles come in, and they run ' +
+          'in parallel. Use depth:"full" when the work is shipping rather than being looked at.',
+  }
+}
 
 phase('Concept')  // FIRST — the idea precedes the words
 const concept = await agent(

@@ -4,7 +4,18 @@ description: Make an ad creative end to end — brief to built, reviewed artwork
 
 Create ad creative for: $ARGUMENTS
 
-This is the full chain. Use it when there is a brief and no artwork yet.
+**Two speeds. Fast is the default.**
+
+| Depth | Dispatches | Time | Use it when |
+|---|---|---|---|
+| **`fast`** (default) | 2 | ~6–9 min | You want to see an idea. CD does concept + copy; designer selects + builds. |
+| `full` | 5 | ~20–30 min | The work is shipping. Independent asset selection and a verify pass before anyone sees it. |
+
+Fast trades the art-director's independent selection and the pre-build verify for speed. **The gate is
+where quality comes back** — run `/creative-gate` on the result; its roles fan out in parallel, so
+reviewing costs far less wall-clock than producing.
+
+Nobody waits twenty minutes to look at a first idea. Default to fast, escalate to full when it matters.
 
 ## Gather the inputs FIRST — before dispatching anyone
 
