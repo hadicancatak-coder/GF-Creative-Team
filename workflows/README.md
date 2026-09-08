@@ -64,7 +64,7 @@ forced answer.
 - **`fast`** (default) — **2 dispatches, ~5 minutes.** The creative director does concept and copy in
   one pass; the designer selects and builds in one pass. No independent asset selection, no pre-build
   verify. Ungated by design: run `/creative-gate` after, where the review roles fan out **in parallel**.
-- **`full`** — 5 dispatches, ~20–30 minutes. The whole chain with independent selection and a verify
+- **`full`** — 5 dispatches, **~60 minutes and ~1M tokens, measured**. The whole chain with independent selection and a verify
   pass before anyone sees the work.
 
 Fast hits five minutes by cutting on four axes at once, because no single one gets there:

@@ -51,7 +51,7 @@ each other, and they are allowed to refuse.
 
 ```
 /create-ad  ...                    ~5 min · 2 agents · a first look
-/create-ad ... depth:"full"        ~20 min · 5 agents · work that ships
+/create-ad ... depth:"full"        ~60 min · 5 agents · measured, not estimated
 /creative-gate ...                 the review — and this half runs in parallel
 ```
 

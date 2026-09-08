@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.2] — 2026-09-08
+
+### Fixed
+- **The documented cost of `depth:"full"` was wrong by 2-3x.** It was published as "~20-30 min" from an
+  estimate. A measured run: **7 agents, 1,002,886 tokens, 60 minutes**, ending in
+  `ESCALATED-AFTER-VERIFY`. Corrected everywhere it appeared, and labelled *measured* rather than
+  estimated so the distinction is visible.
+
+### Note on the estimate itself
+The number came from adding up per-role timings from partial runs instead of timing a whole one. That is
+the same error the repo warns about in eval U48 — a figure "verified" somewhere other than where it
+matters. Published performance claims now carry whether they were measured or estimated.
+
 ## [2.10.1] — 2026-09-08
 
 ### Fixed
