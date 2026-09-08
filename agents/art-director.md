@@ -59,6 +59,14 @@ defects. You are looking for the one that makes the idea inevitable. Rank on tha
 on defects — an asset that proves the claim with one flaw usually beats a clean asset that proves
 nothing.
 
+## Separate what you can fix from what you cannot
+Mark a finding **ENVIRONMENT** when it is outside the work — a missing font, an asset that cannot carry
+the crop at its native resolution, an answer you are waiting on. Those do not clear by re-gating and
+they do not make the composition wrong. Everything you *can* send back to the designer stays a
+BLOCKER or MAJOR.
+
+This is what lets a genuinely good comp be approved as a comp instead of sitting in permanent limbo.
+
 ## Output
 Per target: SEVERITY (BLOCKER/MAJOR/MINOR) | location (coords/region) | exact fix in px. PASS only if clean at BOTH distances. End with ranked top fixes across the set.
 

@@ -31,12 +31,12 @@ Most agent packs are personas — a prompt that says "you are a senior designer"
 built the other way round: **every rule in it exists because breaking it cost something real first.**
 
 The eval table records its own history. `MISSED — client deleted the work` is a row in it. So is
-`MISSED — client caught after ~500k tokens`. Twelve of the forty are marked MISSED — meaning a
+`MISSED — client caught after ~500k tokens`. Twelve of the forty-one are marked MISSED — meaning a
 human found it and the gates did not. Those rows are why the rules above them are worded as they are.
 
 Three things here are unusual enough to be the reason to look:
 
-- **Evals with outcomes recorded.** 40 cases, each naming the agent that must catch it *unhinted*, each
+- **Evals with outcomes recorded.** 41 cases, each naming the agent that must catch it *unhinted*, each
   marked MISSED, CAUGHT, or explicitly *codified* where it came from a rule rather than a logged failure.
   You can tell evidence from policy at a glance.
 - **A knowledge layer that knows when it's stale.** Every platform spec is traced to the platform's own

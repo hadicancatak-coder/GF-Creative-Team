@@ -62,6 +62,22 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
 8. **Only now present the work.** If the gate ran in reduced scope, say so in the first line of
    what you present — not in a footnote.
 
+## The verdicts
+
+| Verdict | Means | What you may do |
+|---|---|---|
+| `SHIP` | Clean | Export and traffic it |
+| `COMP-APPROVED` | No defects left; only environment items outstanding | Show internally and to the client. **Do not export or traffic** until the listed items clear |
+| `FIX-THEN-REGATE` | Majors remain, rounds left | Fix, re-gate the failed roles only |
+| `BLOCK` | A defect blocker stands | Nothing ships |
+| `ESCALATED` | Rounds exhausted, or the designer could not resolve | A human decides |
+| `PARTIAL` / `INCOMPLETE` | A gate agent stalled | Re-run. Absence of findings is not absence of defects |
+| `INVALID PLAN` | The dispatch plan failed validation | Re-plan |
+
+**`COMP-APPROVED` is a real terminal state, not a soft failure.** A gate that can only ever say "not
+yet" is a gate people start waiving. Write the marker for it exactly as you would for a SHIP, with
+`clearBeforeExport` as a checklist and an owner against each item.
+
 ## Non-negotiables
 - A definition is not a gate run. Agents only work when dispatched — this skill is the dispatch.
 - One BLOCKER = the set does not ship.

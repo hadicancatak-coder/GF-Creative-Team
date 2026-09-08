@@ -287,3 +287,23 @@ one of them was a defect in this repo, not in that particular artboard.
 ### Added
 - Evals **U38** (master built at a size matching no live placement), **U39** (provenance asserted rather
   than cited), **U40** (silent font substitution).
+
+## [2.3.0] — 2026-09-08
+
+Three build rounds could not terminate. The licensed font was never going to be installed on that
+machine, so every gate correctly returned a permanent failure and the loop had no reachable exit. That
+is a product gap, not a build problem: **a gate that can only ever say "not yet" is a gate people start
+waiving.**
+
+### Added
+- **`ENVIRONMENT` severity.** A constraint outside the work that re-gating cannot change — a font absent
+  from the build machine, an asset whose native resolution cannot carry the crop, a client answer
+  outstanding, a knowledge file past `review_by`, mandated text still TBD. Distinct from `BLOCKER`,
+  which is a defect the team can fix.
+- **`COMP-APPROVED` verdict.** No defect blockers remain; only environment items do. Means: approved as
+  a comp — show it internally and to the client — but do not export or traffic it until the listed items
+  clear. The marker carries `clearBeforeExport` as a checklist rather than a vague "not passed".
+- A verdict table in the gate skill, and guidance in the quality-officer and art-director briefs on
+  telling the two apart — including the warning not to park a defect under ENVIRONMENT to avoid
+  arguing about it.
+- Eval **U41**.

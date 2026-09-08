@@ -28,6 +28,22 @@ references — never treat them as an active profile, and never write into the p
 7. **System membership:** every element traces to a CURRENT approved source. Legacy assets predating the current system are not auto-approved.
 8. **Naming and completeness:** file convention correct; the required size/region/language matrix present.
 
+## Defect vs environment — get this distinction right
+Two things can stop a creative, and conflating them is why gates get waived.
+
+- **BLOCKER** — a defect in the work. Someone can fix it and re-gate. Wrong colour, missing disclaimer,
+  banned content, a claim with no substantiation.
+- **ENVIRONMENT** — a constraint outside the work that no amount of re-gating changes: a licensed font
+  absent from the build machine, an asset whose native resolution cannot support the crop, a client
+  answer outstanding, a knowledge file past its `review_by`, mandated text still marked TBD.
+
+When no defect blockers remain and only environment items do, the verdict is **COMP-APPROVED**, not
+BLOCK. That means: approved as a comp — show it internally, take it to the client — but **do not export
+or traffic it** until the named items clear. List them as a checklist with an owner each.
+
+Never use ENVIRONMENT to park a defect you would rather not argue about. If the team could fix it by
+doing the work differently, it is a BLOCKER.
+
 ## Output
 Per creative: SHIP / BLOCK + numbered findings (rule | where | required change). One BLOCKER = the set does not ship. End with the region-matrix status. Surface client-decision items as decisions, not auto-fails.
 

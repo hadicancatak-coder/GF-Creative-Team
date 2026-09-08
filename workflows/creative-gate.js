@@ -38,7 +38,10 @@ const FINDINGS_SCHEMA = {
   properties: {
     verdict: { type: 'string', enum: ['PASS','FAIL','BLOCK'] },
     findings: { type: 'array', items: { type: 'object', required: ['severity','where','issue','fix'],
-      properties: { severity: { type: 'string', enum: ['BLOCKER','MAJOR','MINOR'] },
+      properties: { // ENVIRONMENT = a constraint OUTSIDE the work that the team cannot fix and re-gating
+      // will not change: a font not installed, an asset's native resolution, a client answer
+      // outstanding, a knowledge file past review_by. Never use it for a defect in the work.
+      severity: { type: 'string', enum: ['BLOCKER','MAJOR','MINOR','ENVIRONMENT'] },
         where: { type: 'string' }, issue: { type: 'string' }, fix: { type: 'string' },
         contested: { type: 'boolean' } } } },
   },
@@ -173,14 +176,20 @@ const final = [...latest.values()]
 const pick = sev => final.flatMap(r => r.findings.filter(f => f.severity === sev).map(f => ({ agent: r.agent, ...f })))
 const blockers = pick('BLOCKER')
 const majors = pick('MAJOR')
+const environment = pick('ENVIRONMENT')
 
+// A gate that can only ever say "not yet" is one people start waiving. When the work itself
+// is clean and the only thing outstanding is something the team cannot fix by re-running,
+// that is a real, terminal state — not a failure.
 const decision =
   escalated ? 'ESCALATED — designer could not resolve; human required'
   : blockers.length ? 'BLOCK'
-  : (majors.length ? (round >= MAX_ROUNDS ? 'ESCALATED — fix rounds exhausted' : 'FIX-THEN-REGATE') : 'SHIP')
+  : majors.length ? (round >= MAX_ROUNDS ? 'ESCALATED — fix rounds exhausted' : 'FIX-THEN-REGATE')
+  : environment.length ? 'COMP-APPROVED — show internally and to the client; do NOT export or traffic'
+  : 'SHIP'
 
 return {
-  decision, rounds: round, blockers, majors, minors: pick('MINOR'),
+  decision, rounds: round, blockers, majors, environment, minors: pick('MINOR'),
   contested: final.flatMap(r => r.findings.filter(f => f.contested).map(f => ({ agent: r.agent, ...f }))),
   perAgent: final.map(r => ({ agent: r.agent, verdict: r.verdict, findings: r.findings.length })),
   plan,
@@ -188,7 +197,10 @@ return {
   marker: {
     path: `.gates/${a.date}-${(a.targets[0] && (a.targets[0].name || a.targets[0].id)) || 'set'}.md`,
     decision, rounds: round,
-    blockers: blockers.length, majors: majors.length, minors: pick('MINOR').length,
+    blockers: blockers.length, majors: majors.length,
+    environment: environment.length, minors: pick('MINOR').length,
     openItems: blockers.concat(majors),
+    // Actionable checklist with owners, not a vague "not passed"
+    clearBeforeExport: environment,
   },
 }
