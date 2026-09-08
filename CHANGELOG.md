@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] — 2026-09-08
+
+### Changed
+- **README rewritten: 270 lines to 122, 2,121 words to 953.** It was a manual where it needed to be a
+  pitch — twenty sections, with the roles not appearing until line 157 and setup front-loaded for people
+  who had not decided to install yet. Everything cut already lived in `docs/THE-TEAM.md`,
+  `docs/METHOD.md`, `QUICKSTART` or `CONTRIBUTING`; nothing was lost.
+- **Verbatim agent output moved to the top.** The strongest evidence this repo has was invisible: an art
+  director proving two assets were 99.91% identical by pixel count, rejecting a layer name with "an
+  assertion is not a citation", a design analyst disproving another agent's self-report with font
+  metrics, and a creative director striking its own directive as structurally impossible. Five quotes,
+  unprompted, from a live run. That is what distinguishes seven roles from one persona prompt.
+- **The honesty reframed from caveat to record.** "Nothing has shipped end to end" read as a warning.
+  "Twelve of forty-two cases are failures our own gates missed, and eleven more were found by running
+  it" reads as discipline. Same facts, and the unproven parts are still stated plainly.
+
 ## [2.3.2] — 2026-09-08
 
 ### Fixed
