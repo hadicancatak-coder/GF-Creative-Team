@@ -2,8 +2,8 @@
   "hooks": {
     "PostToolUse": [
       {
-        "_comment": "Records that a design-tool WRITE happened, for gate accounting. The matcher covers the Figma MCP write tools by default — widen or narrow it for your own design tool.",
-        "matcher": "mcp__.*__(use_figma|create_new_file|upload_assets|update_shader|create_shader)",
+        "_comment": "Logs a design-tool WRITE for gate accounting. Matches ONLY tools that change a design. Deliberately excludes create_new_file (produces an EMPTY file — nothing to gate) and upload_assets (puts a file in the library; it is not a creative until something places it). Anchored so a tool whose name merely contains one of these substrings cannot match. Widen for your own design tool.",
+        "matcher": "^mcp__.+__(use_figma|update_shader|create_shader)$",
         "hooks": [
           { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/log-build.sh\"" }
         ]

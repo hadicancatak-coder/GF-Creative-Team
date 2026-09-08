@@ -31,21 +31,22 @@ Most agent packs are personas — a prompt that says "you are a senior designer"
 built the other way round: **every rule in it exists because breaking it cost something real first.**
 
 The eval table records its own history. `MISSED — client deleted the work` is a row in it. So is
-`MISSED — client caught after ~500k tokens`. Twelve of the thirty-two are marked MISSED — meaning a
+`MISSED — client caught after ~500k tokens`. Twelve of the thirty-three are marked MISSED — meaning a
 human found it and the gates did not. Those rows are why the rules above them are worded as they are.
 
 Three things here are unusual enough to be the reason to look:
 
-- **Evals with outcomes recorded.** 32 cases, each naming the agent that must catch it *unhinted*, each
+- **Evals with outcomes recorded.** 33 cases, each naming the agent that must catch it *unhinted*, each
   marked MISSED, CAUGHT, or explicitly *codified* where it came from a rule rather than a logged failure.
   You can tell evidence from policy at a glance.
 - **A knowledge layer that knows when it's stale.** Every platform spec is traced to the platform's own
   documentation and stamped with a `review_by` date. Past that date, agents must report figures as
   expired rather than assert them. Unverifiable figures are written `TBD — unverified`, never guessed.
 - **A cost metric, not a token count.** The Financial Controller computes *cost per confirmed
-  BLOCKER/MAJOR*. One audit of one run gave ~33k tokens per confirmed finding through gates versus ~330k
-  for an ungated set a human rejected. One data point, on one account — reported as an observation, not
-  a benchmark.
+  BLOCKER/MAJOR* rather than raw spend. Measured on the [first live run](examples/first-live-run.md):
+  **~127k tokens per role dispatch**, three roles, eight confirmed blocking findings — roughly 48k per
+  finding. Budget for it: a full chain is a meaningful spend, and the Financial Controller exists
+  precisely because that needs watching.
 
 ![Meta Stories and Reels safe zone: the same creative before and after, with Meta's published reserve drawn to scale](examples/images/meta-safezone-before-after.png)
 

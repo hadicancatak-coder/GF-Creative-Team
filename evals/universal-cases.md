@@ -42,6 +42,7 @@ difference between evidence and policy.
 | U30 | A gate runs and passes, but nothing writes the marker or the ledger rows | A gate whose result was never recorded did not happen | orchestration engine, financial-controller | CAUGHT in engine audit — workflows have no filesystem access; the caller must write |
 | U31 | An agent works from a client profile remembered from earlier in the session, or from a previous client, without re-reading it | A remembered profile is a fabricated one — resolve `.creative-team/active` every run, or declare reduced scope | all roles | Codified from the state model |
 | U32 | A gate runs with no client profile loaded and reports SHIP | No compliance layer means UNVERIFIED, never SHIP. A reduced-scope gate presented as a full one is worse than no gate | quality-officer | Codified from the state model |
+| U33 | A tool that creates an empty container (a blank file, an upload with nothing placed) is counted as a build, so the gate demands review of work that does not exist | Instrument what CHANGES the artifact, not what touches the tool. A false gate teaches people to waive gates | orchestration engine | CAUGHT in the first live run — creating an empty Figma file blocked the session with nothing to review |
 
 ## Scoring
 A team revision passes when every case is caught by the named agent without hints. A case that used to

@@ -161,3 +161,25 @@ The team could review creative. It could not make any. This adds the missing hal
 ### Changed
 - README leads with making the ad rather than gating it. Four of the five commands were review, planning
   or setup; nothing made anything.
+
+## [2.0.1] — 2026-09-08
+
+First live run of the chain. It found a bug in this plugin, so the run is documented in
+`examples/first-live-run.md` — including what it cost and what it refused to do.
+
+### Fixed
+- **The gate fired on work that did not exist.** The PostToolUse matcher counted `create_new_file` as a
+  build, but that tool produces an *empty* file. A session that created a blank Figma file and built
+  nothing logged 13 "builds" and was then blocked by the Stop hook with nothing to review. The matcher
+  now covers only tools that change a design (`use_figma`, `update_shader`, `create_shader`), is
+  anchored so a name merely containing a substring cannot match, and excludes `upload_assets` — putting
+  a file in the library is not a creative until something places it.
+  A gate that fires on phantom work teaches people to waive gates. Recorded as eval **U33**.
+- **The cost claim in the README was from a different setup.** Replaced with measured figures from the
+  live run: ~127k tokens per role dispatch, ~48k per confirmed blocking finding, across three roles.
+
+### Added
+- `examples/first-live-run.md` — the first end-to-end run. Three roles produced genuine unprompted
+  findings; the art-director returned `NO-VIABLE-ASSET` and refused to select a hero, proving the
+  v2.0.0 escalation fix. It states plainly that the build step remains unproven.
+- Eval U33.
