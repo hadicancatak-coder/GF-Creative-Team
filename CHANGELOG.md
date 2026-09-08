@@ -307,3 +307,18 @@ waiving.**
   telling the two apart — including the warning not to park a defect under ENVIRONMENT to avoid
   arguing about it.
 - Eval **U41**.
+
+## [2.3.1] — 2026-09-08
+
+### Fixed
+- **The README's diagram was a schematic dressed as a finished ad, and read as a bad one.** Oversized
+  CTA, no scale contrast, legal text jammed against the button, system UI font at wireframe sizes —
+  every fault the craft rules in `agents/designer.md` exist to prevent, in the README of a repo about
+  craft. Rebuilt as an honest geometry diagram: creative elements are plain blocks, the reserve is drawn
+  to scale, and nothing pretends to be a layout.
+- Captions in `README.md`, `examples/worked-gate-run.md` and `examples/images/README.md` updated to
+  describe it as a diagram rather than a before/after of a creative.
+
+### Added
+- Eval **U42** — a schematic dressed as finished work gets judged on craft instead of read for its
+  point. Make the fidelity match the intent.

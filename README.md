@@ -31,12 +31,12 @@ Most agent packs are personas — a prompt that says "you are a senior designer"
 built the other way round: **every rule in it exists because breaking it cost something real first.**
 
 The eval table records its own history. `MISSED — client deleted the work` is a row in it. So is
-`MISSED — client caught after ~500k tokens`. Twelve of the forty-one are marked MISSED — meaning a
+`MISSED — client caught after ~500k tokens`. Twelve of the forty-two are marked MISSED — meaning a
 human found it and the gates did not. Those rows are why the rules above them are worded as they are.
 
 Three things here are unusual enough to be the reason to look:
 
-- **Evals with outcomes recorded.** 41 cases, each naming the agent that must catch it *unhinted*, each
+- **Evals with outcomes recorded.** 42 cases, each naming the agent that must catch it *unhinted*, each
   marked MISSED, CAUGHT, or explicitly *codified* where it came from a rule rather than a logged failure.
   You can tell evidence from policy at a glance.
 - **A knowledge layer that knows when it's stale.** Every platform spec is traced to the platform's own
@@ -48,11 +48,12 @@ Three things here are unusual enough to be the reason to look:
   finding. Budget for it: a full chain is a meaningful spend, and the Financial Controller exists
   precisely because that needs watching.
 
-![Meta Stories and Reels safe zone: the same creative before and after, with Meta's published reserve drawn to scale](examples/images/meta-safezone-before-after.png)
+![Meta Stories and Reels reserved zone drawn to scale on three schematic frames](examples/images/meta-safezone-before-after.png)
 
-*Constructed illustration on the fictional example profile — not real client work, and not the output of
-a live gate run. The geometry is real: those bands are Meta's published Stories/Reels reserve, drawn to
-scale, sourced and dated in [`knowledge/platforms/meta.md`](knowledge/platforms/meta.md).*
+*A geometry diagram, not a design — the elements are blocks on purpose, so the measurement is the only
+thing you are judging. The reserve is Meta's published figure, sourced and dated in
+[`knowledge/platforms/meta.md`](knowledge/platforms/meta.md). This is the defect the design-analyst
+raises as eval U25, and it is invisible in the design file at 100% zoom.*
 
 **[→ A worked gate run, start to finish](examples/worked-gate-run.md)** — the fastest way to judge
 whether this is worth installing.

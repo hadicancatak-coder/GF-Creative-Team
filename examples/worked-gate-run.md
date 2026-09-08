@@ -41,10 +41,11 @@ test is refused with `INVALID PLAN`, not quietly executed.
 
 ## What one of these findings looks like
 
-![Before and after: CTA and legal line inside, then clear of, Meta's Stories and Reels safe zone](images/meta-safezone-before-after.png)
+![Meta Stories and Reels reserved zone drawn to scale on three schematic frames](images/meta-safezone-before-after.png)
 
 The safe-zone finding below is the one people find hardest to believe until they see it measured. The
-design file looks fine at 100% zoom; the placement covers the bottom third.
+design file looks fine at 100% zoom; the placement covers the bottom third. The frames above are
+schematic on purpose — a diagram that measures a constraint, not an example of a layout.
 
 ## Phase 2 — findings
 
