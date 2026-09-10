@@ -52,7 +52,8 @@ each other, and they are allowed to refuse.
 ```
 /create-ad  ...                    2 agents · a first look   (target ~5 min, UNVERIFIED)
 /create-ad ... depth:"full"        ~60 min · 5 agents · measured, not estimated
-/creative-gate ...                 the review — and this half runs in parallel
+/creative-gate ...                 4 min · 1 agent · 123k tokens   (measured)
+/creative-gate ... depth:"full"    60 min · 14 agents · 1.7M tokens (measured)
 ```
 
 The production chain cannot be parallelised: concept feeds copy, copy feeds selection, selection feeds

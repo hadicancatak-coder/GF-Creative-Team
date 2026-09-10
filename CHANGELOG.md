@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.2] — 2026-09-10
+
+### Measured
+First honest performance figures in this repo, both from real runs on the same artboard:
+
+| Depth | Agents | Tokens | Wall-clock |
+|---|---|---|---|
+| `quick` | **1** | **122,578** | **4m 00s** |
+| `full` | 14 | 1,705,138 | 60m |
+
+**14× fewer tokens, 15× faster.** Every earlier speed figure in this repo was a target or a measurement
+of stale code; these are neither.
+
+### Note — the single reviewer pushed back on the operator
+The gate was told the font substitution was an `ENVIRONMENT` constraint. It refused the classification
+and cited the profile: `client.md` records both required faces as verified installed on the build machine,
+so a substitution is a **build defect**, not an environment gap. It re-graded it `BLOCKER`.
+
+That is one agent contradicting its instructions on the evidence — the behaviour the whole system is for,
+at 4 minutes and one dispatch.
+
 ## [2.11.1] — 2026-09-10
 
 ### Fixed

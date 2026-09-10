@@ -8,8 +8,8 @@ Run the creative gate on: $ARGUMENTS
 
 | Depth | Dispatches | Measured | Use it when |
 |---|---|---|---|
-| **`quick`** (default) | **1** | target ~100k tokens, ~3–5 min | Spot-check. One reviewer, fixed checklist, two renders. Reports; does not fix. |
-| `full` | up to 14 | **1.7M tokens, 60 min** (measured) | The work ships to a client. Four roles cross-checking, up to 2 fix rounds. |
+| **`quick`** (default) | **1** | **122,578 tokens · 4m 00s** (measured) | Spot-check. One reviewer, fixed checklist, two renders. Reports; does not fix. |
+| `full` | **14** | **1,705,138 tokens · 60 min** (measured) | The work ships to a client. Four roles cross-checking, up to 2 fix rounds. |
 
 The full gate's cost is not waste — it is what caught the worst defect found in this project: three roles
 independently measuring the same frame and establishing that a claimed fix had never landed in the file.
