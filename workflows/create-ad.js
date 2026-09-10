@@ -146,6 +146,19 @@ const DEPTH = (a.depth || 'fast').toLowerCase()
 // What you lose: depth of judgement, forensic asset inspection, and the second
 // opinion. Use depth:'full' when the work ships.
 const FAST_TIER = { model: 'sonnet', effort: 'medium' }
+
+// One dispatch doing two roles' jobs needs one schema covering both. Reusing CONCEPT
+// here asked for a headline the schema could not hold, and the agent failed its retry
+// cap trying to satisfy a prompt its output shape contradicted. See eval U52.
+const FAST_PLAN = { type: 'object', required: ['subject','directive','headline','cta'], properties: {
+  subject: { type: 'string' },       // the ONE thing that owns the frame at 0.5s
+  directive: { type: 'string' },     // enough for the designer to build without guessing
+  eyebrow: { type: 'string' },
+  headline: { type: 'string' },      // line 1 — first three words must stop a stranger
+  accentLine: { type: 'string' },    // line 2 — the turn
+  cta: { type: 'string' },
+  heroCriteria: { type: 'string' },
+  notes: { type: 'string' } } }
 const SURGICAL =
   '\nREAD ONLY: .creative-team/active, then that profile\'s client.md and compliance.md, and the ' +
   'MANIFEST in the inventory folder. Do not explore the tree, do not read evals, do not re-read files ' +
@@ -163,7 +176,7 @@ if (DEPTH === 'fast') {
     `would stop a stranger (a specification is not a hook); a CTA from the approved vocabulary; and a ` +
     `directive precise enough to build from — layout system, where the hero sits, where the eye enters ` +
     `and rests.` + BRIEF_RULE,
-    { ...FAST_TIER, agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
+    { ...FAST_TIER, agentType: 'creative-director', schema: FAST_PLAN, phase: 'Concept' })
   if (!plan) return { outcome: 'NO-RESULT', halted: 'Concept', depth: 'fast' }
   log(`Subject: ${plan.subject}`)
 
@@ -180,7 +193,7 @@ if (DEPTH === 'fast') {
 
   return {
     outcome: b && b.status === 'DONE' ? 'BUILT (fast — ungated)' : 'ESCALATED',
-    depth: 'fast', concept: plan, built: b && b.changedIds,
+    depth: 'fast', plan, built: b && b.changedIds,
     layoutSystem: b && b.layoutSystem, notes: b && b.notes, conflict: b && b.conflict,
     next: 'Ungated, and built at reduced depth. Run /creative-gate — its roles fan out in parallel, so ' +
           'the review is the cheap half. Use depth:"full" when the work ships.',

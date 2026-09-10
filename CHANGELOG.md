@@ -4,6 +4,21 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.3] — 2026-09-10
+
+### Fixed
+- **The fast path could never have worked.** Its merged concept+copy dispatch reused the `CONCEPT`
+  schema, which holds `subject`/`directive`/`heroCriteria`/`risks` and has no field for a headline, an
+  accent line or a CTA — all of which the prompt demanded. The agent hit its 5-retry cap trying to
+  satisfy a prompt its output shape contradicted, and the run failed at 114,322 tokens.
+- Added `FAST_PLAN`, a schema covering both roles' outputs, and the build prompt now receives the copy
+  verbatim instead of only the subject and directive.
+- Eval **U52** — merge the schema when you merge the roles.
+
+### Note
+This is the same failure class as U28, where a required field made an escape hatch unreachable. Both are
+a prompt and a schema disagreeing about what the agent is allowed to say.
+
 ## [2.11.2] — 2026-09-10
 
 ### Measured
