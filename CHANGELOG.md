@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] — 2026-09-10
+
+### Fixed
+- **Three versions of performance work were tested against an installed copy four versions behind.**
+  The repo was at 2.11.0; the plugin cache was at 2.8.1. Workflows execute from the installed copy, so
+  every run since 2.8.1 exercised old code — the fast path and the quick gate had never actually run,
+  and their timings were measurements of the full paths they were meant to replace.
+- `CONTRIBUTING.md` now leads the testing section with the reinstall step, because editing this repo
+  does not change what executes.
+- Eval **U51** — a test against stale code is worse than no test: it produces confident wrong conclusions.
+
 ## [2.11.0] — 2026-09-10
 
 The first full gate run cost **14 dispatches, 1,705,138 tokens and 60 minutes** to review one artboard.

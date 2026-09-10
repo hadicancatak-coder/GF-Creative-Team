@@ -90,7 +90,7 @@ different design tool? Widen or replace that regex — it is the only tool-speci
 
 ## 6. Run the evals
 
-`evals/universal-cases.md` holds 50 domain-agnostic failure classes with their outcomes recorded. Give
+`evals/universal-cases.md` holds 51 domain-agnostic failure classes with their outcomes recorded. Give
 an agent a case input with **no hint**, and check whether it raises the expected catch. Do this after any
 brief edit — a case that used to pass and now fails is a regression.
 

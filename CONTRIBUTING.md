@@ -58,6 +58,21 @@ merging any gate that produces zero blockers or majors two audits running.
 Markdown, wrapped around 100 characters. Plain language. Tables where the content is tabular.
 No emoji in briefs — they cost tokens on every dispatch and add nothing an agent reads.
 
+## Reinstall before you test
+
+**Editing this repo does not change what runs.** Workflows and agents execute from the installed copy in
+the plugin cache, not from your working tree. After any change:
+
+```bash
+claude plugin marketplace update gf-creative-team
+claude plugin install gf-creative-team@gf-creative-team
+claude plugin list          # confirm the version matches plugin.json
+```
+
+Skipping this produces the worst kind of test result: a run that appears to exercise your change,
+succeeds or fails for unrelated reasons, and gives you a confident wrong conclusion. Three versions of
+performance work in this repo were measured against an installed copy four versions behind. Eval U51.
+
 ## Before you open a PR
 
 Run the validator. CI runs the same script, so this is the whole gate:
