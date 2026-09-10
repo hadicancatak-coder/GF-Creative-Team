@@ -4,6 +4,83 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] — 2026-09-10
+
+First end-to-end live run of the one process, against a cold brand the team had never seen. It produced
+real artwork in Figma, the gate returned four MAJORs and zero BLOCKERs — and the operator looked at the
+result and said the design was badly proportioned. He was right, and nothing in the pipeline had
+standing to say so.
+
+### Measured — 8 dispatches · 629,267 tokens · 34.3 minutes
+
+| Phase | Role | Tokens | Wall |
+|---|---|---:|---:|
+| Concept | creative-director | 63,151 | 2m 16s |
+| Copy | content-creator | 61,209 | 1m 48s |
+| Build | designer | 103,253 | 18m 14s |
+| Build | creative-director (ruling, conditional) | 59,086 | 59s |
+| Gate | art-director | 95,521 | 7m 21s |
+| Gate | design-analyst (sonnet) | 87,892 | 4m 35s |
+| Gate | content-creator | 80,936 | 3m 58s |
+| Gate | quality-officer | 78,219 | 3m 38s |
+
+Production is serial: **23.3 min**. The gate fanned out three-wide then the quality-officer: **11.0 min**
+against 19.5 serial — **fan-out saved 8.6 minutes**. The old `full` + `full` route was 21 dispatches and
+~2,705,000 tokens for the same coverage: **4.3x cheaper, 13 fewer dispatches**.
+
+Caveat kept: `effort` tiering was not applied (the harness exposes model, not effort), and the run
+stopped at FIX-THEN-REGATE rather than a verdict. **No creative has still passed a gate.**
+
+### The diagnosis — the pipeline was built to produce defensible work, not good work
+
+Every mechanism in 3.0.0 checks CONFORMANCE: declare deviations, cite sources, measure against tokens,
+mandated text verbatim, never invent an asset. Not one asks whether the result is any good. The frame it
+passed was **50.7% empty vertical space**, with the message at **10.2%** of height and the decoration at
+**25.3%** — and it was token-clean, deviation-free and compliant throughout.
+
+### Fixed
+
+- **The creative-director was writing the layout in pixels.** Its directive carried eight absolute
+  y-coordinates, so the designer had nothing to decide and every spacing value came from the one role
+  that does not own spacing. Absolute coordinates are now forbidden in the directive; the concept states
+  `proportions` (dominant element, its share of frame, message vs decoration) and `typeStep` (which step
+  of the display scale, argued against the others), and the designer owns every number. Eval **U59** —
+  and it records the trap that caused it: the U54 deviation rule created the pressure to specify
+  numerically so that no deviation was possible.
+- **The gate was handed the defence before the evidence.** `create-ad.js` passed the designer's declared
+  deviations AND the creative-director's ruling into the reviewers' context. On the live run the
+  art-director wrote *"per the ruling I am not proposing to shorten it"* about the single element it
+  existed to contest. The gate now receives the brief and the artifact only; deviations and rulings
+  travel to the human in the result. Eval **U60**.
+- **Severity was being treated as a work order.** The fix round routed all four MAJORs to the designer:
+  one was the content-creator's undelivered field copy, one was a Stories derivative the brief
+  explicitly forbids building until the master is approved. Findings now carry `owner`
+  (designer/content-creator/client/none) and `scope` (this-artifact/flagged-forward), and only what the
+  designer can fix on this artifact reaches a fix round. The rest surface as `forHuman`. Eval **U60**.
+- **Nobody owned proportion.** The art-director's brief aimed it at conformance to the directive and the
+  source. It now carries an explicit proportion mandate with numbers — dominant element and its share,
+  message versus decoration, total empty span as a % of height, and the display size argued against the
+  other steps in the scale — and is told to judge the composition **on its own merit, not against the
+  directive**, because a directive can be wrong and it is the only role positioned to say so. Eval
+  **U58**, logged `MISSED — the operator caught it`.
+- **The gate was reviewing 38 targets.** `build.changedIds` was used as the target list, so four roles
+  were told to render thirty 3x120px rectangles at 1300px and zoom-crop their seams. The designer now
+  returns `artboardIds` and the gate reviews the creative, not the node.
+- **`BREVITY` was written for reviewers and applied to producers.** "Be brief: the findings and a
+  verdict" went to the creative-director, content-creator, art-director and designer, none of which
+  return findings or a verdict. Split into `BREVITY` and `BREVITY_BUILD`.
+
+### Evals
+**U58** proportion has no owner · **U59** the director does the designer's job · **U60** the gate is
+anchored, and severity is not a work order. 60 cases, 14 MISSED — the MISSED count went UP, which is
+what an honest maturity metric looks like when a human finds something the gates did not.
+
+### Harness
+`scripts/dry-run.mjs` is at 46 assertions across 19 scenarios, now pinning: the gate is handed the
+artboard and not every changed node; no deviation or ruling text reaches a reviewer; the
+creative-director is forbidden coordinates; a MAJOR owned by another role never becomes a designer
+dispatch; a flagged-forward MAJOR never consumes a fix round.
+
 ## [3.0.0] — 2026-09-10
 
 **One process.** The two-speed design is gone, in both directions, and the gate now runs inside the

@@ -95,13 +95,16 @@ function checkStructure (name, r) {
 
 // ── Scenario vocabulary ───────────────────────────────────────────────────────
 const CONCEPT = { subject: 'the commute, not the bike', directive: 'hero lower-right, empty lower third',
+                  proportions: 'hero dominates ~45% of frame; message beats decoration',
+                  typeStep: '128 — the top step, because the proposition is verbal',
                   masterSize: '1080x1350', sizeBasis: 'Meta Feed 4:5, knowledge/platforms/meta.md',
                   heroCriteria: 'a bike being used, not posed' }
 const DECK = { headline: 'Traffic is optional.', cta: 'Book a test ride', proof: 'a bike in real traffic',
                clientVerify: 'range figure unconfirmed' }
 const PICK = { outcome: 'SELECTED', reasoning: 'the only frame with a rider in motion',
                chosenPath: './photography/2026-approved/drift-commute-03.jpg' }
-const BUILT = { status: 'DONE', changedIds: ['25:2'], notes: 'built to directive',
+const BUILT = { status: 'DONE', changedIds: ['25:2', '25:3', '25:4'], artboardIds: ['25:2'],
+                notes: 'built to directive',
                 emptiestRegion: '12% upper-left, bounded on two sides', deviations: 'none' }
 const CLEAN = { verdict: 'PASS', findings: [], checks: 'all non-optional checks answered' }
 const finding = (severity, over = {}) => ({
@@ -135,6 +138,17 @@ head('create-ad — the one process')
     : err(`clean run returned ${r.result.outcome}, expected SHIP`)
   // Production is sequential and single-purpose: one role, one job. Merging any two of these is
   // what produced U52, U53 and U54, all three of which existed only in the mode that merged them.
+  // The gate reviews the ARTBOARD, not all three touched nodes.
+  const gateTargets = JSON.parse(dispatched(r, 'art-director', 'Gate')[0].prompt.match(/Targets: (\[.*?\])\./s)[1])
+  gateTargets.length === 1 && gateTargets[0].id === '25:2'
+    ? ok('the gate is handed the artboard, not every changed node')
+    : err(`gate received ${gateTargets.length} targets: ${JSON.stringify(gateTargets)}`)
+  // The reviewers must not be handed the designer's defence or the CD's ruling before they look.
+  const gatePrompts = r.calls.filter(c => c.phase === 'Gate').map(c => c.prompt).join('\n')
+  const unanchored = !/deviation|ruling/i.test(gatePrompts)
+  unanchored
+    ? ok('no designer deviations and no CD ruling leak into the gate context')
+    : err('the gate context contains the deviations or the ruling — the reviewers are anchored')
   const expected = ['Concept/creative-director', 'Copy/content-creator', 'Select/art-director',
                     'Build/designer', 'Gate/art-director', 'Gate/design-analyst',
                     'Gate/content-creator', 'Gate/quality-officer']
@@ -181,6 +195,11 @@ head('create-ad — the one process')
   dispatched(r, 'art-director', 'Select').length === 0
     ? ok('no inventory ⇒ Select is not dispatched; there is nothing to select from')
     : err('Select ran with no inventory')
+  const cdPrompt = dispatched(r, 'creative-director', 'Concept')[0].prompt
+  const noCoords = /DO NOT WRITE PIXEL COORDINATES/.test(cdPrompt)
+  noCoords
+    ? ok('the creative-director is forbidden absolute coordinates (U59)')
+    : err('the creative-director may still write the layout in pixels')
   const build = dispatched(r, 'designer', 'Build')[0]
   const typeOnly = /TYPE-ONLY/.test(build.prompt) && /[Nn]ever invent/.test(build.prompt)
   typeOnly
@@ -327,6 +346,24 @@ head('creative-gate — the one gate')
   String(r.result.decision).startsWith('PARTIAL')
     ? ok('a stalled re-gate yields PARTIAL — the pre-fix verdict never stands in for it')
     : err(`a stalled re-gate produced ${r.result.decision}`)
+}
+{
+  // A MAJOR another role owns must not become a designer work order (U60).
+  const r = await run('creative-gate.js', GATE_ARGS, opts =>
+    opts.agentType === 'content-creator' && opts.phase === 'Gate'
+      ? { verdict: 'FAIL', findings: [finding('MAJOR', { owner: 'content-creator' })], checks: 'x' } : CLEAN)
+  dispatched(r, 'designer').length === 0 && r.result.forHuman.length === 1
+    ? ok("a MAJOR owned by another role goes to the human, never to the designer's fix round (U60)")
+    : err(`another role's MAJOR produced ${dispatched(r,'designer').length} designer dispatches`)
+}
+{
+  // Work the brief sequences for later is not a defect in the artifact in front of you.
+  const r = await run('creative-gate.js', GATE_ARGS, opts =>
+    opts.agentType === 'quality-officer'
+      ? { verdict: 'FAIL', findings: [finding('MAJOR', { scope: 'flagged-forward' })], checks: 'x' } : CLEAN)
+  dispatched(r, 'designer').length === 0 && r.result.forHuman.length === 1
+    ? ok('a flagged-forward MAJOR never consumes a fix round on the current artifact (U60)')
+    : err(`a flagged-forward MAJOR triggered ${dispatched(r,'designer').length} designer dispatches`)
 }
 {
   const r = await run('creative-gate.js', { context: 'gate the masters' }, () => { throw new Error('dispatched!') })

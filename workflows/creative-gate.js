@@ -69,6 +69,13 @@ const BREVITY =
   'Be brief: the findings and a verdict. No preamble, no restating the brief, no options you rejected. ' +
   'Brevity cuts what you WRITE, never what you CHECK — every check marked NON-OPTIONAL below runs.'
 
+// The producing roles return a concept, a deck, a selection or a build — not findings and not a
+// verdict. Telling them to return "the findings and a verdict" asks for the wrong shape in the same
+// sentence that asks for brevity.
+const BREVITY_BUILD =
+  'Be brief: decisions, not deliberation. No preamble, no restating the brief, no options you rejected. ' +
+  'Brevity cuts what you WRITE, never what you CHECK — every check marked NON-OPTIONAL below runs.'
+
 const MAX_ROUNDS = 2
 
 // ── The roster ────────────────────────────────────────────────────────────────
@@ -91,6 +98,15 @@ const GATE_ROSTER = [
     '      sentence (U46).\n' +
     '  (d) Is every placed asset\'s lineage CITED — a file name or node id — rather than asserted\n' +
     '      in a layer name? An assertion is not a citation (U39).\n' +
+    '  (e) PROPORTION — you own this and nobody else can. Measure and state:\n' +
+    '      - the DOMINANT element and its share of the frame, and whether it is the MESSAGE or the\n' +
+    '        DECORATION. If decoration outweighs message, that is a MAJOR however clean the tokens are.\n' +
+    '      - total empty vertical span as a % of height. Past ~40% the frame is not composed, it is\n' +
+    '        under-filled, and no per-region cap will show it because the emptiness is distributed.\n' +
+    '      - the display size against the OTHER steps the profile offers. A size inside the scale is\n' +
+    '        not thereby the right one; say which step this should be and why.\n' +
+    '      Judge the composition ON ITS OWN MERIT, not against the directive. A directive can be\n' +
+    '      wrong, and you are the only role positioned to say so.\n' +
     'Then: reference geometry, device and object realism, honest endings, and squint hierarchy.' },
 
   { agent: 'design-analyst', group: 1, focus:
@@ -142,6 +158,13 @@ const FINDINGS_SCHEMA = {
         severity: { type: 'string', enum: ['BLOCKER', 'MAJOR', 'MINOR', 'ENVIRONMENT'] },
         where: { type: 'string' }, issue: { type: 'string' }, fix: { type: 'string' },
         measured: { type: 'string' }, expected: { type: 'string' },
+        // WHO can fix this. Only 'designer' findings reach the fix round; everything else goes to the
+        // human with the verdict. A gate that routes another role's deliverable to the designer spends
+        // a round on work she cannot do.
+        owner: { type: 'string', enum: ['designer', 'content-creator', 'client', 'none'] },
+        // 'flagged-forward' = about work the brief sequences for LATER (a derivative not yet built).
+        // Never actionable against the artifact in front of you.
+        scope: { type: 'string', enum: ['this-artifact', 'flagged-forward'] },
         // contested = it touches content the client explicitly asked to keep. Never auto-applied.
         contested: { type: 'boolean' } } } },
     // Answers to the NON-OPTIONAL checks, so a silent omission is visible rather than assumed clean.
@@ -178,7 +201,12 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
         `${where}${ctx}\n${READ_SCOPE}\n\n${s.focus}\n\n` +
         'Severity: BLOCKER (a defect; nothing ships) / MAJOR / MINOR / ENVIRONMENT (outside the work; ' +
         're-gating will not change it). Give every finding a location and an exact fix — a px value, a ' +
-        'token name, a node id. Mark a finding contested:true if it touches content the client ' +
+        'token name, a node id.\nSet `owner` on every finding: `designer` only when a change to THIS ' +
+        'artifact fixes it; `content-creator` for copy that has not been written; `client` for an ' +
+        'answer or an asset only they can supply; `none` when nothing can. Set `scope` to ' +
+        '`flagged-forward` when the finding is about a size or placement the brief sequences for after ' +
+        'this master is approved — the absence of work nobody was told to do yet is not a defect in ' +
+        'the work in front of you.\nMark a finding contested:true if it touches content the client ' +
         `explicitly asked to keep; it goes to the human as a decision, not to the designer as a task.\n` +
         `Put your answers to the NON-OPTIONAL checks in 'checks', including the ones that came back ` +
         `clean — an omitted check is indistinguishable from a failed one.\n${BREVITY}`,
@@ -205,8 +233,18 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
       reviewed: first.map(r => r.agent), expected: GATE_ROSTER.map(s => s.agent) }
 
   const latest = new Map(first.map(r => [r.agent, r]))
+  // Only what the designer can actually fix on THIS artifact reaches a fix round. Severity alone is
+  // not a work order: on the first live run this routed a content-creator deliverable and a
+  // not-yet-due derivative to the designer, and one of them was work the brief forbids doing yet.
+  const fixable = f => !f.contested
+    && (f.severity === 'BLOCKER' || f.severity === 'MAJOR')
+    && (f.owner === undefined || f.owner === 'designer')
+    && f.scope !== 'flagged-forward'
   const actionable = () => [...latest.values()].flatMap(r =>
-    r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR'))
+    r.findings.filter(fixable).map(f => ({ agent: r.agent, ...f })))
+  // Raised, real, and not the designer's to fix. These go to the human with the verdict.
+  const forHuman = () => [...latest.values()].flatMap(r =>
+    r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR') && !fixable(f))
       .map(f => ({ agent: r.agent, ...f })))
 
   let round = 0
@@ -279,6 +317,7 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
     decision, rounds: round, escalated,
     blockers, majors, environment, minors,
     contested: final.flatMap(r => r.findings.filter(f => f.contested).map(f => ({ agent: r.agent, ...f }))),
+    forHuman: forHuman(),
     checks: final.map(r => ({ agent: r.agent, checks: r.checks || null })),
     perAgent: final.map(r => ({ agent: r.agent, verdict: r.verdict, findings: r.findings.length })),
     ledger,

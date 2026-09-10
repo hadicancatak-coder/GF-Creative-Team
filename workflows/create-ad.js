@@ -76,6 +76,13 @@ const BREVITY =
   'Be brief: the findings and a verdict. No preamble, no restating the brief, no options you rejected. ' +
   'Brevity cuts what you WRITE, never what you CHECK — every check marked NON-OPTIONAL below runs.'
 
+// The producing roles return a concept, a deck, a selection or a build — not findings and not a
+// verdict. Telling them to return "the findings and a verdict" asks for the wrong shape in the same
+// sentence that asks for brevity.
+const BREVITY_BUILD =
+  'Be brief: decisions, not deliberation. No preamble, no restating the brief, no options you rejected. ' +
+  'Brevity cuts what you WRITE, never what you CHECK — every check marked NON-OPTIONAL below runs.'
+
 const MAX_ROUNDS = 2
 
 // ── The roster ────────────────────────────────────────────────────────────────
@@ -98,6 +105,15 @@ const GATE_ROSTER = [
     '      sentence (U46).\n' +
     '  (d) Is every placed asset\'s lineage CITED — a file name or node id — rather than asserted\n' +
     '      in a layer name? An assertion is not a citation (U39).\n' +
+    '  (e) PROPORTION — you own this and nobody else can. Measure and state:\n' +
+    '      - the DOMINANT element and its share of the frame, and whether it is the MESSAGE or the\n' +
+    '        DECORATION. If decoration outweighs message, that is a MAJOR however clean the tokens are.\n' +
+    '      - total empty vertical span as a % of height. Past ~40% the frame is not composed, it is\n' +
+    '        under-filled, and no per-region cap will show it because the emptiness is distributed.\n' +
+    '      - the display size against the OTHER steps the profile offers. A size inside the scale is\n' +
+    '        not thereby the right one; say which step this should be and why.\n' +
+    '      Judge the composition ON ITS OWN MERIT, not against the directive. A directive can be\n' +
+    '      wrong, and you are the only role positioned to say so.\n' +
     'Then: reference geometry, device and object realism, honest endings, and squint hierarchy.' },
 
   { agent: 'design-analyst', group: 1, focus:
@@ -149,6 +165,13 @@ const FINDINGS_SCHEMA = {
         severity: { type: 'string', enum: ['BLOCKER', 'MAJOR', 'MINOR', 'ENVIRONMENT'] },
         where: { type: 'string' }, issue: { type: 'string' }, fix: { type: 'string' },
         measured: { type: 'string' }, expected: { type: 'string' },
+        // WHO can fix this. Only 'designer' findings reach the fix round; everything else goes to the
+        // human with the verdict. A gate that routes another role's deliverable to the designer spends
+        // a round on work she cannot do.
+        owner: { type: 'string', enum: ['designer', 'content-creator', 'client', 'none'] },
+        // 'flagged-forward' = about work the brief sequences for LATER (a derivative not yet built).
+        // Never actionable against the artifact in front of you.
+        scope: { type: 'string', enum: ['this-artifact', 'flagged-forward'] },
         // contested = it touches content the client explicitly asked to keep. Never auto-applied.
         contested: { type: 'boolean' } } } },
     // Answers to the NON-OPTIONAL checks, so a silent omission is visible rather than assumed clean.
@@ -185,7 +208,12 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
         `${where}${ctx}\n${READ_SCOPE}\n\n${s.focus}\n\n` +
         'Severity: BLOCKER (a defect; nothing ships) / MAJOR / MINOR / ENVIRONMENT (outside the work; ' +
         're-gating will not change it). Give every finding a location and an exact fix — a px value, a ' +
-        'token name, a node id. Mark a finding contested:true if it touches content the client ' +
+        'token name, a node id.\nSet `owner` on every finding: `designer` only when a change to THIS ' +
+        'artifact fixes it; `content-creator` for copy that has not been written; `client` for an ' +
+        'answer or an asset only they can supply; `none` when nothing can. Set `scope` to ' +
+        '`flagged-forward` when the finding is about a size or placement the brief sequences for after ' +
+        'this master is approved — the absence of work nobody was told to do yet is not a defect in ' +
+        'the work in front of you.\nMark a finding contested:true if it touches content the client ' +
         `explicitly asked to keep; it goes to the human as a decision, not to the designer as a task.\n` +
         `Put your answers to the NON-OPTIONAL checks in 'checks', including the ones that came back ` +
         `clean — an omitted check is indistinguishable from a failed one.\n${BREVITY}`,
@@ -212,8 +240,18 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
       reviewed: first.map(r => r.agent), expected: GATE_ROSTER.map(s => s.agent) }
 
   const latest = new Map(first.map(r => [r.agent, r]))
+  // Only what the designer can actually fix on THIS artifact reaches a fix round. Severity alone is
+  // not a work order: on the first live run this routed a content-creator deliverable and a
+  // not-yet-due derivative to the designer, and one of them was work the brief forbids doing yet.
+  const fixable = f => !f.contested
+    && (f.severity === 'BLOCKER' || f.severity === 'MAJOR')
+    && (f.owner === undefined || f.owner === 'designer')
+    && f.scope !== 'flagged-forward'
   const actionable = () => [...latest.values()].flatMap(r =>
-    r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR'))
+    r.findings.filter(fixable).map(f => ({ agent: r.agent, ...f })))
+  // Raised, real, and not the designer's to fix. These go to the human with the verdict.
+  const forHuman = () => [...latest.values()].flatMap(r =>
+    r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR') && !fixable(f))
       .map(f => ({ agent: r.agent, ...f })))
 
   let round = 0
@@ -286,6 +324,7 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
     decision, rounds: round, escalated,
     blockers, majors, environment, minors,
     contested: final.flatMap(r => r.findings.filter(f => f.contested).map(f => ({ agent: r.agent, ...f }))),
+    forHuman: forHuman(),
     checks: final.map(r => ({ agent: r.agent, checks: r.checks || null })),
     perAgent: final.map(r => ({ agent: r.agent, verdict: r.verdict, findings: r.findings.length })),
     ledger,
@@ -302,9 +341,14 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
 // ──8<───────────────────── END SHARED GATE BLOCK ─────────────────────8<──
 
 // ── File-local schemas ────────────────────────────────────────────────────────
-const CONCEPT = { type: 'object', required: ['subject', 'directive'], properties: {
+const CONCEPT = { type: 'object', required: ['subject', 'directive', 'proportions'], properties: {
   subject: { type: 'string' },        // the ONE thing that owns the frame at 0.5s
-  directive: { type: 'string' },      // precise enough to build from without guessing
+  directive: { type: 'string' },      // INTENT and hierarchy. Never absolute pixel coordinates.
+  // Proportion is the concept's business; the NUMBERS that deliver it are the designer's. Splitting
+  // them this way is the whole point: a director who writes y-coordinates has done the designer's job,
+  // and the designer then has nothing left to decide but typing. See U59.
+  proportions: { type: 'string' },    // dominant element + its share of frame + why; message vs decoration
+  typeStep: { type: 'string' },       // which step of the display scale, ARGUED against the others
   masterSize: { type: 'string' },     // confirmed, or derived from the placement spec
   sizeBasis: { type: 'string' },      // which named placement the size came from, and the file
   heroCriteria: { type: 'string' }, risks: { type: 'string' } } }
@@ -329,6 +373,7 @@ const BUILD = { type: 'object', required: ['status', 'changedIds', 'notes'], pro
   status: { type: 'string', enum: ['DONE', 'ESCALATE'] },
   changedIds: { type: 'array', items: { type: 'string' } }, notes: { type: 'string' },
   location: { type: 'string' },       // where it actually landed, if the designer created the file
+  artboardIds: { type: 'array', items: { type: 'string' } },  // the CREATIVES — what the gate reviews
   emptiestRegion: { type: 'string' }, // the measured number, not an adjective
   deviations: { type: 'string' },      // every measurable departure from the directive
   conflict: { type: 'string' },        // routed to the CD for a ruling, never decided silently
@@ -414,15 +459,26 @@ const concept = await agent(
   'Name the ONE subject that owns the frame at half a second, and the hero that PROVES the ' +
   'headline — a generic product shot under any claim is lazy. An ad is not a page: the fewest ' +
   'elements that carry the idea.\n' +
+  'DO NOT WRITE PIXEL COORDINATES. No x=, no y=, no "top y=192". The moment you specify the layout ' +
+  'numerically you have done the production designer\'s job, and she is left typing rather than ' +
+  'composing — which is how a frame ends up token-clean and badly proportioned (U59). Direct INTENT ' +
+  'and HIERARCHY; she owns every number.\n' +
+  'In `proportions`, state: which element DOMINATES and roughly what share of the frame it should ' +
+  'take, and whether that element is the MESSAGE or the DECORATION. If decoration outweighs message ' +
+  'you have to justify it or change it. Give the intended ratio of occupied to empty space as a rough ' +
+  'target, not a coordinate.\n' +
+  'In `typeStep`, name which step of the profile\'s display scale the headline takes AND why, against ' +
+  'the other steps it offers. A size inside the scale is not thereby the right one — the biggest step ' +
+  'exists to be spent, and an ad whose proposition is verbal usually should spend it.\n' +
   (a.inventoryPath
     ? `State heroCriteria precisely enough for the art-director to select against from the inventory ` +
       `at ${a.inventoryPath}.`
     : 'There is NO asset inventory, so direct a TYPE-ONLY composition: typography, rule, field and ' +
       'negative space are the subject. Do not direct a photographic hero that does not exist, and ' +
       'do not direct anyone to draw one — say so in risks if the claim genuinely needs an image.') +
-  `\nState the directive precisely: the layout system, where the subject sits, where the eye enters ` +
-  `and where it rests. "Empty lower third" means a third — the designer will be measured against ` +
-  `your words (U54).\n${BREVITY}`,
+  `\nState the directive as intent: the layout system, where the subject sits relative to the frame, ` +
+  `where the eye enters and where it rests. Say "the lower third stays empty" and let her measure it; ` +
+  `do not say "y=927 to y=1287".\n${BREVITY_BUILD}`,
   { ...tier('creative-director'), agentType: 'creative-director', schema: CONCEPT, phase: 'Concept' })
 if (!concept) return { outcome: 'NO-RESULT', halted: 'Concept', defaults }
 const masterSize = a.masterSize || concept.masterSize
@@ -448,7 +504,7 @@ const deck = await agent(
   'Write INSIDE the character limits for these placements and note in charNotes where a limit forced ' +
   `a choice. The CTA comes from the approved vocabulary.${extra}\n` +
   'Assert no factual claim the profile does not substantiate; everything unconfirmed goes to ' +
-  `clientVerify rather than into the frame.\n${BREVITY}`,
+  `clientVerify rather than into the frame.\n${BREVITY_BUILD}`,
   { ...tier('content-creator'), agentType: 'content-creator', schema: DECK, phase: 'Copy' })
 if (!deck) return { outcome: 'NO-RESULT', halted: 'Copy', concept, defaults }
 log(`Headline: ${deck.headline}`)
@@ -469,7 +525,7 @@ if (a.inventoryPath) {
     'usable; put the compromises in reservations and they travel to the gate as known issues. ' +
     'Reserve ASK-CLIENT and NO-VIABLE-ASSET for work that would be harmful, illegal, off-brand ' +
     'beyond repair, or actively misleading. "Weaker than I would like" is a reservation, not a ' +
-    `refusal: a client who asked for an ad expects an ad, with your objections attached (U43).\n${BREVITY}`,
+    `refusal: a client who asked for an ad expects an ad, with your objections attached (U43).\n${BREVITY_BUILD}`,
     { ...tier('art-director'), agentType: 'art-director', schema: PICK, phase: 'Select' })
 
   const PROCEED = ['SELECTED', 'SELECTED-WITH-RESERVATIONS']
@@ -504,6 +560,9 @@ const build = await agent(
   'Tokens only — a value not in the profile is a question, not a choice. The CTA is a BUTTON with a ' +
   'fill, never bare text (U46). Integer coordinates. Cite sources in layer names: an assertion is ' +
   'not a citation (U39).\n' +
+  'YOU own every number. The directive gives intent and proportion; the coordinates, the spacing and ' +
+  'the type size are yours to derive from the profile scale — and to argue with if the intent cannot ' +
+  'be hit on-scale. Return the top-level artboard id(s) in artboardIds.\n' +
   'Choose a layout system and name it in layoutSystem. Decide the eye path.\n' +
   'NON-OPTIONAL before you return, however brief you are being:\n' +
   '  (a) MEASURE the largest empty region as a percentage of canvas and report the number in ' +
@@ -516,7 +575,7 @@ const build = await agent(
   '  (c) If a required face is absent from the RENDERER — not merely from the machine — that is a ' +
   'BLOCKING flag at the top of your notes, never a footnote. Do not substitute silently (U40, U48).\n' +
   'If you disagree with the direction, put it in conflict; do not decide silently. ESCALATE rather ' +
-  `than invent or guess.\n${BREVITY}`,
+  `than invent or guess.\n${BREVITY_BUILD}`,
   { ...tier('designer'), agentType: 'designer', schema: BUILD, phase: 'Build' })
 if (!build || build.status === 'ESCALATE')
   return { outcome: 'ESCALATED', halted: 'Build', concept, deck, pick, build, defaults }
@@ -546,7 +605,7 @@ if (build.conflict && build.conflict.trim()) {
     `Layout system chosen: ${build.layoutSystem || 'not stated'}\nBuild notes: ${build.notes}\n` +
     `Your directive was: ${concept.directive}\n\n` +
     'Rule on the OBJECTIVE, not the measurement — a role can be measurably right about the wrong ' +
-    `question. Say concretely what happens, and name whose reasoning you are setting aside.\n${BREVITY}`,
+    `question. Say concretely what happens, and name whose reasoning you are setting aside.\n${BREVITY_BUILD}`,
     { ...tier('creative-director'), agentType: 'creative-director', schema: RULING,
       phase: 'Build', label: 'cd-ruling' })
   if (ruling) log(`Ruling: ${ruling.ruling}`)
@@ -556,13 +615,23 @@ if (build.conflict && build.conflict.trim()) {
 // No separate art-director verify pass runs before this. It used to, and it measured the same frame
 // the gate's art-director measures — one serial dispatch to pre-empt a review that runs anyway, in
 // parallel, alongside three other roles. The gate IS the verify.
+// The gate gets the BRIEF and the ARTIFACT. Nothing else.
+//
+// It used to also receive the designer's declared deviations and the creative-director's ruling. That
+// anchors it: on the first live run the art-director wrote "per the ruling I am not proposing to
+// shorten it" about the one element it was there to contest. A reviewer handed the defence before the
+// evidence is reviewing the defence. Deviations and rulings travel to the HUMAN, in the result.
+//
+// Targets are the ARTBOARD(S), not every touched node. `changedIds` is the record of what was built;
+// on the first live run it made 38 targets, thirty of them 3x120px rectangles, each of which four
+// roles were told to render at 1300px and zoom-crop. The gate's unit is the creative.
+const artboards = build.artboardIds && build.artboardIds.length
+  ? build.artboardIds
+  : build.changedIds.slice(0, 1)
 const gate = await runGate({
-  targets: build.changedIds.map(id => ({ id, note: 'master built this run' })),
+  targets: artboards.map(id => ({ id, note: 'master built this run' })),
   location,
-  context: `${a.brief} — master ${masterSize} for ${a.platforms}.` +
-    (pick && pick.reservations ? ` Known reservations on the hero: ${pick.reservations}.` : '') +
-    (build.deviations ? ` Designer-declared deviations: ${build.deviations}.` : '') +
-    (ruling ? ` A creative-director ruling applies: ${ruling.ruling}.` : ''),
+  context: `${a.brief} — master ${masterSize} for ${a.platforms}.`,
   date: a.date,
   gatePhase: 'Gate',
   fixPhase: 'Fix',
@@ -586,6 +655,10 @@ return {
   deviations: build.deviations || null,
   ruling,
   gate,
+  // Raised by the gate, real, and NOT the designer's to fix — another role's deliverable, a client
+  // ask, or work the brief sequences for later. These are yours, not hers.
+  forHuman: gate.forHuman || [],
+  declaredDeviations: build.deviations || null,
   clientVerify: deck.clientVerify || null,
   // The caller writes these. Workflow scripts have no filesystem access, and a gate whose result
   // was never recorded did not happen — the Stop hook is right to keep blocking until it is (U37).
