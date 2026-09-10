@@ -48,6 +48,17 @@ cannot read the clock.
    The roster is fixed and every role sees every target. Do not ask an agent which roles to dispatch:
    that costs a dispatch, and it can only narrow coverage.
 
+2a. **Make sure the reviewers can SEE the work.** This is the single most likely reason a gate returns
+   nothing useful. A subagent's `tools:` list is a strict allowlist that excludes MCP tools unless each
+   is named, and a subagent launched in the background is denied them regardless. Before dispatching:
+   **export each target to PNG (≥1300px, plus a ~110px thumbnail) and pass the file paths** — as
+   `renders` to `workflows/creative-gate.js`, or in the prompt when dispatching by hand. Every role can
+   `Read` a file even when it cannot reach the design tool.
+
+   A reviewer that cannot see a target must return a single **ENVIRONMENT** finding saying so and ask
+   for the renders. It must never write a review it could not perform. **A review written without
+   looking is worse than no review** — it is a clean-looking pass over work nobody examined. Eval U62.
+
 3. Reviewers are **READ-ONLY** on the artifact. They return severity-ranked findings with a location and
    an exact fix, plus their answers to the non-optional checks — including the ones that came back clean,
    because an omitted check is indistinguishable from a failed one.

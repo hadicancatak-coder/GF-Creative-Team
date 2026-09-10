@@ -185,8 +185,19 @@ const FIX_SCHEMA = {
 // gate → fix → re-gate (max 2 rounds) → consolidated verdict, ledger rows and a marker.
 // Returns everything; writes nothing. Workflow scripts have no filesystem access and cannot
 // read the clock, so the CALLER writes the marker and the ledger, and passes `date` in.
-async function runGate({ targets, location, context, date, gatePhase, fixPhase }) {
+async function runGate({ targets, location, context, date, gatePhase, fixPhase, renders }) {
   const where = location ? ` They live in: ${location}.` : ''
+  // A reviewer that cannot SEE the work cannot review it, and its tool access is not something this
+  // script controls: a `tools:` whitelist excludes MCP tools unless each is named, and a subagent
+  // launched in the background is denied them regardless of the whitelist. Both are true and neither
+  // is visible from here. So the caller may export renders to disk and pass the paths; every reviewer
+  // can Read a PNG even when it cannot reach the design tool. Eval U62.
+  const shots = renders && renders.length
+    ? `\nRENDERS ON DISK — use these, they are authoritative:\n${renders.map(r => `  ${r}`).join('\n')}\n` +
+      'Read them directly. Do not skip a visual check because a design-tool call is unavailable.'
+    : '\nIf you cannot reach the design tool to render a target, do NOT guess and do NOT skip the check: ' +
+      'return it as a single ENVIRONMENT finding saying you could not see the work, and ask the caller ' +
+      'for exported PNGs on disk. A review written without looking is worse than no review.'
   const ctx = context ? ` Campaign context: ${context}.` : ''
   const ledger = []
   const record = (agent, purpose, outcome) =>
@@ -198,7 +209,7 @@ async function runGate({ targets, location, context, date, gatePhase, fixPhase }
       const wave = steps.filter(s => s.group === g)
       const res = await parallel(wave.map(s => () => agent(
         `Gate review — READ-ONLY, never modify the artifact. Targets: ${JSON.stringify(targets)}.` +
-        `${where}${ctx}\n${READ_SCOPE}\n\n${s.focus}\n\n` +
+        `${where}${ctx}${shots}\n${READ_SCOPE}\n\n${s.focus}\n\n` +
         'Severity: BLOCKER (a defect; nothing ships) / MAJOR / MINOR / ENVIRONMENT (outside the work; ' +
         're-gating will not change it). Give every finding a location and an exact fix — a px value, a ' +
         'token name, a node id.\nSet `owner` on every finding: `designer` only when a change to THIS ' +
@@ -367,6 +378,7 @@ const gate = await runGate({
   location: a.location,
   context: a.context,
   date: a.date,
+  renders: a.renders,
   gatePhase: 'Gate',
   fixPhase: 'Fix',
 })

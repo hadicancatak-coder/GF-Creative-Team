@@ -35,24 +35,44 @@ has no `tools:` restriction, and it tested for `Write|Edit|NotebookEdit` — whi
 `use_figma`, the tool that actually changes a Figma file. It was checking the wrong write surface while
 mandating the blindness.
 
-**A first fix was attempted and reverted.** Naming `mcp__Figma__get_screenshot` and friends in the
-whitelists made it measurably worse on re-probe — the art-director came back with `Read, Glob, Grep,
-Bash` and no `ToolSearch` at all. The mechanism by which a `tools:` whitelist admits MCP tools is not
-understood, and an unverified change that shrinks a tool set is not a fix. The whitelists are back to
-their shipped state.
+**There are two independent causes, and each alone is enough.**
+
+1. `tools:` is a strict allowlist and **MCP tools are excluded unless each is named** — documented, and
+   the shipped whitelists named none. The `mcp__Figma__*` server wildcard is not usable here because it
+   would also grant `use_figma`, the write tool, and there is no config-level read-only scoping for an
+   MCP server. So the four review roles now name their read tools individually. **This is
+   documented-correct and it is shipped.**
+2. It was **not sufficient on its own.** After naming them, a live re-probe still returned `Read, Glob,
+   Grep, Bash`. A subagent launched in the background receives a further-restricted set that excludes
+   MCP tools *regardless of its whitelist*, and the harness runs these agents asynchronously. That is an
+   environment constraint the plugin cannot configure its way out of.
+
+**So the gate now ships a fallback that does not depend on the channel at all.** `runGate` takes
+`renders` — paths to exported PNGs — and passes them into every reviewer's prompt as authoritative. Every
+role can `Read` a file even when it cannot reach a design tool. When no renders are supplied, reviewers
+are told explicitly: do not guess and do not skip the check; return a single ENVIRONMENT finding saying
+you could not see the work, and ask for PNGs on disk.
+
+**The art-director had already done exactly that, unprompted.** Probed with no Figma access it returned
+an ENVIRONMENT finding, refused to judge pixels it could not see — *"I will not guess at what is in the
+frame"* — and asked for an exported PNG at ≥1300px. The brief worked under a constraint nobody had
+written it for. The fallback the gate now ships is the one the role asked for.
 
 ### Changed
+- The four review roles now name their design-tool **read** tools explicitly, and none of them can reach
+  a write tool. `runGate` accepts `renders` and threads exported PNG paths to every reviewer.
 - The role-boundary check now tests the **real** write surface — `use_figma`, `create_new_file`,
   `upload_assets`, `create_shader`, `update_shader` — not just `Write|Edit|NotebookEdit`.
 - It also warns, per role, when a gate role's whitelist names no design-tool read access, so the open
   bug is visible on every run rather than living in a changelog entry.
-- Eval **U62**, recorded **OPEN — NOT FIXED**. Its lesson: a tool restriction has two failure modes, and
+- Eval **U62**. Half fixed and half environmental, and the entry says which is which. Its lesson: a tool restriction has two failure modes, and
   the expensive one is under-permission, because it is silent — the role returns something plausible from
   whatever it could reach. **Test a restriction by having the role do its job, not by reading its config.**
 
 ### This also explains the honest answer to "how many creatives have passed the gate"
-**Zero.** Not many, not some. And this entry is the likeliest reason the number has never moved: the gate
-has probably never run as shipped. Every result in `examples/` was produced by unrestricted stand-ins.
+**Zero.** Not many, not some. And this entry is the reason the number has never moved: **the gate has
+never once run as shipped.** Every result in `examples/` was produced by unrestricted stand-ins, which is
+the same class of error as U51 — testing a substitute and attributing the result to the artifact.
 
 ## [3.1.0] — 2026-09-10
 
