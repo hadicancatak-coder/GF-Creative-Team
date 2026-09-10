@@ -187,8 +187,14 @@ if (DEPTH === 'fast') {
     SURGICAL + `\nPick the asset that best proves the idea — imperfect is expected, note it and build. ` +
     `Then build: artboard, margins, hero by measured ratio, type from the profile scale, CTA as a ` +
     `BUTTON with a fill. Tokens only, integer coordinates, cite sources in layer names.\n` +
-    `VERIFY ONCE: a single full-size render to confirm nothing collides or clips. Do not zoom-sweep ` +
-    `every region — the gate does that.` + BRIEF_RULE,
+    `VERIFY ONCE, and these two checks are NOT optional however brief you are being:\n` +
+    `  (a) MEASURE the largest empty region as a percentage of canvas. Over ~20% and unbounded on ` +
+    `two sides is a hole, not composed space — fix it before returning, and report the number ` +
+    `either way. Do not describe emptiness as "composed" without the measurement.\n` +
+    `  (b) If you departed from the directive in ANY measurable way — a different crop, more empty ` +
+    `space than directed, different copy — say so explicitly as a deviation. Reporting a departure ` +
+    `as though it matched the directive is the one thing that makes your notes untrustworthy.\n` +
+    `Beyond those two, one full-size render is enough — do not zoom-sweep, the gate does that.` + BRIEF_RULE,
     { ...FAST_TIER, agentType: 'designer', schema: BUILD, phase: 'Build' })
 
   return {

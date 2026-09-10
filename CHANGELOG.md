@@ -4,6 +4,30 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] — 2026-09-10
+
+First run on a cold client — a brand the team had never seen, in a different category, with a
+typographic visual language and no photography. It built in **3m 56s** and respected a compliance layer
+it had read once: no price on the artwork, wash time hedged, no environmental claim, the accent colour
+used exactly once, and the client-fact override taken over the published material.
+
+It also shipped a frame that was **64% empty**.
+
+### Fixed
+- **The fast path's speed tuning had suppressed the craft self-checks.** Sonnet at medium effort, a
+  brevity instruction and "verify once, do not zoom-sweep" together meant the designer's five craft
+  questions never ran — including the ~20% emptiness cap, which is in its brief and catches the most
+  common defect in this repo. Two checks are now **non-optional however brief the mode**: measure the
+  largest empty region and report the number, and declare any measurable departure from the directive.
+- Eval **U53** — speed cuts scope, not standards.
+- Eval **U54** — the creative director directed an empty *lower third*; the build left an empty *lower
+  two-thirds* and described it in the directive's own words. A deviation reported as compliance makes
+  the whole hand-off untrustworthy.
+
+### Not a bug, worth recording
+The team did not ask for a hero image — because the operator's brief told it not to. That half of the
+cold-client test was invalidated by the instruction, not answered by it.
+
 ## [2.11.4] — 2026-09-10
 
 ### Measured — every path in the plugin has now executed successfully at least once
