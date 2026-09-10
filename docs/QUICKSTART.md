@@ -115,13 +115,17 @@ Two layers, and they answer different questions.
 node scripts/dry-run.mjs   # the orchestration — who gets dispatched, in what order, what comes out
 ```
 
-`dry-run.mjs` stubs the workflow engine and asserts on the routing: the clean run is exactly eight
-dispatches with no role doing two jobs, nothing runs after the quality-officer, a stalled reviewer
-yields `PARTIAL` rather than a pass, an unfixable finding exhausts exactly two rounds, a contested
-finding never reaches the designer. No tokens, no Figma, and CI runs it on every push.
-`validate.sh` runs it too, so one command covers both.
+`dry-run.mjs` stubs the workflow engine and asserts on the routing — **51 assertions, 21 scenarios**:
+the clean run is exactly eight dispatches with no role doing two jobs, nothing runs after the
+quality-officer, a stalled reviewer yields `PARTIAL` rather than a pass, an unfixable finding exhausts
+exactly two rounds, a contested finding never reaches the designer, no deviation or ruling text reaches
+a reviewer, and an ambiguous artboard escalates rather than being guessed. No tokens, no Figma, and CI
+runs it on every push. `validate.sh` runs it too, so one command covers both.
 
-Then the part no harness can do: `evals/universal-cases.md` holds 57 domain-agnostic failure classes with
+`validate.sh` also **compares the installed plugin copy against your working tree**, file by file, and
+tells you to reinstall if they differ. Editing this repo does not change what runs (eval U51).
+
+Then the part no harness can do: `evals/universal-cases.md` holds 61 domain-agnostic failure classes with
 their outcomes recorded. Give an agent a case input with **no hint**, and check whether it raises the
 expected catch. Do this after any brief edit — a case that used to pass and now fails is a regression.
 

@@ -69,9 +69,10 @@ The ratio of findings caught by humans versus by gates.
 
 ## What building this taught us
 
-Ten lessons, each bought by a failure during development, each recorded as an eval case. They are the
+Eleven lessons, each bought by a failure during development, each recorded as an eval case. They are the
 part most likely to transfer to a team that has nothing to do with advertising. Lesson 8 is the one this
-project got wrong twice before getting right, and it is written up as the mistake it was.
+project got wrong twice before getting right, and it is written up as the mistake it was. Lesson 11 is
+the one the first live run taught, and it is the most important of the set.
 
 **1. Role separation must be enforced by tooling, not asked for in prose.**
 Seven briefs said who does what. All seven agents had unrestricted tools. The copywriter rendered the
@@ -143,7 +144,33 @@ assert on the routing: who ran, in what order, with what schema, and what verdic
 an agent system is deterministic and belongs in CI. The other half — whether an agent is any *good* —
 is what the evals are for, and keeping the two apart is what makes either affordable. *(U57)*
 
-The thread through all ten: **the system will do exactly what it is built to do, not what the
+**11. Conformance is not quality. A system made only of conformance checks produces defensible work.**
+The first end-to-end run passed a frame that was **50.7% empty vertical space**, with the message at
+10.2% of height and the decoration at 25.3%. It was token-clean, deviation-free, source-law-clean and
+compliant. Four reviewers and 629,000 tokens returned findings about brand attribution and legal
+wrapping. The operator looked at it for five seconds and said the proportions were wrong.
+
+Every mechanism in the system checked that something *matched*: the tokens, the platform spec, the
+directive, the mandated wording, the source inventory. Not one asked whether the result was any good. A
+pipeline like that has an excellent immune system and no taste.
+
+Three structural causes, all of which generalise:
+- **The role that owned the concept was specifying the execution.** Its directive carried eight absolute
+  pixel coordinates, so the role that owned craft had nothing to decide. Watch for this wherever a
+  "detailed spec" is praised — the detail may be one role eating another's job. *(U59)*
+- **The reviewers were handed the producer's defence before they looked.** They were given the declared
+  deviations and the director's ruling as context, and the one role positioned to contest the
+  composition wrote "per the ruling I am not proposing to shorten it." A reviewer given the defence
+  reviews the defence. *(U60)*
+- **Judgement had no owner.** Three of four reviewers owned measurable dimensions, and a measurable
+  dimension cannot fire on "this is badly proportioned." Someone must own it, and they must own it with
+  numbers — a share of frame, a ratio, a named alternative — or the finding is unarguable and gets
+  waived. *(U58)*
+
+The fix is not more rules. It is naming who owns judgement, giving them a number to judge with, and
+never letting them review against the brief that produced the work. *(U58, U59, U60)*
+
+The thread through all eleven: **the system will do exactly what it is built to do, not what the
 documentation says it should.** Every one of these was a gap between a stated rule and an enforced one.
 
 ## Generalizing to another domain

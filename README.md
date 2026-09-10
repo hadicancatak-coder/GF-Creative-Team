@@ -172,17 +172,27 @@ the shared gate block in both workflows to fail if the two copies ever drift apa
 been dispatched; no gate marker and no ledger row has ever been written. And it has never been run on a
 real brand — every run so far used a fictional profile and a single house illustration.
 
-**And the one process has not been run end to end.** Its per-dispatch costs are measured; its
-wall-clock is not, and **no figure for it appears anywhere in these docs.** This repo has published an
-unmeasured timing before and had to retract it from four places. The next honest number comes from a
-live run, not from arithmetic.
+**The one process has now been run end to end, once, on a brand it had never seen** — and the number
+below is measured, not derived: **8 dispatches, 629,267 tokens, 34.3 minutes**, producing real artwork in
+Figma. The full run is written up in [examples/sorrel-bay-run.md](examples/sorrel-bay-run.md), including
+what it cost, what the gate caught, and what it did not.
+
+**What that run did not do is pass.** It reached `FIX-THEN-REGATE`, correctly. No creative has passed a
+gate, and the fix→re-gate loop has still never completed a round.
+
+**And the operator looked at the result and said the proportions were wrong.** He was right. The frame
+was 50.7% empty vertical space, the message 10.2% of height, the decoration 25.3% — and it was
+token-clean, deviation-free and compliant throughout. Four roles and 629k tokens had nothing to say
+about it, because every check in the system was a conformance check. That is eval U58, logged
+`MISSED — the operator caught it`, and it is why the art-director now carries a proportion mandate with
+numbers in it.
 
 The runs are written up in [examples/first-live-run.md](examples/first-live-run.md), including what they
 cost, what they refused to do, and the bugs they found in this plugin — a copywriter that built the
 artwork itself, a command that would have spent 600k tokens on the word `undefined`, and a gate that
 fired on work that did not exist.
 
-## Ten lessons from building it
+## Eleven lessons from building it
 
 Each bought by a failure during development, each recorded as an eval case, and each more likely to
 transfer than anything in the briefs — [the full list is in METHOD.md](docs/METHOD.md):
@@ -199,6 +209,11 @@ transfer than anything in the briefs — [the full list is in METHOD.md](docs/ME
   class. Make the correct process affordable instead: cut what an agent writes, never who checks.
 - **A test that needs a model is a test you will not run.** Half of an agent system is deterministic
   routing. Stub the engine and put that half in CI; keep the evals for the half that isn't.
+- **Conformance is not quality, and a system made only of conformance checks produces defensible work
+  rather than good work.** Every rule above checks that something *matches* — the tokens, the spec, the
+  directive, the mandated wording. None of them asks whether the result is any good. Name the roles that
+  own judgement, give them numbers to judge with, and never let them review against the brief that
+  produced the work.
 
 The thread through all of them: *the system does what it is built to do, not what the documentation
 says it should.*

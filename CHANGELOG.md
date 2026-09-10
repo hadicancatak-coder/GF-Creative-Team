@@ -86,6 +86,18 @@ Written down because this repo's recurring failure is publishing a number nobody
   hours after writing the eval. `validate.sh` now compares the installed copy against the tree file by
   file, so the check exists in tooling rather than in a paragraph of CONTRIBUTING.
 
+### Docs
+- **[`examples/sorrel-bay-run.md`](examples/sorrel-bay-run.md)** — the full write-up of the run: the
+  hostile setup, the measured table, what the gate caught verbatim, what it missed, the seven defects the
+  run found in the plugin itself, and the limits on every number in it.
+- README, `docs/METHOD.md`, `docs/THE-TEAM.md`, `docs/QUICKSTART.md`, `workflows/README.md`,
+  `CONTRIBUTING.md` and the `creative-gate` skill all updated to the measured figures and the new role
+  boundaries. The "has not been run end to end" caveats are replaced by the run, and the claim that
+  replaced them is narrower than the caveat was: it has been run **once**, it did **not** pass, and the
+  proportion fixes remain unproven until a re-run.
+- **METHOD lesson 11 — conformance is not quality.** The most important lesson of the day and the only
+  one that came from using the thing rather than building it.
+
 ### Harness
 `scripts/dry-run.mjs` is at 51 assertions across 21 scenarios, now pinning: the gate is handed the
 artboard and not every changed node; no deviation or ruling text reaches a reviewer; the

@@ -86,6 +86,10 @@ Skipping this produces the worst kind of test result: a run that appears to exer
 succeeds or fails for unrelated reasons, and gives you a confident wrong conclusion. Three versions of
 performance work in this repo were measured against an installed copy four versions behind. Eval U51.
 
+**`./scripts/validate.sh` now checks this for you** — it compares every installed workflow, agent,
+command and skill against your working tree and warns per file when they differ. It caught the repo's own
+maintainer shipping 3.1.0 while running 3.0.0, three hours after writing the eval about it.
+
 ## Before you open a PR
 
 Run the validator. CI runs the same script, so this is the whole gate:

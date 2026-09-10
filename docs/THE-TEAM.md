@@ -14,7 +14,8 @@ Stop hook that refuses to let a session end on an ungated build.
 ## 1. Creative Director — *directs, and rules when roles disagree*
 
 **Give it:** the campaign context and the built work, or a concept before it is built.
-**You get:** the ONE subject that owns the frame, a directive precise enough to build from, a verdict
+**You get:** the ONE subject that owns the frame, a directive of INTENT — never pixel coordinates, which
+are the designer's to derive — plus the intended proportions and which step of the type scale to spend, a verdict
 (APPROVE / REVISE / REJECT) with at most 5 notes and the set's single biggest weakness — and, when the
 designer escalates a disagreement instead of deciding it, a ruling naming whose reasoning it sets aside.
 
@@ -32,11 +33,19 @@ pre-filtered menu of assets, because a shortlist someone else made is a decision
 
 ---
 
-## 2. Art Director — *picks the asset, then verifies the render*
+## 2. Art Director — *picks the asset, verifies the render, and owns proportion*
 
 **Give it:** the complete asset inventory and a directive; later, the built render.
 **You get:** a selection with reasoning and one line per rejected option — or a decision **not** to
 select. Then, on verification: findings with severity, location and a fix in pixels.
+
+**It also owns PROPORTION, and it is the only role that can.** The design-analyst compares values to
+tokens, so a display size inside the scale passes; the content-creator owns words; the quality-officer
+owns compliance. None of them can fire on "this is badly proportioned." So the Art Director reports, with
+numbers: the dominant element and its share of the frame, whether that element is the **message** or the
+**decoration**, the total empty vertical span as a % of height, and which step of the type scale the
+headline should have taken and why. It judges the composition **on its own merit, not against the
+directive** — a directive can be wrong, and this is the only role positioned to say so. *(U58)*
 
 **Call it:** twice per creative. Once before the build to choose, once after to check.
 

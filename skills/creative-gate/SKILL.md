@@ -40,7 +40,7 @@ cannot read the clock.
 
    | Role | Owns | Group |
    |---|---|---|
-   | `art-director` | render forensics — thumbnail survival at ~110px, the **measured** largest empty region as a % of canvas, CTA affordance, cited (not asserted) asset lineage, reference geometry, device realism | 1 |
+   | `art-director` | render forensics **and proportion** — thumbnail survival at ~110px, the **measured** largest empty region as a % of canvas, the dominant element's share of frame and whether it is message or decoration, total empty vertical span as a % of height, the display size argued against the other steps in the scale, CTA affordance, cited asset lineage, reference geometry. Judges the composition **on its own merit, not against the directive** | 1 |
    | `design-analyst` | every number — dimensions and ratio against the named placement, safe zones **converted to px for this canvas**, tokens, fonts resolved **in the renderer** rather than on the machine, collisions | 1 |
    | `content-creator` | every word in the frame, read off the render — mandated legal text verbatim and adjacent to its claim, per-placement character limits, claims the profile does not substantiate | 1 |
    | `quality-officer` | **final state, last** — regulation and regional rules, export weight against each platform's ceiling, system membership, and the terminal verdict | 2 |
@@ -52,9 +52,21 @@ cannot read the clock.
    an exact fix, plus their answers to the non-optional checks — including the ones that came back clean,
    because an omitted check is indistinguishable from a failed one.
 
-4. Apply BLOCKER and MAJOR fixes. **Note contested findings for the human instead of acting
-   unilaterally** — anything touching content the client explicitly told you to keep is a decision, not a
-   defect. **ENVIRONMENT findings never get a fix round**; re-running cannot change them.
+   **Give them the brief and the artifact. Nothing else.** Not the producer's declared deviations, not a
+   director's ruling. A reviewer handed the defence before the evidence reviews the defence — on the
+   first live run the art-director wrote *"per the ruling I am not proposing to shorten it"* about the
+   one element it existed to contest. Deviations and rulings go to the human, with the verdict. *(U60)*
+
+   Every finding carries an **owner** (designer / content-creator / client / none) and a **scope**
+   (this-artifact / flagged-forward). Severity is not a work order.
+
+4. Apply BLOCKER and MAJOR fixes **that the designer owns and that concern this artifact.** Everything
+   else goes to the human: another role's undelivered deliverable, a client ask, and anything the brief
+   sequences for later. On the first live run the fix round was handed a copywriter's field copy and a
+   derivative the brief forbids building until the master is approved. **Note contested findings for the
+   human instead of acting unilaterally** — anything touching content the client explicitly told you to
+   keep is a decision, not a defect. **ENVIRONMENT findings never get a fix round**; re-running cannot
+   change them.
 
 5. Re-gate the roles whose findings were addressed, **scoped to their own prior findings** — a re-gate
    that opens new dimensions is a new gate. The `quality-officer` re-gates whenever **anything** changed,

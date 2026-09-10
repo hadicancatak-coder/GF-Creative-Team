@@ -80,7 +80,7 @@ context   string                optional
 
 | Role | Owns | Tier |
 |---|---|---|
-| `art-director` | render forensics: thumbnail survival, the measured empty region (U47), CTA affordance (U46), cited lineage (U39) | high effort |
+| `art-director` | render forensics AND **proportion** — thumbnail survival, the measured empty region (U47), CTA affordance (U46), cited lineage (U39), and the dominant element's share of frame, message vs decoration, total empty span, the display size argued against the scale (U58). Judges the composition **on its own merit, not against the directive** | high effort |
 | `design-analyst` | every number: ratio against the placement (U38), safe zones in px, tokens, fonts resolved in the renderer (U40, U48), collisions | **sonnet**, low |
 | `content-creator` | every word in the frame: mandated text verbatim and adjacent to its claim, character limits, unsubstantiated claims | medium effort |
 | `quality-officer` | **final state, last**: regulation, export weight per platform, system membership, the terminal verdict | high effort |
@@ -117,15 +117,18 @@ node scripts/dry-run.mjs          # every scenario
 node scripts/dry-run.mjs --quiet  # failures only
 ```
 
-It checks, among others: the clean run is exactly 8 dispatches in order with no role doing two jobs;
-concept precedes copy; nothing is dispatched after the quality-officer; a bare one-line brief is refused
-*before* any dispatch; `brief` + `platforms` alone produces a gated build; no inventory means Select is
-never dispatched and the designer is forbidden to invent a hero; `ASK-CLIENT` halts before the build; a
-stalled reviewer yields `PARTIAL`; an unfixable MAJOR exhausts exactly 2 rounds; a contested finding
-never reaches the designer; `ENVIRONMENT`-only yields `COMP-APPROVED` with a clear-before-export
-checklist; a build that changed no nodes never reaches the gate; a stalled re-gate yields `PARTIAL`
-rather than letting the pre-fix verdict stand; and every schema's `required` keys exist as properties
-(the static form of U52).
+**51 assertions across 21 scenarios.** Among them: the clean run is exactly 8 dispatches in order with
+no role doing two jobs; concept precedes copy; nothing is dispatched after the quality-officer; a bare
+one-line brief is refused *before* any dispatch; `brief` + `platforms` alone produces a gated build; no
+inventory means Select is never dispatched and the designer is forbidden to invent a hero; `ASK-CLIENT`
+halts before the build; a stalled reviewer yields `PARTIAL`; an unfixable MAJOR exhausts exactly 2
+rounds; a contested finding never reaches the designer; `ENVIRONMENT`-only yields `COMP-APPROVED` with a
+clear-before-export checklist; a build that changed no nodes never reaches the gate; a stalled re-gate
+yields `PARTIAL` rather than letting the pre-fix verdict stand; **the gate is handed the artboard and not
+every changed node**; **no deviation or ruling text reaches a reviewer**; **the creative-director is
+forbidden absolute coordinates**; **a MAJOR owned by another role never becomes a designer dispatch**;
+**a flagged-forward MAJOR never consumes a fix round**; **an ambiguous artboard escalates rather than
+being guessed**; and every schema's `required` keys exist as properties (the static form of U52).
 
 Two real defects in the 3.0.0 gate were found by writing these scenarios, before either had run against
 a model: a re-gate that returned nothing left the pre-fix verdict in place, and a build reporting `DONE`
@@ -154,10 +157,20 @@ The other levers, all of which cut what an agent *writes* and never what it *che
 **On wall-clock: the production chain is sequential by design and cannot be parallelised.** The copy
 needs the concept, the selection needs the copy, the build needs the selection. Only the gate fans out.
 
-A clean run is **8 dispatches, 6 of them serial.** The two-command route this replaces was 7 + 14 = 21.
-**That arithmetic is not a measurement, and 3.0.0 has not been run end to end** — this repo has
-published unmeasured timings before and then had to retract them in four places (2.10.3, 2.11.4). No
-wall-clock figure for the one process goes into these docs until a live run produces one.
+A clean run is **8 dispatches, 6 of them serial.** Measured on the first live end-to-end run:
+
+| | Dispatches | Tokens | Wall-clock |
+|---|---:|---:|---:|
+| Production (serial) | 4 | 286,699 | 23.3 min |
+| Gate (3 parallel, then the QO) | 4 | 342,568 | 11.0 min |
+| **Total** | **8** | **629,267** | **34.3 min** |
+
+The gate would have been 19.5 minutes run serially, so **fan-out saved 8.6 minutes**. The old
+`full` + `full` route was 21 dispatches and ~2,705,000 tokens for the same coverage: **4.3x cheaper**.
+
+Two caveats kept on the number: `effort` tiering was not applied in that run (the harness exposed model,
+not effort), and the run stopped at `FIX-THEN-REGATE`, so the fix→re-gate rounds are not in the total.
+Full write-up in [`examples/sorrel-bay-run.md`](../examples/sorrel-bay-run.md).
 
 ## Adapting them
 
