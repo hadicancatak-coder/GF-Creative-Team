@@ -4,6 +4,56 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] — 2026-09-10
+
+### Found, not fixed — the gate roles cannot see the work they gate (U62, OPEN)
+
+The real role agents became dispatchable for the first time, so the shipped configuration was probed
+instead of a substitute. Every gate review in this repo's history was run with unrestricted agents; the
+whitelisted ones had never been exercised.
+
+The `art-director`, dispatched as shipped, reports:
+
+> Tools actually available to me: `Read`, `Glob`, `Grep`, `Bash`, `ToolSearch`. That is the complete set.
+> […] ToolSearch returned `No matching deferred tools found`. […] I cannot render or fetch Figma targets
+> myself in this configuration.
+
+So as shipped:
+
+| Role | Its job | Can it? |
+|---|---|---|
+| `art-director` | render forensics, thumbnail survival, squint hierarchy, proportion | **no** — cannot render |
+| `design-analyst` | read node properties, measure against tokens | **no** |
+| `quality-officer` | check the frame, export weight | **no** |
+| `content-creator` | "read the words back off the RENDER" | **no**, and it has no `ToolSearch` at all |
+
+**All four gate roles are blind to the artifact.** This is lesson 1 — *role separation must be enforced by
+tooling, not asked for in prose* — enforced so hard the reviewers cannot do their jobs.
+
+`scripts/validate.sh` was actively enforcing it: its role-boundary check errors when a non-designer role
+has no `tools:` restriction, and it tested for `Write|Edit|NotebookEdit` — which does not even cover
+`use_figma`, the tool that actually changes a Figma file. It was checking the wrong write surface while
+mandating the blindness.
+
+**A first fix was attempted and reverted.** Naming `mcp__Figma__get_screenshot` and friends in the
+whitelists made it measurably worse on re-probe — the art-director came back with `Read, Glob, Grep,
+Bash` and no `ToolSearch` at all. The mechanism by which a `tools:` whitelist admits MCP tools is not
+understood, and an unverified change that shrinks a tool set is not a fix. The whitelists are back to
+their shipped state.
+
+### Changed
+- The role-boundary check now tests the **real** write surface — `use_figma`, `create_new_file`,
+  `upload_assets`, `create_shader`, `update_shader` — not just `Write|Edit|NotebookEdit`.
+- It also warns, per role, when a gate role's whitelist names no design-tool read access, so the open
+  bug is visible on every run rather than living in a changelog entry.
+- Eval **U62**, recorded **OPEN — NOT FIXED**. Its lesson: a tool restriction has two failure modes, and
+  the expensive one is under-permission, because it is silent — the role returns something plausible from
+  whatever it could reach. **Test a restriction by having the role do its job, not by reading its config.**
+
+### This also explains the honest answer to "how many creatives have passed the gate"
+**Zero.** Not many, not some. And this entry is the likeliest reason the number has never moved: the gate
+has probably never run as shipped. Every result in `examples/` was produced by unrestricted stand-ins.
+
 ## [3.1.0] — 2026-09-10
 
 First end-to-end live run of the one process, against a cold brand the team had never seen. It produced

@@ -87,7 +87,7 @@ switch ever comes back.
 ## Why it behaves that way
 
 **Every rule in it exists because breaking it cost something first.** The eval table records its own
-history — 61 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
+history — 62 cases, each naming the agent that must catch it unhinted, each marked with the outcome.
 
 **Fourteen are marked MISSED.** A human found those, the gates did not. `MISSED — client deleted the
 work` is a row in this repo. So is `MISSED — client caught after ~500k tokens`. Eleven more were found
@@ -177,8 +177,13 @@ below is measured, not derived: **8 dispatches, 629,267 tokens, 34.3 minutes**, 
 Figma. The full run is written up in [examples/sorrel-bay-run.md](examples/sorrel-bay-run.md), including
 what it cost, what the gate caught, and what it did not.
 
-**What that run did not do is pass.** It reached `FIX-THEN-REGATE`, correctly. No creative has passed a
-gate, and the fix→re-gate loop has still never completed a round.
+**What that run did not do is pass.** It reached `FIX-THEN-REGATE`, correctly. **No creative has ever
+passed this gate — zero, not few** — and the fix→re-gate loop has still never completed a round.
+
+**And there is an open bug that probably explains why.** Probed as shipped, the four gate roles cannot
+reach the design tool at all: their `tools:` whitelists admit no Figma tool and `ToolSearch` cannot
+recover one. Every gate result in this repo was produced by unrestricted stand-ins, not by the roles as
+they ship. That is eval **U62**, recorded OPEN, and it is the first thing to fix.
 
 **And the operator looked at the result and said the proportions were wrong.** He was right. The frame
 was 50.7% empty vertical space, the message 10.2% of height, the decoration 25.3% — and it was

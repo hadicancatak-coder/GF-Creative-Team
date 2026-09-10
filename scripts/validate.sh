@@ -52,11 +52,24 @@ for f in agents/*.md; do
   else
     if [ -z "$line" ]; then
       err "$n has no tools: restriction — every non-designer role must be unable to build"
-    elif echo "$line" | grep -qE 'Write|Edit|NotebookEdit'; then
-      err "$n holds a write tool — only the designer may produce an artifact"
+    # The real write surface is the design tool, not Write/Edit. A role holding use_figma can change
+    # the artifact no matter what else its list says.
+    elif echo "$line" | grep -qE 'Write|Edit|NotebookEdit|use_figma|create_new_file|upload_assets|create_shader|update_shader'; then
+      err "$n holds a WRITE tool — only the designer may change the artifact"
     else
       ok "$n cannot build"
     fi
+    # ...and a reviewer that cannot SEE the work cannot review it. A tools: whitelist excludes MCP
+    # tools unless they are named, and ToolSearch cannot recover them — so the four gate roles were
+    # shipped blind to every artifact they were supposed to gate. Eval U62.
+    case "$n" in
+      art-director|design-analyst|quality-officer|content-creator)
+        if echo "$line" | grep -q 'mcp__Figma__'; then
+          ok "$n names design-tool read access explicitly"
+        else
+          warn "$n is a GATE role whose whitelist names no design-tool read access — OPEN BUG, see U62"
+        fi ;;
+    esac
   fi
 done
 
