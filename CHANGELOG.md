@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] — 2026-09-10
+
+The first full gate run cost **14 dispatches, 1,705,138 tokens and 60 minutes** to review one artboard.
+That is a shipping gate for regulated work, and it was the only option — so the routine case was priced
+out of existence.
+
+### Added
+- **`depth: 'quick'` is now the default for `/creative-gate` — ONE dispatch.** A single reviewer against
+  a fixed six-point checklist (thumbnail survival, platform spec, tokens, mandated text, collisions, CTA
+  affordance) on two renders. No fix rounds, no re-gate: it reports, it does not repair.
+- `depth: 'full'` keeps the four-role gate with fix rounds, now labelled with its **measured** cost.
+- Eval **U50** — a gate too expensive to run routinely gets skipped routinely.
+
+### What quick gives up, stated plainly
+The full gate's cost bought the worst defect found in this project: three roles independently measuring
+the same frame and establishing that a fix reported as resolved had never landed in the artifact. **One
+reviewer cannot disagree with itself.** Quick is a spot-check; full is a gate.
+
 ## [2.10.3] — 2026-09-10
 
 ### Fixed

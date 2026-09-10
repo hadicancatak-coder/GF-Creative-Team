@@ -111,6 +111,66 @@ const ledger = []
 const record = (agent, purpose, outcome) =>
   ledger.push({ date: a.date, agent, purpose, outcome, tokens: null, duration_ms: null })
 
+
+// ── Depth ─────────────────────────────────────────────────────────────────────
+// The full gate is 4 roles plus up to 2 fix rounds re-gating the failures: 14 dispatches,
+// ~1.7M tokens, ~60 minutes. That is a shipping gate for regulated work, and it is far too
+// expensive to be the only option.
+//
+//   quick (DEFAULT) — ONE dispatch, ~100k tokens, ~3-5 min. A single reviewer against a
+//     fixed checklist on two renders. No fix rounds, no re-gate: it reports, it does not repair.
+//     What you lose is the thing that caught the worst bug found so far — three roles
+//     independently measuring the same frame and disagreeing with a claimed fix. One reviewer
+//     cannot cross-check itself.
+//
+//   full — the 4-role gate with fix rounds. For work that actually ships.
+const DEPTH = (a.depth || 'quick').toLowerCase()
+
+if (DEPTH === 'quick') {
+  phase('Gate')
+  const res = await agent(
+    `Single-pass creative gate. Targets: ${JSON.stringify(a.targets)}.${where}\n` +
+    `Load ONLY: .creative-team/active, that profile's client.md and compliance.md, and ` +
+    `knowledge/platforms/ for the platforms in scope. Do not explore the tree.\n` +
+    `Render each target ONCE at ~1300px and ONCE at ~110px. Do not zoom-sweep.\n\n` +
+    `Check exactly this list, in order, and stop:\n` +
+    `1. THUMBNAIL — at 110px, name the one thing that survives. If nothing does, that alone is a MAJOR.\n` +
+    `2. PLATFORM SPEC — dimensions and ratio against the placement; safe-zone intrusion converted to ` +
+    `px for this canvas; file weight against the ceiling.\n` +
+    `3. TOKENS — every colour, type size and margin against the profile. Product rendering baked into ` +
+    `an approved asset is NOT a token violation; say so rather than logging it.\n` +
+    `4. MANDATED TEXT — present, verbatim, adjacent to its claim, at spec.\n` +
+    `5. COLLISIONS — anything overlapping, clipped, or crossing a margin.\n` +
+    `6. CTA — does anything read as tappable at thumbnail?\n\n` +
+    `Severity: BLOCKER (defect, must fix) · MAJOR · MINOR · ENVIRONMENT (outside the work — a missing ` +
+    `font, a baked-in asset value — re-gating will not change it).\n` +
+    `Be brief: the findings table and a verdict. No deliberation, no preamble.`,
+    { model: 'sonnet', effort: 'medium', agentType: 'quality-officer',
+      schema: FINDINGS_SCHEMA, phase: 'Gate', label: 'quick-gate' })
+
+  if (!res) return { decision: 'INCOMPLETE — reviewer returned nothing; DO NOT SHIP', depth: 'quick' }
+  const by = s => res.findings.filter(f => f.severity === s)
+  const blockers = by('BLOCKER'), majors = by('MAJOR'), env = by('ENVIRONMENT')
+  const decision = blockers.length ? 'BLOCK'
+    : majors.length ? 'FIX-THEN-REGATE'
+    : env.length ? 'COMP-APPROVED — show internally; do NOT export or traffic'
+    : 'SHIP'
+  return {
+    decision, depth: 'quick', blockers, majors, environment: env, minors: by('MINOR'),
+    perAgent: [{ agent: 'quality-officer', verdict: res.verdict, findings: res.findings.length }],
+    ledger: [{ date: a.date, agent: 'quality-officer', purpose: 'quick gate', outcome: res.verdict,
+               tokens: null, duration_ms: null }],
+    marker: {
+      path: `.gates/${a.date}-${(a.targets[0] && (a.targets[0].name || a.targets[0].id)) || 'set'}.md`,
+      decision, depth: 'quick', blockers: blockers.length, majors: majors.length,
+      environment: env.length, minors: by('MINOR').length,
+      openItems: blockers.concat(majors), clearBeforeExport: env,
+    },
+    caveat: 'ONE reviewer, no cross-check, no fix rounds. A single agent cannot disagree with itself — ' +
+            'run depth:"full" before anything ships to a client.',
+  }
+}
+
 // ── Plan ──────────────────────────────────────────────────────────────────────
 phase('Plan')
 const planRes = await agent(
