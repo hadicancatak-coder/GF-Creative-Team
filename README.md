@@ -50,7 +50,7 @@ each other, and they are allowed to refuse.
 ## Two speeds
 
 ```
-/create-ad  ...                    ~5 min · 2 agents · a first look
+/create-ad  ...                    2 agents · a first look   (target ~5 min, UNVERIFIED)
 /create-ad ... depth:"full"        ~60 min · 5 agents · measured, not estimated
 /creative-gate ...                 the review — and this half runs in parallel
 ```
@@ -90,7 +90,7 @@ thing you judge. Sourced and dated in [`knowledge/platforms/meta.md`](knowledge/
 
 | | |
 |---|---|
-| **`/create-ad`** | Brief to built artwork. **Concept → copy → asset → build in Figma.** ~5 min on the default fast path; `depth:"full"` runs the five-role chain with independent selection and a verify pass. |
+| **`/create-ad`** | Brief to built artwork. **Concept → copy → asset → build in Figma.** The default fast path targets ~5 min — **a target, not a measurement: the one timed attempt was killed at 11 min without finishing.** `depth:"full"` is measured at ~60 min. |
 | `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. **Its roles fan out in parallel**, so reviewing four costs about the wall-clock of one. |
 | `/format-matrix` | What to build for these platforms. **Works with no setup at all.** |
 | `/new-client` · `/use-client` | Scaffold and switch client profiles. |

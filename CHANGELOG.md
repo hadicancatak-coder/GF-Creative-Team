@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.3] — 2026-09-10
+
+### Fixed
+- **The "~5 min" fast-path figure was published in four places and never measured.** The single timed
+  attempt was killed at 11 minutes without completing. It is now labelled a target rather than a
+  measurement everywhere it appears.
+- This is v2.10.2's mistake repeated one version later: a performance number published from intent
+  rather than observation. The rule the repo already states — say whether a figure was measured or
+  estimated — now applies to both paths.
+
 ## [2.10.2] — 2026-09-08
 
 ### Fixed
