@@ -8,8 +8,8 @@ Create ad creative for: $ARGUMENTS
 
 | Depth | Dispatches | Target | Use it when |
 |---|---|---|---|
-| **`fast`** (default) | 2 | **~5 min target, unverified** | You want to see an idea. CD does concept + copy; designer selects + builds. |
-| `full` | 5 | **~60 min · ~1M tokens** | The work is shipping. Independent selection and a verify pass first. Measured on a real run, not estimated. |
+| **`fast`** (default) | 2 | **11m 10s · 270,824 tokens** (measured) | You want to see an idea. CD does concept + copy; designer selects + builds. |
+| `full` | 5 | **60 min · ~1M tokens** (measured) | The work is shipping. Independent selection and a verify pass first. Measured on a real run, not estimated. |
 
 Fast gets to five minutes by spending less on every axis: sonnet at medium effort, a named-files-only
 reading rule, a single verification render instead of a zoom sweep, and hard brevity. **You lose depth

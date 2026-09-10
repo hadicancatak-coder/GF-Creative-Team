@@ -61,7 +61,7 @@ forced answer.
 
 `create-ad.js` takes `depth`:
 
-- **`fast`** (default) — **2 dispatches, ~5 minutes TARGET. Not yet measured** — the one timed run was killed at 11 minutes without completing. The creative director does concept and copy in
+- **`fast`** (default) — **2 dispatches. Measured: 11m 10s, 270,824 tokens.** The 5-minute target was not reached; four tuning levers took it from 60 min to 11, not to 5. The creative director does concept and copy in
   one pass; the designer selects and builds in one pass. No independent asset selection, no pre-build
   verify. Ungated by design: run `/creative-gate` after, where the review roles fan out **in parallel**.
 - **`full`** — 5 dispatches, **~60 minutes and ~1M tokens, measured**. The whole chain with independent selection and a verify

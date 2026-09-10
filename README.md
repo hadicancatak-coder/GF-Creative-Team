@@ -50,7 +50,7 @@ each other, and they are allowed to refuse.
 ## Two speeds
 
 ```
-/create-ad  ...                    2 agents · a first look   (target ~5 min, UNVERIFIED)
+/create-ad  ...                    11 min · 2 agents · 271k tokens  (measured)
 /create-ad ... depth:"full"        ~60 min · 5 agents · measured, not estimated
 /creative-gate ...                 4 min · 1 agent · 123k tokens   (measured)
 /creative-gate ... depth:"full"    60 min · 14 agents · 1.7M tokens (measured)
@@ -91,7 +91,7 @@ thing you judge. Sourced and dated in [`knowledge/platforms/meta.md`](knowledge/
 
 | | |
 |---|---|
-| **`/create-ad`** | Brief to built artwork. **Concept → copy → asset → build in Figma.** The default fast path targets ~5 min — **a target, not a measurement: the one timed attempt was killed at 11 min without finishing.** `depth:"full"` is measured at ~60 min. |
+| **`/create-ad`** | Brief to built artwork. **Concept → copy → asset → build in Figma.** Fast is **measured at 11m 10s and 270,824 tokens**; `depth:"full"` at **60 min and ~1M**. Fast is 5.4× faster and 3.7× cheaper, and gives up independent asset selection and the pre-build verify to get there. |
 | `/creative-gate` | Review built creative. Plan → gate → fix → re-gate → verdict. **Its roles fan out in parallel**, so reviewing four costs about the wall-clock of one. |
 | `/format-matrix` | What to build for these platforms. **Works with no setup at all.** |
 | `/new-client` · `/use-client` | Scaffold and switch client profiles. |

@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.4] — 2026-09-10
+
+### Measured — every path in the plugin has now executed successfully at least once
+
+| Path | Agents | Tokens | Wall-clock |
+|---|---|---|---|
+| `/create-ad depth:"fast"` | 2 | 270,824 | **11m 10s** |
+| `/create-ad depth:"full"` | 7 | ~1,000,000 | 60m |
+| `/creative-gate depth:"quick"` | 1 | 122,578 | **4m 00s** |
+| `/creative-gate depth:"full"` | 14 | 1,705,138 | 60m |
+
+**The 5-minute target for the fast build path was not reached.** Four tuning levers took it from 60
+minutes to 11, not to 5. The docs now carry 11m 10s rather than the target.
+
+### Note on what fast produces
+It built, and the concept-first ordering shows: the headline is *"Commuting doesn't need traffic. / Drift
+just needs you."* — a hook rather than the specification earlier runs produced. The CTA is a filled
+button, so the affordance rule held. But the composition has a large dead band between hero and CTA that
+would fail the ~20% emptiness cap — which is the documented trade: fast gives up the art-director's
+pre-build verify, and the gate is where that comes back.
+
 ## [2.11.3] — 2026-09-10
 
 ### Fixed
