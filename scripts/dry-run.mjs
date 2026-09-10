@@ -322,6 +322,26 @@ head('creative-gate — the one gate')
     : err(`UNVERIFIED from the quality-officer produced ${r.result.decision}`)
 }
 {
+  // Guessing the artboard among many nodes is silent when wrong: four reviewers would gate a 3px
+  // rectangle and report it clean. Ambiguity must escalate, not guess.
+  const r = await run('create-ad.js', AD_ARGS, (opts, p, n) =>
+    opts.phase === 'Build' && opts.agentType === 'designer'
+      ? { status: 'DONE', changedIds: ['25:2', '25:3'], notes: 'n' } : production(() => CLEAN)(opts, p, n))
+  const gated = r.calls.filter(c => c.phase === 'Gate').length
+  String(r.result.outcome).startsWith('ESCALATED') && gated === 0
+    ? ok('a build with many nodes and no artboardIds escalates rather than guessing the target')
+    : err(`ambiguous artboard gave ${r.result.outcome} after ${gated} gate dispatches`)
+}
+{
+  // One node changed is unambiguous — that IS the creative, no guess involved.
+  const r = await run('create-ad.js', AD_ARGS, (opts, p, n) =>
+    opts.phase === 'Build' && opts.agentType === 'designer'
+      ? { status: 'DONE', changedIds: ['25:2'], notes: 'n' } : production(() => CLEAN)(opts, p, n))
+  r.result.outcome === 'SHIP'
+    ? ok('a single changed node needs no artboardIds — it is unambiguously the creative')
+    : err(`single-node build gave ${r.result.outcome}`)
+}
+{
   // A build that reports DONE and changed nothing must not reach the gate: four reviewers would find
   // nothing in nothing and the run would return SHIP on an artifact that was never made.
   const r = await run('create-ad.js', AD_ARGS, (opts, p, n) =>

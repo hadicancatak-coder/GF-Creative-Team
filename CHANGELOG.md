@@ -72,14 +72,26 @@ passed was **50.7% empty vertical space**, with the message at **10.2%** of heig
 
 ### Evals
 **U58** proportion has no owner · **U59** the director does the designer's job · **U60** the gate is
-anchored, and severity is not a work order. 60 cases, 14 MISSED — the MISSED count went UP, which is
+anchored, and severity is not a work order · **U61** a silent wrong target is worse than a noisy one.
+61 cases, 14 MISSED — the MISSED count went UP, which is
 what an honest maturity metric looks like when a human finds something the gates did not.
 
+### Validation caught three things this changelog first got wrong
+Written down because this repo's recurring failure is publishing a number nobody checked:
+- The fix for U60 replaced a noisy bug with a silent one. The artboard fallback took `changedIds[0]`,
+  correct only because the builder happened to return the artboard first. It now escalates on genuine
+  ambiguity. Eval **U61**.
+- This entry claimed "46 assertions across 19 scenarios". The harness prints 51 across 21.
+- The installed plugin copy was still 3.0.0 while the tree was 3.1.0 — the exact shape of U51, three
+  hours after writing the eval. `validate.sh` now compares the installed copy against the tree file by
+  file, so the check exists in tooling rather than in a paragraph of CONTRIBUTING.
+
 ### Harness
-`scripts/dry-run.mjs` is at 46 assertions across 19 scenarios, now pinning: the gate is handed the
+`scripts/dry-run.mjs` is at 51 assertions across 21 scenarios, now pinning: the gate is handed the
 artboard and not every changed node; no deviation or ruling text reaches a reviewer; the
 creative-director is forbidden coordinates; a MAJOR owned by another role never becomes a designer
-dispatch; a flagged-forward MAJOR never consumes a fix round.
+dispatch; a flagged-forward MAJOR never consumes a fix round; and a build that changed many nodes without
+naming its artboards ESCALATES rather than guessing which one the gate should review.
 
 ## [3.0.0] — 2026-09-10
 

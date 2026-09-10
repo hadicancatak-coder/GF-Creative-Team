@@ -625,9 +625,26 @@ if (build.conflict && build.conflict.trim()) {
 // Targets are the ARTBOARD(S), not every touched node. `changedIds` is the record of what was built;
 // on the first live run it made 38 targets, thirty of them 3x120px rectangles, each of which four
 // roles were told to render at 1300px and zoom-crop. The gate's unit is the creative.
-const artboards = build.artboardIds && build.artboardIds.length
-  ? build.artboardIds
-  : build.changedIds.slice(0, 1)
+// Guessing here is worse than the bug it replaced. Reviewing all 38 nodes was noisy and obvious;
+// reviewing the WRONG single node is silent and looks like a pass. So guess only when there is
+// nothing to guess between.
+let artboards
+if (build.artboardIds && build.artboardIds.length) {
+  artboards = build.artboardIds
+} else if (build.changedIds.length === 1) {
+  artboards = build.changedIds            // unambiguous: one node, and it is the creative
+  log('artboardIds not returned; one node changed, so it is the target')
+} else {
+  return {
+    outcome: 'ESCALATED — build did not say which nodes are the creatives',
+    halted: 'Build', concept, deck, pick, build, ruling, location, defaults,
+    why: `The designer returned ${build.changedIds.length} changed nodes and no artboardIds, so the ` +
+         'gate cannot tell a creative from a rectangle inside one. Picking the first id is a ' +
+         'convention, not a guarantee: get it wrong and four reviewers gate a 3px rule and report ' +
+         'it clean. Re-run the build asking for artboardIds, or gate the artboard directly with ' +
+         '/creative-gate.',
+  }
+}
 const gate = await runGate({
   targets: artboards.map(id => ({ id, note: 'master built this run' })),
   location,

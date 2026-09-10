@@ -120,6 +120,25 @@ else
   err "scripts/dry-run.mjs failed — the orchestration is mis-wired (see output above)"
 fi
 
+head_ "installed copy (U51)"
+# Editing this repo does not change what RUNS. Workflows execute from the plugin cache, and three
+# versions of perf work were once measured against a copy four versions behind. CI has no install, so
+# this is a WARN there and a real signal locally.
+CACHE=$(ls -d "$HOME"/.claude/plugins/cache/*/gf-creative-team 2>/dev/null | head -1)
+if [ -z "$CACHE" ]; then
+  warn "no installed copy found — nothing to compare (fine in CI)"
+else
+  PJV=$(python3 -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])" 2>/dev/null)
+  DRIFT=0
+  for f in workflows/*.js agents/*.md commands/*.md skills/*/SKILL.md; do
+    inst="$CACHE/$PJV/$f"
+    [ -f "$inst" ] || { warn "not installed at $PJV: $f"; DRIFT=1; continue; }
+    if ! cmp -s "$f" "$inst"; then warn "INSTALLED COPY DIFFERS: $f"; DRIFT=1; fi
+  done
+  [ "$DRIFT" -eq 0 ] && ok "installed copy at $PJV matches the working tree — runs exercise your changes" \
+    || warn "reinstall before testing: claude plugin marketplace update gf-creative-team && claude plugin install gf-creative-team@gf-creative-team"
+fi
+
 head_ "knowledge layer"
 for f in knowledge/platforms/*.md; do
   for k in platform verified review_by sources; do
