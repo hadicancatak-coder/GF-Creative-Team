@@ -1,51 +1,68 @@
 ---
 name: creative-gate
-description: Run the mandatory creative review gate on one or more finished creatives BEFORE showing them to anyone. Dispatches the Creative Director, Art Director and Quality Officer agents in parallel on the given targets, waits for verdicts, applies confirmed fixes, re-renders, and writes a gate marker. Use whenever a creative build round completes; a build without a gate marker is not done.
+description: Run the mandatory creative review gate on one or more finished creatives BEFORE showing them to anyone. Dispatches four role agents — art-director, design-analyst and content-creator in parallel, then quality-officer alone on final state — waits for verdicts, applies confirmed fixes, re-gates, and writes a gate marker and ledger rows. Use whenever a creative build round completes; a build without a gate marker is not done.
 ---
 
 # Creative Gate
 
 The rule this skill exists for: **build → gate → fix → show. Never show ungated work.**
 
+**One gate.** There is no spot-check variant, and `scripts/validate.sh` fails the build if one
+reappears. The cheaper gate this plugin used to offer was cheap precisely because a single reviewer
+cannot disagree with itself — and that disagreement is the entire mechanism. The worst defect found in
+this project was three roles independently measuring the same frame and establishing that a fix reported
+as resolved had never landed in the file.
+
+`/create-ad` runs this same gate inline, from the same code. Use this skill for creative the chain did
+not produce: built by hand, built before the plugin, or inherited.
+
 ## Inputs
-The targets to gate — design-tool node IDs, file paths, or rendered screenshots — plus the campaign context.
+The targets — design-tool node IDs, file paths, or rendered screenshots — plus where they live and what
+the campaign is. **You** supply the date (`date -u +%F`); it is not the user's job, and the workflow
+cannot read the clock.
 
 ## Steps
 
-0. **Resolve the active client profile.** Read `.creative-team/active` in the working project, then
-   load `.creative-team/clients/<name>/`. Never use a profile remembered from earlier in the session.
+0. **Resolve the active client profile.** Read `.creative-team/active` in the working project, then load
+   `.creative-team/clients/<name>/`. Never use a profile remembered from earlier in the session.
 
    **No profile? Run anyway, in reduced scope.** Gate against `knowledge/platforms/` and the universal
    failure classes, and open your report with exactly which checks were skipped — brand system, tokens,
    source law and compliance. The quality-officer returns `UNVERIFIED`, never `SHIP`, without a
    compliance layer. A reduced-scope gate is useful; a reduced-scope gate presented as a full one is not.
 
-1. **Orchestration.** Get the dispatch plan from the `creative-director` agent (its *Orchestration
-   authority* section defines the decision table and the plan format) — or run `workflows/creative-gate.js`
-   via the Workflow tool, which does plan + gates + consolidated verdict deterministically. The CD's plan
-   overrides the default dispatch below.
+1. **Run `workflows/creative-gate.js` through the Workflow tool.** It does the dispatch, the fix rounds
+   and the consolidated verdict deterministically, and every dispatch lands in the ledger. Pass
+   `targets`, `date`, and `location` and `context` when you have them.
 
-2. **Default dispatch** (when no plan). One message, multiple Agent calls, IN PARALLEL. Each agent reads
-   its own brief and the active client profile first:
-   - `creative-director` — concept, hierarchy of intent, asset lineage
-   - `art-director` — full-size + squint render review, reference geometry, device realism
-   - `quality-officer` — compliance, region rules, facts, system membership
+2. **If the Workflow tool is unavailable**, dispatch the roster by hand: **one message, multiple Agent
+   calls** for the first three, then the fourth on its own once any fixes have landed.
 
-   Add `design-analyst` for token-level measurement passes. Run `content-creator` on copy decks *before*
-   build, not after.
+   | Role | Owns | Group |
+   |---|---|---|
+   | `art-director` | render forensics — thumbnail survival at ~110px, the **measured** largest empty region as a % of canvas, CTA affordance, cited (not asserted) asset lineage, reference geometry, device realism | 1 |
+   | `design-analyst` | every number — dimensions and ratio against the named placement, safe zones **converted to px for this canvas**, tokens, fonts resolved **in the renderer** rather than on the machine, collisions | 1 |
+   | `content-creator` | every word in the frame, read off the render — mandated legal text verbatim and adjacent to its claim, per-placement character limits, claims the profile does not substantiate | 1 |
+   | `quality-officer` | **final state, last** — regulation and regional rules, export weight against each platform's ceiling, system membership, and the terminal verdict | 2 |
 
-3. Reviewers are **READ-ONLY** on the artifact. They return severity-ranked findings.
+   The roster is fixed and every role sees every target. Do not ask an agent which roles to dispatch:
+   that costs a dispatch, and it can only narrow coverage.
 
-4. Apply BLOCKER and MAJOR fixes. Note contested findings for the human instead of acting unilaterally —
-   anything touching content the client explicitly told you to keep is a decision, not a defect.
+3. Reviewers are **READ-ONLY** on the artifact. They return severity-ranked findings with a location and
+   an exact fix, plus their answers to the non-optional checks — including the ones that came back clean,
+   because an omitted check is indistinguishable from a failed one.
 
-5. Re-render at ≥0.5 scale and re-check the specific findings. Scope the re-gate to the failed roles
-   only, and to their own prior findings — a re-gate that opens new dimensions is a new gate.
-   Cap at 2 fix→re-gate rounds, then escalate to the human.
+4. Apply BLOCKER and MAJOR fixes. **Note contested findings for the human instead of acting
+   unilaterally** — anything touching content the client explicitly told you to keep is a decision, not a
+   defect. **ENVIRONMENT findings never get a fix round**; re-running cannot change them.
 
-6. **Write what the workflow returned.** `workflows/creative-gate.js` returns a `marker` object and a
-   `ledger` array but cannot write them — workflow scripts have no filesystem access and cannot read the
-   clock (pass the date in as `args.date`). So the caller writes:
+5. Re-gate the roles whose findings were addressed, **scoped to their own prior findings** — a re-gate
+   that opens new dimensions is a new gate. The `quality-officer` re-gates whenever **anything** changed,
+   even having raised nothing itself: it certifies final state, and the state it certified no longer
+   exists. Cap at 2 fix → re-gate rounds, then escalate to the human.
+
+6. **Write what the workflow returned.** It returns `writeThese.marker` and `writeThese.ledger` and
+   cannot write them — workflow scripts have no filesystem access. So the caller writes:
    - `marker.path` → the gate marker file, from `marker.decision`, `marker.rounds` and `marker.openItems`
    - each `ledger` row appended to `.gates/ledger.csv`
      (`date,agent,purpose,tokens,tool_uses,duration_ms,outcome`)
@@ -59,8 +76,8 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
 
 7. Surface `contested` findings to the human as decisions. Never auto-apply them.
 
-8. **Only now present the work.** If the gate ran in reduced scope, say so in the first line of
-   what you present — not in a footnote.
+8. **Only now present the work.** If the gate ran in reduced scope, say so in the first line of what you
+   present — not in a footnote.
 
 ## The verdicts
 
@@ -68,11 +85,11 @@ The targets to gate — design-tool node IDs, file paths, or rendered screenshot
 |---|---|---|
 | `SHIP` | Clean | Export and traffic it |
 | `COMP-APPROVED` | No defects left; only environment items outstanding | Show internally and to the client. **Do not export or traffic** until the listed items clear |
+| `UNVERIFIED` | Reviewed in reduced scope; no compliance layer was loaded | Say so in your first line. Never treat it as a pass |
 | `FIX-THEN-REGATE` | Majors remain, rounds left | Fix, re-gate the failed roles only |
 | `BLOCK` | A defect blocker stands | Nothing ships |
-| `ESCALATED` | Rounds exhausted, or the designer could not resolve | A human decides |
-| `PARTIAL` / `INCOMPLETE` | A gate agent stalled | Re-run. Absence of findings is not absence of defects |
-| `INVALID PLAN` | The dispatch plan failed validation | Re-plan |
+| `ESCALATED` | Rounds exhausted, or the designer could not resolve it | A human decides |
+| `PARTIAL` / `INCOMPLETE` | A reviewer stalled | Re-run. Absence of findings is not absence of defects |
 
 **`COMP-APPROVED` is a real terminal state, not a soft failure.** A gate that can only ever say "not
 yet" is a gate people start waiving. Write the marker for it exactly as you would for a SHIP, with
@@ -81,7 +98,7 @@ yet" is a gate people start waiving. Write the marker for it exactly as you woul
 ## Non-negotiables
 - A definition is not a gate run. Agents only work when dispatched — this skill is the dispatch.
 - One BLOCKER = the set does not ship.
-- Never gate state that is about to change. Never skip the quality gate on shippable work.
-- Cap at 2 fix→re-gate rounds, then escalate to the human.
+- Never gate state that is about to change. Never skip the gate on shippable work.
+- Cap at 2 fix → re-gate rounds, then escalate to the human.
 - Every failure found by a human and not by a gate becomes, the same day: (a) a rule in the responsible
   agent's brief, and (b) an eval case in `evals/`.

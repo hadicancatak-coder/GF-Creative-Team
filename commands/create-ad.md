@@ -1,73 +1,92 @@
 ---
-description: Make an ad creative end to end — brief to built, reviewed artwork in Figma. The main entry point.
+description: Make an ad creative end to end — brief to built, gated artwork in Figma. One process, and the main entry point.
 ---
 
 Create ad creative for: $ARGUMENTS
 
-**Two speeds. Fast is the default.**
+**One process. There is no fast mode, and that is deliberate** — the cheap path this plugin used to
+offer was the only one that shipped ungated work, and every defect unique to it (evals U52, U53, U54)
+came from merging two roles into one dispatch. Concept → copy → asset → build → **gate** → verdict, in
+one run. What used to be a second command you had to remember now happens before you see the work.
 
-| Depth | Dispatches | Target | Use it when |
-|---|---|---|---|
-| **`fast`** (default) | 2 | **11m 10s · 270,824 tokens** (measured) | You want to see an idea. CD does concept + copy; designer selects + builds. |
-| `full` | 5 | **60 min · ~1M tokens** (measured) | The work is shipping. Independent selection and a verify pass first. Measured on a real run, not estimated. |
+## Two things from the user, everything else derived
 
-Fast gets to five minutes by spending less on every axis: sonnet at medium effort, a named-files-only
-reading rule, a single verification render instead of a zoom sweep, and hard brevity. **You lose depth
-of judgement, forensic asset inspection and the second opinion** — that is the deal, and it is why the
-gate exists.
+```
+/create-ad Spring promo for the Drift commuter e-bike, UK + DE, Meta Feed + Stories
+```
 
-Fast trades the art-director's independent selection and the pre-build verify for speed. **The gate is
-where quality comes back** — run `/creative-gate` on the result; its roles fan out in parallel, so
-reviewing costs far less wall-clock than producing.
-
-Nobody waits twenty minutes to look at a first idea. Default to fast, escalate to full when it matters.
-
-## Gather the inputs FIRST — before dispatching anyone
-
-The chain needs five things. A one-line brief is not enough, and running without them spends five
-agent dispatches on the word "undefined". Ask for whatever is missing:
+That is enough. The chain needs exactly two facts from the person asking:
 
 | | |
 |---|---|
-| **brief** | audience, the offer, and the claim the creative must prove |
-| **platforms** | e.g. "Meta Feed 4:5 + Stories 9:16" |
-| **masterSize** | one size first — derive the rest only after it is approved |
-| **inventoryPath** | the folder holding the COMPLETE asset inventory |
-| **destination** | the Figma file key and page to build into |
+| **brief** | the audience, the offer, and the claim the creative must prove |
+| **platforms** | e.g. "Meta Feed + Stories". **Never guessed** — the platform spec decides the size, the safe zones and the character limits |
 
-If the user gave you only a sentence — "give me a trading ad for Meta" — **stop and ask.** Name the
-gaps in one message rather than guessing, and say plainly that without assets there is nothing to
-build from and without a profile the brand tokens and compliance go unchecked.
+If either is missing, ask for that one thing in one short message. Do not ask for a list of five
+arguments; three of them have real defaults and the workflow reports back which it took:
 
-## Before anything
-1. Resolve the active client profile (`.creative-team/active`). No profile? Say so — you can still build,
-   but tokens, source law and compliance will be unchecked, and say that up front.
-2. Confirm the **design tool is connected**. The build steps need the Figma MCP. If it is not available,
-   stop and say so — do not describe an ad you cannot build.
-3. Run the format matrix for the platforms in scope. **Build the master size first.** Never build ten
-   sizes of an idea nobody has approved.
+| Optional | Left out ⇒ |
+|---|---|
+| `masterSize` | derived from the primary placement in `knowledge/platforms/`, at the platform's **recommended** resolution — and the basis is reported, not assumed |
+| `inventoryPath` | **type-only build.** No hero is selected and none is invented; source law forbids drawing one. Pass an asset folder to get a photographic or illustrated hero instead |
+| `destination` | the designer creates a new Figma file and returns its key |
 
-## The chain
-Dispatch in this order. Each step's output is the next step's input.
+**You supply `date` yourself** — run `date -u +%F`. It is not the user's job, and the workflow cannot
+read the clock: the gate marker and every ledger row are dated.
 
-1. **`content-creator`** — the copy deck. Headline, accent line, CTA, eyebrow, the visual proof the copy
-   requires, and a CLIENT-VERIFY list. Copy first: copy that does not fit drives layout changes late,
-   and per-format limits differ sharply (see `knowledge/platforms/`).
-2. **`creative-director`** — the concept. One subject that owns the frame at half a second, the hero
-   that proves the headline, and the directive for the build. It works from the COMPLETE asset
-   inventory, so give it the whole folder, not a shortlist.
-3. **`art-director`** — the asset selection. If nothing available proves the claim it returns
-   ASK-CLIENT with the exact request. **That is a valid outcome — take it to the human, do not
-   substitute a weaker asset.**
-4. **`designer`** — the build. Artboards, frame, safe-zone guides, hero, type, legal line. Tokens only.
-5. **`art-director`** again — verifies the render before any human sees it.
-6. **Gate it** — run `/creative-gate` on the result. A build that has not been gated is not finished.
+## How to run it
 
-Only derive the remaining sizes after the master passes.
+Prefer `workflows/create-ad.js` through the Workflow tool, so the dispatch, the gate and the verdict are
+deterministic and every role lands in the ledger:
+
+```
+brief, platforms, date           (required)
+masterSize, inventoryPath, destination, constraints   (optional)
+```
+
+## Before dispatching
+
+1. Resolve the active client profile (`.creative-team/active`). **No profile? Say so in one line and run
+   anyway** — brand tokens, source law and compliance go unchecked, the quality-officer returns
+   `UNVERIFIED` rather than `SHIP`, and that is a caveat on the output, not a reason to stop.
+2. Confirm the **Figma MCP is connected.** The build needs it. If it is not there, say so — do not
+   describe an ad you cannot build.
+3. Build the **master size only.** Derive the rest after a human approves it; never build ten sizes of
+   an idea nobody has approved.
+
+## What the run does
+
+| | Role | |
+|---|---|---|
+| 1 | `creative-director` | the concept — the ONE subject that owns the frame at half a second, and the directive to build from. **Concept comes before copy**: written the other way round the copywriter invents an implicit idea and the headline comes out as a specification rather than a hook (U45) |
+| 2 | `content-creator` | the copy deck, written to that concept, inside the per-placement character limits, with everything unsubstantiated sent to CLIENT-VERIFY rather than into the frame |
+| 3 | `art-director` | the hero, audited across the **complete** inventory. Skipped entirely when there is no inventory — there is nothing to select from, and inventing a hero is forbidden |
+| 4 | `designer` | the build. The only role that writes to Figma. Measures its largest empty region and declares every departure from the directive, however brief the run |
+| 5 | **the gate** | `art-director` + `design-analyst` + `content-creator` **in parallel**, then `quality-officer` alone on final state. Up to 2 fix → re-gate rounds |
+
+Eight dispatches on a clean run. The review fans out, so four reviewers cost roughly the wall-clock of
+one — which is why the gate is affordable enough to be mandatory rather than optional.
+
+## Afterwards — write what the workflow returned
+
+The workflow returns `writeThese.marker` and `writeThese.ledger` and **cannot write them**: workflow
+scripts have no filesystem access. You write them, in the working project:
+
+- `marker.path` → the gate marker, from `marker.decision`, `marker.rounds` and `marker.openItems`
+- each ledger row appended to `.gates/ledger.csv` as
+  `date,agent,purpose,tokens,tool_uses,duration_ms,outcome`
+
+Fill `tokens`, `tool_uses` and `duration_ms` from the task usage stats — the script cannot see them, and
+a null-token row is an incomplete ledger (U15). Without the marker the Stop hook keeps blocking the
+session even though the gate passed. That is the hook working correctly: a gate whose result was never
+recorded did not happen.
 
 ## Rules that make this work
-- Never invent a visual element. Compose, crop, slice and subtract from real assets — drawing new
-  content is not a fallback, and when blocked the answer is to escalate.
-- Never guess a token, a claim figure or a mandated legal line. Ask.
-- Two fix rounds maximum, then bring it to the human.
-- Present nothing ungated.
+
+- **Never invent a visual element.** Compose, crop, slice and subtract from real assets. Drawing new
+  content is not a fallback; when blocked, escalate.
+- **Never guess a token, a claim figure or a mandated legal line.** Ask.
+- **Deliver, then object.** An imperfect asset produces a build with the objection attached, not a
+  refusal. Refusal is for work that would be harmful, illegal or actively misleading (U43).
+- **Two fix rounds maximum**, then it goes to a human.
+- **Present nothing ungated** — and with the gate inside this command, nothing you present is.

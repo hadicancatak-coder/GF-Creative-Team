@@ -4,6 +4,142 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] — 2026-09-10
+
+**One process.** The two-speed design is gone, in both directions, and the gate now runs inside the
+production chain rather than beside it. This is a breaking change: `depth` is no longer accepted anywhere,
+and `scripts/validate.sh` fails the build if it reappears.
+
+### Why — the case against the design this removes
+
+The fast path worked. It took a 60-minute build to 11 minutes. And it was the sole origin of a whole
+defect class, all of it logged in this repo across the last three releases:
+
+| Version | Defect | Only possible because |
+|---|---|---|
+| 2.11.3 | `U52` — a merged concept+copy dispatch reused the `CONCEPT` schema, which has no headline field. The agent hit its 5-retry cap trying to satisfy a prompt its output shape contradicted, and the run died at 114,322 tokens | two roles were merged into one dispatch |
+| 2.12.0 | `U53` — sonnet at medium effort plus a brevity instruction suppressed the designer's craft self-checks, including the ~20% emptiness cap. A frame shipped **64% empty**, unmeasured | speed tuning applied to a whole mode rather than to what an agent writes |
+| 2.12.0 | `U54` — the build left an empty lower **two-thirds** where the directive said lower **third**, and reported it in the directive's own words | no pre-build verify, the thing fast traded away |
+
+It was also, by construction, the only path that produced **ungated** work. And the cheap *gate* had the
+mirror-image flaw: `depth:"quick"` was cheap because one reviewer cannot disagree with itself — which is
+the entire mechanism. The worst defect ever found in this project was three roles independently measuring
+the same frame and establishing that a fix reported as resolved had never landed in the file.
+
+Two pipelines is also two truths. *Which one made this? Was it gated?* became something a human had to
+remember, and the whole discipline of the system is not having to.
+
+So the cost came out of what an agent **writes**, never out of who checks.
+
+### Changed — the one process
+
+- **`/create-ad` is the whole pipeline**: concept → copy → select → build → **gate** → verdict, in one
+  run. Eight dispatches on a clean run, six of them serial. Nothing it hands you is ungated, so there is
+  no second command to remember.
+- **`/creative-gate` is the same gate**, for creative the chain did not produce — built by hand, built
+  before you installed this, or inherited.
+- **The gate roster is fixed and every reviewer sees every target**: `art-director` (render forensics),
+  `design-analyst` (every number), `content-creator` (every word) in parallel, then `quality-officer`
+  alone on final state. Each owns a failure class traced to an eval case.
+- **The creative-director's dispatch-plan step is gone.** It cost a dispatch, added an `INVALID PLAN`
+  failure mode, and could only ever *narrow* coverage — a fixed roster is cheaper and stricter at once.
+  The CD keeps what it actually owns: the concept, the directive, and the tiebreak when a role escalates.
+- **The standalone art-director verify pass is gone.** It measured, serially, the frame the gate's
+  art-director measures anyway — in parallel, alongside three other roles. The gate *is* the verify.
+- `workflows/build-verify-loop.js` is **removed**. It was a third orchestration producing ungated work.
+
+### Changed — two arguments instead of five
+
+`/create-ad` used to refuse a one-line brief and demand five arguments. That is not a pipeline people can
+use, so three of them now resolve to a **declared** default, reported back in the result rather than
+applied silently:
+
+| Argument | Left out ⇒ |
+|---|---|
+| `masterSize` | derived from the primary placement in `knowledge/platforms/` at the platform's recommended resolution, with the basis reported in `sizeBasis` |
+| `inventoryPath` | **type-only build.** No hero is selected and none is invented; source law forbids drawing one. The `Select` phase is not dispatched at all — there is nothing to select from |
+| `destination` | the designer creates a new Figma file and returns its key in `location` |
+
+`brief` and `platforms` stay required — a platform is never guessed, because its spec decides the size,
+the safe zones and the character limits. `date` is required of the **caller**, not the user: workflow
+scripts cannot read the clock, and the marker and ledger rows are dated.
+
+### Fixed
+
+- **The quality-officer could certify a state that a later fix changed.** Re-gating only ran for roles
+  whose own findings were addressed, so a quality-officer `PASS` on round 1 could survive a round-2 fix it
+  never saw — and the gate would emit `SHIP` on its strength. It now re-gates after **any** change, in
+  full, because it is the one role that certifies final state. Eval **U55**.
+- `ENVIRONMENT` findings no longer reach the designer at all. Re-running cannot change them, and a fix
+  round spent on one is pure waste.
+- **A stalled re-gate could leave the pre-fix verdict standing.** If a role failed to return after a fix
+  round, the engine kept its previous result and consolidated on it — so a `PASS` describing a state that
+  no longer existed could become a `SHIP`. It now returns `PARTIAL` and names the roles that did not
+  re-confirm. Same failure as U14, one round later and much harder to see.
+- **A build reporting `DONE` with no changed nodes reached the gate.** Four reviewers would find nothing
+  in nothing and the run returned `SHIP` on an artifact that was never made. It now escalates before the
+  gate: absence of findings is not absence of defects, and absence of nodes is not a build.
+- `UNVERIFIED` is now a first-class verdict rather than a convention. With no compliance layer loaded the
+  quality-officer says so, and the consolidated decision says so too instead of reporting `SHIP` — a
+  reduced-scope review presented as a full one is the one thing worse than no review.
+
+### Added — `scripts/dry-run.mjs`, and the orchestration is finally tested
+
+Every orchestration bug in this repo's history was found by a live run that burned real tokens: a
+preflight that would have interpolated `undefined` into five prompts, a schema that could not hold its own
+prompt (U52, 114,322 tokens), a gate that could report a clean pass on stalled agents (U14). All of them
+are control-flow and schema bugs. **None of them needed a model to find.**
+
+So the harness substitutes the engine — `agent`, `parallel`, `phase` and `log` become stubs that record
+every dispatch and return whatever a scenario says a role returned — and asserts on the routing. 44
+assertions across 17 scenarios, covering: the clean run is exactly 8 dispatches in order with no role
+doing two jobs; concept precedes copy; nothing is dispatched after the quality-officer; a bare one-line
+brief is refused *before* any dispatch; `brief` + `platforms` alone produces a gated build; no inventory
+means `Select` never runs and the designer is forbidden to invent a hero; `ASK-CLIENT` halts before the
+build; a declared conflict reaches the CD; a stalled reviewer yields `PARTIAL`; all stalling yields
+`INCOMPLETE`; an unfixable MAJOR exhausts exactly 2 rounds; a contested finding never reaches the
+designer; `ENVIRONMENT`-only yields `COMP-APPROVED` with a clear-before-export checklist; a build that
+changed no nodes never reaches the gate; a stalled re-gate yields `PARTIAL`; and every schema's
+`required` keys exist as properties — the static form of U52.
+
+**Two of the fixes above were found by writing it**, before it had ever run against a model.
+
+No tokens, no Figma, no network. It runs in CI on every push, and `validate.sh` runs it too.
+
+Eval **U57**.
+
+### Added — the single process is enforced, not requested
+
+`scripts/validate.sh` now also fails on:
+
+- **a reappearing speed switch** — `args.depth`, a `DEPTH` constant, a `depth:` literal, or a "Two
+  speeds" heading anywhere in `workflows/`, `commands/`, `skills/`, `docs/` or the README;
+- **drift in the shared gate block.** Workflow scripts cannot `import`, so the gate is defined once and
+  pasted byte-identically into both workflows between `SHARED GATE BLOCK v1` markers. The validator
+  sha256s both regions and fails if they differ by one character. "There is one gate" is now a property
+  of the build rather than a claim in a README;
+- a non-designer role dispatched with the fix schema, and any role in the gate roster with no agent file.
+
+### Evals
+
+- **U55** — whatever certifies final state re-runs after any change, not only after changes it asked for.
+- **U56** — a pipeline too slow to use gets a cheap second mode instead of being made cheaper, and the
+  cheap mode becomes the sole source of a defect class and the only path that ships ungated work.
+- **U57** — orchestration defects are deterministic and belong in CI, not in a live run's bill.
+- **U49 and U50 keep their recorded failures but have their remedies marked superseded by U56.** Both
+  correctly diagnosed that an unaffordable pipeline gets skipped; both prescribed a second, weaker path.
+  The diagnosis held. The prescription did not, and the eval table says so rather than quietly changing.
+
+`METHOD.md` lesson 8 is rewritten as the mistake it was, and lesson 10 is added. 57 cases, 12 MISSED.
+
+### Not measured, and deliberately absent
+
+**The one process has not been run end to end, and no wall-clock figure for it appears anywhere in this
+release.** The arithmetic is 8 dispatches against the 21 the old two-command route needed, and the
+per-dispatch costs it is built from are measured — but arithmetic is not a measurement. This repo
+published a "~5 min" figure in four places and had to retract it (2.10.3), then published a 5-minute
+target it missed by 6 minutes (2.11.4). The next number here comes from a live run.
+
 ## [2.12.0] — 2026-09-10
 
 First run on a cold client — a brand the team had never seen, in a different category, with a

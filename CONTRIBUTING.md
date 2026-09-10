@@ -48,7 +48,20 @@ merging any gate that produces zero blockers or majors two audits running.
 
 ## Workflows and hooks
 
+- **There is one process and one gate.** Do not add a `depth`, `mode`, `quick` or `fast` argument.
+  `validate.sh` fails the build if one appears, and the reasoning is eval U56: every defect unique to the
+  cheap path came from merging two roles into one dispatch, and it was the only path that shipped ungated
+  work. If the chain is too slow, cut what an agent *writes* — not who checks.
+- **The gate lives in one block, pasted into both workflows.** Workflow scripts cannot `import`, so
+  `SHARED GATE BLOCK v1` is duplicated byte-for-byte in `create-ad.js` and `creative-gate.js`, and
+  `validate.sh` sha256s both regions. Edit one copy, run the validator, copy it across. Never hand-edit
+  one side only.
+- **Add a dry-run scenario for any routing change.** `scripts/dry-run.mjs` stubs the engine, so a new
+  branch in the control flow costs nothing to cover and every orchestration bug in this repo's history
+  was this shape.
 - Keep the ESCALATE clause in any chain you adapt. When blocked, escalating is the only legal move.
+- Keep every escape hatch **optional in the schema**. A required field is a forced answer: requiring
+  `chosenPath` once forced the art-director to nominate a least-bad asset (U10).
 - Never let a workflow report success on missing or stalled results (eval U14).
 - Domain facts belong in arguments or the client profile — if you are hardcoding a file key, node ID or
   absolute path into `workflows/`, that is the bug.
@@ -83,13 +96,30 @@ Run the validator. CI runs the same script, so this is the whole gate:
 
 It checks workflow and hook syntax, executable bits, JSON manifests, the plugin manifest via
 `claude plugin validate`, frontmatter on every agent/command/skill, that no workflow references an agent
-that does not exist, that every knowledge file carries its frontmatter and cites sources, that README
+that does not exist, that no speed switch has reappeared, that the shared gate block is byte-identical
+across both workflows, that every knowledge file carries its frontmatter and cites sources, that README
 counts match the eval table, that internal links resolve, that no absolute path leaked, and that no doc
 tells a user to write into the plugin directory.
+
+**It also runs the orchestration dry run**, which you can run on its own while iterating:
+
+```bash
+node scripts/dry-run.mjs          # every scenario, verbose
+node scripts/dry-run.mjs --quiet  # failures only
+```
+
+This is the test to reach for first when you change a workflow. It substitutes the engine — `agent`,
+`parallel`, `phase` and `log` become stubs that record every dispatch — and asserts on the routing: who
+ran, in what order, with what schema, and what verdict came out. No tokens, no Figma, no network, so
+there is no excuse for a routing change arriving uncovered.
+
+What it cannot tell you is whether an agent is any *good*. That is what the evals are for, and keeping
+the two apart is what makes either affordable to run.
 
 Then, by hand:
 
 - [ ] Evals re-run if you touched a brief, with any regressions noted in the PR
+- [ ] A dry-run scenario added if you changed the routing
 - [ ] No real client names, compliance text, or design-file keys in the diff
 
 ## Why CI fails on a green codebase

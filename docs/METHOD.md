@@ -9,16 +9,25 @@ org chart. If you cannot name the failure class a role owns, it is not a role.
 
 ## The chain
 ```
-content-creator (copy) → creative-director (concept + dispatch plan)
+creative-director (concept) → content-creator (copy) → art-director (select)
                               ↓
-        art-director (select) → designer (build) → art-director (verify)
+                       designer (build)
                               ↓
-         design-analyst + quality-officer (gate; QO last, on final state)
+   art-director + design-analyst + content-creator  (gate, IN PARALLEL)
+                              ↓
+              designer (fix) → the failed roles re-gate     ×2 max
+                              ↓
+              quality-officer (final state, alone, last)
                               ↓
                             human
 ```
+One chain. There is no shorter variant and no cheaper gate — see lesson 8.
 The orchestrator dispatches and applies decisions. It does not judge, select, or place pixels.
 The separation matters: an orchestrator that also reviews will approve its own work.
+
+The production half is sequential because each role needs the last one's output. The review half is not,
+so it fans out — which is why four reviewers cost roughly the wall-clock of one, and why the gate is
+affordable enough to be mandatory rather than optional.
 
 ## Laws (ranked; the client profile supplies the specifics)
 1. **Source-only** — elements trace to a real source; invention is never a fallback. Subtract and crop, don't draw.
@@ -60,8 +69,9 @@ The ratio of findings caught by humans versus by gates.
 
 ## What building this taught us
 
-Nine lessons, each bought by a failure during development, each recorded as an eval case. They are the
-part most likely to transfer to a team that has nothing to do with advertising.
+Ten lessons, each bought by a failure during development, each recorded as an eval case. They are the
+part most likely to transfer to a team that has nothing to do with advertising. Lesson 8 is the one this
+project got wrong twice before getting right, and it is written up as the mistake it was.
 
 **1. Role separation must be enforced by tooling, not asked for in prose.**
 Seven briefs said who does what. All seven agents had unrestricted tools. The copywriter rendered the
@@ -97,16 +107,43 @@ you dispatch and name exactly what is missing. *(U34)*
 Creating an empty file counted as a build, so the enforcement hook demanded review of work that did not
 exist. A gate that fires on phantom work teaches people to bypass gates. *(U33)*
 
-**8. Speed is a correctness property.**
-Five sequential specialists is twenty minutes for one draft. A pipeline nobody runs is worth nothing, so
-"it produces better work" is not a defence. Offer a fast path, state what it gives up, and let the
-parallelisable half — the review — carry the quality. *(U49)*
+**8. Speed is a correctness property — and a second, weaker pipeline is the wrong way to buy it.**
+Five sequential specialists is twenty minutes for one draft, and a pipeline nobody runs is worth
+nothing; "it produces better work" is not a defence. That much was right. The answer we reached for was
+wrong. We built a fast path beside the real one, and it worked: 60 minutes became 11.
+
+It also became the only source of a whole defect class. Every bug unique to the cheap path came from
+merging two roles into one dispatch — a merged call whose schema could not hold its own prompt and burned
+its retry cap (U52), speed tuning that silently suppressed the craft self-checks so a frame shipped 64%
+empty and unmeasured (U53), and a departure from the directive reported as compliance (U54). And by
+construction it was the path that produced **ungated** work, because the gate was the thing it skipped.
+The cheap gate had the mirror-image flaw: it was cheap because one reviewer cannot disagree with itself,
+which is the entire mechanism a gate exists for.
+
+Two pipelines also means two truths. Which one produced this? Was it gated? The answer became a thing
+you had to remember, and the whole discipline of the system is not having to.
+
+So: **make the correct process affordable instead.** The levers that cost nothing are the ones that cut
+what an agent *writes* rather than what it *checks* — per-role model and effort tiering, naming the
+files instead of letting it explore, fanning the review out in parallel, and deleting every dispatch
+that re-measures what another role already measured. What survives every optimisation gets marked
+NON-OPTIONAL at the point it is asked for, because once it was not, and the cheapest path quietly became
+the least careful one. *(U49, U50, U53, U56)*
 
 **9. Make the fidelity of a thing match its intent.**
 A schematic dressed as finished work gets judged as finished work, and rightly. This applied to our own
 README diagram before it applied to anything a client saw. *(U42)*
 
-The thread through all nine: **the system will do exactly what it is built to do, not what the
+**10. A test that needs a model is a test you will not run.**
+Every orchestration bug here was found by a live run that burned real tokens — a preflight that
+interpolated `undefined` into five prompts, a schema that could not hold its own prompt (114k tokens to
+discover), a gate that could report a clean pass on stalled agents. All of them are control-flow and
+schema bugs. **None of them needed a model to find.** Stub the engine, record what gets dispatched, and
+assert on the routing: who ran, in what order, with what schema, and what verdict came out. That half of
+an agent system is deterministic and belongs in CI. The other half — whether an agent is any *good* —
+is what the evals are for, and keeping the two apart is what makes either affordable. *(U57)*
+
+The thread through all ten: **the system will do exactly what it is built to do, not what the
 documentation says it should.** Every one of these was a gap between a stated rule and an enforced one.
 
 ## Generalizing to another domain

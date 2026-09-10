@@ -11,11 +11,12 @@ Stop hook that refuses to let a session end on an ungated build.
 
 ---
 
-## 1. Creative Director — *directs and decides who reviews what*
+## 1. Creative Director — *directs, and rules when roles disagree*
 
 **Give it:** the campaign context and the built work, or a concept before it is built.
-**You get:** a verdict (APPROVE / REVISE / REJECT), at most 5 notes, the set's single biggest weakness —
-and, when gating, a dispatch plan naming which roles review which targets in which order.
+**You get:** the ONE subject that owns the frame, a directive precise enough to build from, a verdict
+(APPROVE / REVISE / REJECT) with at most 5 notes and the set's single biggest weakness — and, when the
+designer escalates a disagreement instead of deciding it, a ruling naming whose reasoning it sets aside.
 
 **Call it when:** a concept is formed but not built, and again as the sign-off on any finished set.
 
@@ -162,14 +163,23 @@ quality or compliance gate on shippable work.
 ## How they work together
 
 ```
-content-creator → creative-director (concept + dispatch plan)
+creative-director (concept) → content-creator (copy) → art-director (select)
                         ↓
-   art-director (select) → designer (build) → art-director (verify)
+                 designer (build)
                         ↓
-     design-analyst + quality-officer (gate; QO last, on final state)
+  art-director + design-analyst + content-creator   (gate, IN PARALLEL)
+                        ↓
+        designer (fix) → the failed roles re-gate         ×2 max
+                        ↓
+        quality-officer (final state, alone, last)
                         ↓
                       human
 ```
+
+**One process.** Concept precedes copy, the production half is sequential because each role needs the
+last one's output, and the review half fans out because it does not. There is no shorter variant and no
+cheaper gate — the reasoning, and the three defects that bought it, are in
+[METHOD.md](METHOD.md) lesson 8.
 
 Three things make this a team rather than seven prompts:
 
@@ -177,8 +187,10 @@ Three things make this a team rather than seven prompts:
 opinions about composition. The one that decides who reviews does not review everything itself. An
 orchestrator that also reviews approves its own work.
 
-**Ordering that is enforced, not suggested.** The engine refuses a dispatch plan that puts the Quality
-Officer anywhere but last, or that leaves a target unreviewed.
+**Ordering that is enforced, not suggested.** The Quality Officer is structurally last and alone,
+because it certifies *final* state — and it re-runs after **any** fix round, even one addressing findings
+it never raised, since the state it signed off on no longer exists. Every other reviewer re-gates scoped
+to its own prior findings; a re-gate that opens new dimensions is a new gate.
 
 **A legal way to stop.** Every role can escalate. The Art Director can decline to select, the Designer
 can refuse to build, the Quality Officer can withhold SHIP. Nothing in the schemas forces a role to

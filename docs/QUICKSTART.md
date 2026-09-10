@@ -63,21 +63,39 @@ expensive to find late.
 The specs come from `knowledge/platforms/`, traced to each platform's own documentation and dated. If a
 file's `review_by` has passed, the command tells you before it tells you anything else.
 
-## 4. Gate something
-
-After any build round:
+## 4. Make an ad
 
 ```
-/gf-creative-team:creative-gate the four 1080x1080 masters in the Spring campaign
+/gf-creative-team:create-ad Spring promo for the Drift commuter e-bike, UK + DE, Meta Feed + Stories
 ```
 
-The Creative Director writes a dispatch plan, the role agents review in parallel, and you get a
-consolidated **SHIP / FIX-THEN-REGATE / BLOCK**. Findings come back with severity, location and an exact fix.
+Two facts: what the ad is for, and which platforms. The master size comes from the platform spec, and
+if you pass no asset folder you get a type-only build rather than an invented hero — every default taken
+is reported back, not applied silently.
 
-For a deterministic run with a schema-checked plan, call `workflows/creative-gate.js` through the
-Workflow tool instead.
+**One process, and the gate is inside it.** Concept → copy → asset → build → gate → verdict:
+`art-director`, `design-analyst` and `content-creator` review in parallel, then the `quality-officer`
+gates final state alone, with up to two fix rounds. Nothing it hands you is ungated, so there is no
+second command to remember.
 
-## 5. Turn on enforcement (optional but the point)
+Pass `inventoryPath` when you have assets and `destination` when you have a Figma file in mind;
+otherwise the designer creates one and returns the key.
+
+## 5. Gate something you already built
+
+For creative this chain did not produce — built by hand, built before you installed this, or inherited:
+
+```
+/gf-creative-team:creative-gate the four 1080x1350 masters in the Spring campaign
+```
+
+Same four reviewers, same code, consolidated **SHIP / COMP-APPROVED / UNVERIFIED / FIX-THEN-REGATE /
+BLOCK**. Findings come back with severity, location and an exact fix.
+
+For a deterministic run where every dispatch lands in the ledger, call `workflows/creative-gate.js`
+through the Workflow tool.
+
+## 6. Turn on enforcement (optional but the point)
 
 The bundled hooks do two things:
 - log every design-tool write to `.gates/builds.log`
@@ -88,11 +106,24 @@ The Stop hook has a human waiver hatch: write `.gates/<date>-skipped.md` naming 
 The PostToolUse matcher in `hooks/hooks.json` targets the Figma MCP write tools by default. Using a
 different design tool? Widen or replace that regex — it is the only tool-specific line in the repo.
 
-## 6. Run the evals
+## 7. Run the checks
 
-`evals/universal-cases.md` holds 54 domain-agnostic failure classes with their outcomes recorded. Give
-an agent a case input with **no hint**, and check whether it raises the expected catch. Do this after any
-brief edit — a case that used to pass and now fails is a regression.
+Two layers, and they answer different questions.
+
+```bash
+./scripts/validate.sh      # the repo gate — manifests, role boundaries, spec freshness, links
+node scripts/dry-run.mjs   # the orchestration — who gets dispatched, in what order, what comes out
+```
+
+`dry-run.mjs` stubs the workflow engine and asserts on the routing: the clean run is exactly eight
+dispatches with no role doing two jobs, nothing runs after the quality-officer, a stalled reviewer
+yields `PARTIAL` rather than a pass, an unfixable finding exhausts exactly two rounds, a contested
+finding never reaches the designer. No tokens, no Figma, and CI runs it on every push.
+`validate.sh` runs it too, so one command covers both.
+
+Then the part no harness can do: `evals/universal-cases.md` holds 57 domain-agnostic failure classes with
+their outcomes recorded. Give an agent a case input with **no hint**, and check whether it raises the
+expected catch. Do this after any brief edit — a case that used to pass and now fails is a regression.
 
 ## Running without a profile
 

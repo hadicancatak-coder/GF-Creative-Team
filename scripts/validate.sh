@@ -16,6 +16,7 @@ head_ "syntax"
 for f in workflows/*.js; do
   node --check "$f" 2>/dev/null && ok "$f" || err "$f fails node --check"
 done
+node --check scripts/dry-run.mjs 2>/dev/null && ok "scripts/dry-run.mjs" || err "scripts/dry-run.mjs fails node --check"
 for f in hooks/*.sh; do
   sh -n "$f" 2>/dev/null && ok "$f" || err "$f fails sh -n"
   [ -x "$f" ] || err "$f is not executable"
@@ -64,10 +65,60 @@ head_ "agent registry"
 for a in $(grep -ohE "agentType: '[a-z-]+'" workflows/*.js | sed "s/.*'\(.*\)'/\1/" | sort -u); do
   [ -f "agents/$a.md" ] && ok "agentType $a" || err "workflow references unknown agent: $a"
 done
-for a in $(grep -oE "'[a-z-]+'" workflows/creative-gate.js | sed "s/'//g" | sort -u); do
-  case "$a" in art-director|design-analyst|quality-officer|content-creator|designer|creative-director)
-    [ -f "agents/$a.md" ] || err "plan enum names missing agent: $a";; esac
+# every role named in the fixed gate roster must exist as an agent file
+for a in $(grep -ohE "^  \{ agent: '[a-z-]+'" workflows/*.js | sed "s/.*'\(.*\)'/\1/" | sort -u); do
+  [ -f "agents/$a.md" ] && ok "gate roster $a" || err "gate roster names missing agent: $a"
 done
+
+head_ "one process"
+# There is ONE production chain and ONE gate. A `depth` argument is how the two-speed design came
+# back last time, and every defect unique to the cheap path (U52, U53, U54) came with it.
+# Match the MECHANISM, not the word: a read of args.depth, a DEPTH constant, a depth: literal, or a
+# heading offering a choice of speeds. Prose explaining why there is no such switch is fine.
+SPEED_PAT='a\.depth|args\.depth|\bDEPTH\b|depth: *["'"'"']|depth:"|Two speeds|Two depths|Two modes'
+if grep -rnE "$SPEED_PAT" workflows/ commands/ skills/ docs/ README.md 2>/dev/null | grep -q .; then
+  grep -rnE "$SPEED_PAT" workflows/ commands/ skills/ docs/ README.md 2>/dev/null \
+    | while read -r l; do echo "       $l"; done
+  err "a depth/speed switch has reappeared — there is one process, and the cheap path was the only one that shipped ungated work"
+else
+  ok "no depth or speed switch in workflows, commands, skills or docs"
+fi
+# Only the designer may hold the write role in a gate dispatch.
+if grep -nE "agentType: '(art-director|design-analyst|quality-officer|content-creator|creative-director)'" \
+     workflows/*.js | grep -q 'FIX_SCHEMA'; then
+  err "a non-designer role was dispatched with the fix schema"
+else
+  ok "only the designer is dispatched to change the artifact"
+fi
+
+head_ "one gate"
+# The gate is defined once and pasted into both workflows, because workflow scripts cannot import.
+# Byte-identity is therefore the only thing standing between "one gate" and two that drift apart.
+BLOCK_FILES="workflows/create-ad.js workflows/creative-gate.js"
+SUMS=""
+for f in $BLOCK_FILES; do
+  n=$(awk '/SHARED GATE BLOCK v1/,/END SHARED GATE BLOCK/' "$f" | wc -l | tr -d ' ')
+  if [ "$n" -lt 50 ]; then
+    err "$f has no SHARED GATE BLOCK (found $n lines between the markers)"
+  else
+    SUMS="$SUMS $(awk '/SHARED GATE BLOCK v1/,/END SHARED GATE BLOCK/' "$f" | sha256sum | cut -d' ' -f1)"
+  fi
+done
+UNIQ=$(printf '%s\n' $SUMS | sort -u | wc -l | tr -d ' ')
+if [ "$UNIQ" = "1" ]; then
+  ok "the shared gate block is byte-identical across $BLOCK_FILES"
+else
+  err "the shared gate block has DRIFTED between workflows — a production run and a standalone review would disagree about what 'gated' means. Copy the block from one file to the other."
+fi
+
+head_ "orchestration dry run"
+# Stubs the engine and asserts the routing: who is dispatched, in what order, and what verdict
+# comes out. No tokens, no Figma. Every orchestration bug in this repo's history was this shape.
+if node scripts/dry-run.mjs --quiet; then
+  ok "scripts/dry-run.mjs — all scenarios pass"
+else
+  err "scripts/dry-run.mjs failed — the orchestration is mis-wired (see output above)"
+fi
 
 head_ "knowledge layer"
 for f in knowledge/platforms/*.md; do

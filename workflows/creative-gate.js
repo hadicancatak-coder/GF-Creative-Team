@@ -1,41 +1,48 @@
 export const meta = {
   name: 'creative-gate',
-  description: 'CD plans the dispatch; role agents gate in parallel; designer fixes; re-gate up to 2 rounds; consolidated verdict',
-  whenToUse: 'Gate any built creative set before it is shown or shipped',
+  description: 'The one gate: four reviewers in parallel, quality-officer last on final state, fix and re-gate, consolidated verdict',
+  whenToUse: 'Creative already exists and has not been gated — built elsewhere, built by hand, or inherited',
   phases: [
-    { title: 'Plan',    detail: 'Creative Director writes the dispatch plan; the engine validates it' },
-    { title: 'Gate',    detail: 'role agents review per plan, parallel groups in order' },
-    { title: 'Fix',     detail: 'designer applies confirmed findings; only failed roles re-gate' },
-    { title: 'Verdict', detail: 'consolidate, emit ledger rows and the gate marker' },
+    { title: 'Gate',    detail: 'four reviewers in parallel, quality-officer last on final state' },
+    { title: 'Fix',     detail: 'designer applies confirmed findings; the failed roles re-gate' },
+    { title: 'Verdict', detail: 'consolidate into SHIP / COMP-APPROVED / FIX / BLOCK, plus marker and ledger' },
   ],
 }
 
+// ONE GATE. There is no `depth` argument and there will not be one.
+//
+// This file exists for work the chain did not produce — built by hand, built before the plugin, or
+// inherited. `create-ad.js` runs this same gate inline, from the same block below, so a production run
+// and a standalone review cannot disagree about what "gated" means.
+//
+// An earlier version offered a one-dispatch spot-check beside the real gate. It was cheaper because a
+// single reviewer cannot disagree with itself, which is the entire mechanism: the worst defect ever
+// found in this project was three roles independently measuring the same frame and establishing that a
+// fix reported as resolved had never landed in the file. A spot-check that cannot do that is not a
+// gate, and having it available meant the gate got skipped.
+//
 // args: {
-//   targets:  [{ id, name, note }]   what to gate
-//   context:  string                 campaign context for the CD
-//   location: string (optional)      where the targets live
-//   date:     string  REQUIRED       ISO date, e.g. "2026-09-07"
-//
-// NOTE: workflow scripts have NO filesystem access and cannot call new Date().
-// This workflow therefore RETURNS the ledger rows and the gate marker; the calling
-// skill writes them to .gates/. Do not add fs calls here — they will not run.
+//   targets   [{ id, name, note }]  REQUIRED  what to gate
+//   date      string                REQUIRED  ISO date, supplied by the CALLER — scripts cannot read
+//                                             the clock, and the marker and ledger rows are dated
+//   location  string                optional  "Figma file <KEY>, page ...", "./renders/", a URL
+//   context   string                optional  campaign context the reviewers should judge against
+// }
 
+// ──8<─────────────────────── SHARED GATE BLOCK v1 ───────────────────────8<──
+// This region is BYTE-IDENTICAL in workflows/create-ad.js and workflows/creative-gate.js,
+// and `scripts/validate.sh` fails the build if the two copies drift by one character.
+//
+// There is ONE gate. A production run and a standalone review must not be able to disagree
+// about what "gated" means — that is the whole point of collapsing to a single process.
+// Workflow scripts cannot `import`, so the single definition is enforced by tooling rather
+// than by a module boundary. Edit it in one file and run ./scripts/validate.sh; it will tell
+// you to copy the block across. Do not hand-edit one copy only.
 
-// ── Model and effort tiering ──────────────────────────────────────────────────
-// Measured from live runs: every role was costing 120-200k tokens at one tier.
-// The work is not equally hard. Judgement and visual forensics need the top tier;
-// measurement and arithmetic do not.
-//
-//   role                 tier            why
-//   creative-director    high effort     concept, tiebreak rulings — the hardest reasoning
-//   art-director         high effort     pixel forensics, squint judgement, the quality backbone
-//   designer             medium effort   execution against a directive; craft matters, novelty does not
-//   content-creator      medium effort   writing inside known constraints
-//   design-analyst       sonnet, low     reading node properties and comparing them to tokens
-//   quality-officer      high effort     a compliance miss is the most expensive error in the set
-//   financial-controller haiku,  low     arithmetic over a CSV
-//
-// Override per call, never globally — a role's tier belongs to the task, not the roster.
+// ── Model and effort per role ─────────────────────────────────────────────────
+// Measured from live runs: every role cost 120-200k tokens at a single tier, and the work is
+// not equally hard. Judgement and visual forensics need the top tier; reading node properties
+// and comparing them to tokens does not. This is the efficiency lever that costs no standards.
 const TIER = {
   'creative-director':    { effort: 'high' },
   'art-director':         { effort: 'high' },
@@ -45,249 +52,298 @@ const TIER = {
   'quality-officer':      { effort: 'high' },
   'financial-controller': { model: 'haiku',  effort: 'low' },
 }
-const tier = a => TIER[a] || {}
+const tier = role => TIER[role] || {}
+
+// Agents were re-reading the repository tree on every dispatch. Naming the files is the
+// largest saving available that gives up no judgement at all.
+const READ_SCOPE =
+  'Read ONLY: `.creative-team/active`, then that profile\'s `client.md` and `compliance.md`, and the ' +
+  '`knowledge/platforms/` file for each platform in scope. Do not explore the tree, and do not re-read ' +
+  'a file you have already opened. If there is no active profile, say so in your first line and review ' +
+  'in reduced scope against the platform specs — do not guess a brand token.'
+
+// Brevity is a latency lever, never a standards lever. Eval U53: a brevity instruction once
+// suppressed the designer's craft self-checks and the build shipped 64% empty, unmeasured. So
+// anything that must survive brevity is marked NON-OPTIONAL where it is asked for, every time.
+const BREVITY =
+  'Be brief: the findings and a verdict. No preamble, no restating the brief, no options you rejected. ' +
+  'Brevity cuts what you WRITE, never what you CHECK — every check marked NON-OPTIONAL below runs.'
 
 const MAX_ROUNDS = 2
 
-const PLAN_SCHEMA = {
-  type: 'object', required: ['plan'],
-  properties: { plan: { type: 'array', items: {
-    type: 'object', required: ['agent', 'targets', 'focus', 'group'],
-    properties: {
-      agent: { type: 'string', enum: ['art-director','design-analyst','quality-officer','content-creator'] },
-      targets: { type: 'array', items: { type: 'string' } },
-      focus: { type: 'string' }, group: { type: 'integer' }, passesIf: { type: 'string' },
-    } } } },
-}
+// ── The roster ────────────────────────────────────────────────────────────────
+// Fixed, and every role sees every target. An earlier version asked the creative-director for a
+// dispatch plan first: that cost a dispatch, introduced an INVALID PLAN failure mode of its own,
+// and could only ever NARROW coverage. Full coverage is simultaneously cheaper and stricter.
+//
+// Each role owns a failure class traced to an eval case — if you cannot name the class a role
+// owns, it is not a role. Group 1 runs in parallel; the quality-officer is alone in group 2
+// because it certifies FINAL state, after every other role's fixes have landed.
+const GATE_ROSTER = [
+  { agent: 'art-director', group: 1, focus:
+    'RENDER FORENSICS — you own whether this reads as work anyone would run.\n' +
+    'Render each target at ~1300px, at ~110px, and zoom-crop every edge and every seam.\n' +
+    'NON-OPTIONAL, report the answer even when it is fine:\n' +
+    '  (a) At 110px, name the ONE thing that survives. If nothing does, that alone is a MAJOR.\n' +
+    '  (b) MEASURE the largest empty region as a percentage of canvas and state the number. Above\n' +
+    '      ~20% and open to the background on two sides is a hole, not composed space (U47).\n' +
+    '  (c) Does anything in the frame read as TAPPABLE at thumbnail? A CTA is a button, not a\n' +
+    '      sentence (U46).\n' +
+    '  (d) Is every placed asset\'s lineage CITED — a file name or node id — rather than asserted\n' +
+    '      in a layer name? An assertion is not a citation (U39).\n' +
+    'Then: reference geometry, device and object realism, honest endings, and squint hierarchy.' },
+
+  { agent: 'design-analyst', group: 1, focus:
+    'MEASUREMENT — you own every number. Read node properties; do not judge taste.\n' +
+    'NON-OPTIONAL, with the measured value, the expected value and the node id for each:\n' +
+    '  (a) Canvas dimensions and ratio against the named placement in `knowledge/platforms/`. A\n' +
+    '      master at the wrong ratio makes every derivative wrong (U38).\n' +
+    '  (b) Platform safe zones CONVERTED TO PX FOR THIS CANVAS, and whether anything load-bearing\n' +
+    '      sits inside one.\n' +
+    '  (c) Every colour, type size, weight and margin against the profile tokens.\n' +
+    '  (d) Fonts RESOLVED IN THE RENDERER, not merely installed on the machine — Figma\'s font\n' +
+    '      environment is separate from the OS, and a silent substitution typesets the whole set\n' +
+    '      in a face nobody approved (U40, U48).\n' +
+    '  (e) Collisions: anything overlapping, clipped, or crossing a margin.\n' +
+    'Product rendering baked into an approved source asset is NOT a token violation — say so\n' +
+    'rather than logging it.' },
+
+  { agent: 'content-creator', group: 1, focus:
+    'COPY AUDIT — you own every word in the frame, read back off the render rather than off the deck.\n' +
+    'NON-OPTIONAL:\n' +
+    '  (a) Mandated legal text: present, VERBATIM, adjacent to the claim it qualifies, at the\n' +
+    '      specified size and contrast.\n' +
+    '  (b) Per-placement character limits for the platforms in scope.\n' +
+    '  (c) Every factual claim either substantiated by the profile or listed for CLIENT-VERIFY.\n' +
+    '      A claim the profile does not support is a BLOCKER, not a note.\n' +
+    '  (d) ONE action per creative, and no element repeating what another already says.\n' +
+    'READ-ONLY: report the fix, never rewrite the artifact.' },
+
+  { agent: 'quality-officer', group: 2, focus:
+    'FINAL GATE on FINAL state — you run last and you own the terminal verdict.\n' +
+    'NON-OPTIONAL:\n' +
+    '  (a) Regulation, regional rules and category restrictions from the profile\'s `compliance.md`.\n' +
+    '  (b) Export weight against EACH platform\'s ceiling — they differ by up to 6x, so an export\n' +
+    '      that passes one and fails another is a defect, not a detail.\n' +
+    '  (c) System membership: does this belong to the brand\'s body of work, or only to this brief?\n' +
+    'Separate DEFECT from ENVIRONMENT. ENVIRONMENT is a constraint outside the work that re-gating\n' +
+    'cannot change — a face absent from the renderer, an asset\'s native resolution, an unanswered\n' +
+    'client question. Never use it for a defect in the work (U41).\n' +
+    'With no compliance layer loaded, return UNVERIFIED — never SHIP.' },
+]
 
 const FINDINGS_SCHEMA = {
   type: 'object', required: ['verdict', 'findings'],
   properties: {
-    verdict: { type: 'string', enum: ['PASS','FAIL','BLOCK'] },
-    findings: { type: 'array', items: { type: 'object', required: ['severity','where','issue','fix'],
-      properties: { // ENVIRONMENT = a constraint OUTSIDE the work that the team cannot fix and re-gating
-      // will not change: a font not installed, an asset's native resolution, a client answer
-      // outstanding, a knowledge file past review_by. Never use it for a defect in the work.
-      severity: { type: 'string', enum: ['BLOCKER','MAJOR','MINOR','ENVIRONMENT'] },
+    verdict: { type: 'string', enum: ['PASS', 'FAIL', 'BLOCK', 'UNVERIFIED'] },
+    findings: { type: 'array', items: {
+      type: 'object', required: ['severity', 'where', 'issue', 'fix'],
+      properties: {
+        severity: { type: 'string', enum: ['BLOCKER', 'MAJOR', 'MINOR', 'ENVIRONMENT'] },
         where: { type: 'string' }, issue: { type: 'string' }, fix: { type: 'string' },
+        measured: { type: 'string' }, expected: { type: 'string' },
+        // contested = it touches content the client explicitly asked to keep. Never auto-applied.
         contested: { type: 'boolean' } } } },
+    // Answers to the NON-OPTIONAL checks, so a silent omission is visible rather than assumed clean.
+    checks: { type: 'string' },
   },
 }
 
 const FIX_SCHEMA = {
-  type: 'object', required: ['status','changedIds','applied','skipped'],
+  type: 'object', required: ['status', 'changedIds', 'applied', 'skipped'],
   properties: {
-    status: { type: 'string', enum: ['DONE','ESCALATE'] },
+    status: { type: 'string', enum: ['DONE', 'ESCALATE'] },
     changedIds: { type: 'array', items: { type: 'string' } },
     applied: { type: 'string' }, skipped: { type: 'string' }, notes: { type: 'string' },
   },
 }
 
+// ── The gate ──────────────────────────────────────────────────────────────────
+// gate → fix → re-gate (max 2 rounds) → consolidated verdict, ledger rows and a marker.
+// Returns everything; writes nothing. Workflow scripts have no filesystem access and cannot
+// read the clock, so the CALLER writes the marker and the ledger, and passes `date` in.
+async function runGate({ targets, location, context, date, gatePhase, fixPhase }) {
+  const where = location ? ` They live in: ${location}.` : ''
+  const ctx = context ? ` Campaign context: ${context}.` : ''
+  const ledger = []
+  const record = (agent, purpose, outcome) =>
+    ledger.push({ date, agent, purpose, outcome, tokens: null, tool_uses: null, duration_ms: null })
+
+  const dispatch = async (steps, phaseName) => {
+    const out = []
+    for (const g of [...new Set(steps.map(s => s.group))].sort((x, y) => x - y)) {
+      const wave = steps.filter(s => s.group === g)
+      const res = await parallel(wave.map(s => () => agent(
+        `Gate review — READ-ONLY, never modify the artifact. Targets: ${JSON.stringify(targets)}.` +
+        `${where}${ctx}\n${READ_SCOPE}\n\n${s.focus}\n\n` +
+        'Severity: BLOCKER (a defect; nothing ships) / MAJOR / MINOR / ENVIRONMENT (outside the work; ' +
+        're-gating will not change it). Give every finding a location and an exact fix — a px value, a ' +
+        'token name, a node id. Mark a finding contested:true if it touches content the client ' +
+        `explicitly asked to keep; it goes to the human as a decision, not to the designer as a task.\n` +
+        `Put your answers to the NON-OPTIONAL checks in 'checks', including the ones that came back ` +
+        `clean — an omitted check is indistinguishable from a failed one.\n${BREVITY}`,
+        { ...tier(s.agent), agentType: s.agent, schema: FINDINGS_SCHEMA,
+          phase: phaseName, label: s.agent })))
+      res.forEach((r, i) => {
+        record(wave[i].agent, phaseName.toLowerCase(), r ? r.verdict : 'NO RESULT')
+        if (r) out.push({ agent: wave[i].agent, ...r })
+      })
+    }
+    return out
+  }
+
+  phase(gatePhase)
+  const first = await dispatch(GATE_ROSTER, gatePhase)
+
+  // Absence of findings is not absence of defects (U14). A stalled reviewer must never be able
+  // to produce a clean-looking pass.
+  if (first.length === 0)
+    return { decision: 'INCOMPLETE — no gate results returned; DO NOT SHIP', ledger, rounds: 0,
+      note: 'Every reviewer failed or stalled. Re-run. Absence of findings is not absence of defects (U14).' }
+  if (first.length < GATE_ROSTER.length)
+    return { decision: 'PARTIAL — a reviewer returned nothing; DO NOT SHIP', ledger, rounds: 0,
+      reviewed: first.map(r => r.agent), expected: GATE_ROSTER.map(s => s.agent) }
+
+  const latest = new Map(first.map(r => [r.agent, r]))
+  const actionable = () => [...latest.values()].flatMap(r =>
+    r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR'))
+      .map(f => ({ agent: r.agent, ...f })))
+
+  let round = 0
+  let escalated = null
+  while (round < MAX_ROUNDS && actionable().length > 0) {
+    round++
+    phase(fixPhase)
+    const todo = actionable()
+    log(`Fix round ${round}/${MAX_ROUNDS} — ${todo.length} actionable findings`)
+    const fix = await agent(
+      `Fix round ${round} of ${MAX_ROUNDS} (the 2-strike rule applies). Apply exactly these confirmed ` +
+      `findings and nothing else: ${JSON.stringify(todo)}.\n${READ_SCOPE}\n` +
+      'Do NOT act on anything you judge contested — list it under skipped for the human. Tokens only; ' +
+      'a value not in the profile is a question, not a choice. Self-verify before returning, and ' +
+      'declare any measurable departure from what you were asked to do rather than reporting it as ' +
+      'compliance (U54). If it cannot be made clean, ESCALATE.',
+      { ...tier('designer'), agentType: 'designer', schema: FIX_SCHEMA,
+        phase: fixPhase, label: `designer-round-${round}` })
+    record('designer', `fix round ${round}`, fix ? fix.status : 'NO RESULT')
+    if (!fix || fix.status === 'ESCALATE') { escalated = fix || { status: 'NO RESULT' }; break }
+
+    // Re-gate the roles whose findings were addressed, scoped to their OWN prior findings — a
+    // re-gate that opens new dimensions is a new gate. The quality-officer re-gates whenever
+    // ANYTHING changed, even if it raised nothing itself: it certifies final state, and the state
+    // it certified no longer exists (U55).
+    const touched = new Set(todo.map(f => f.agent))
+    touched.add('quality-officer')
+    const reSteps = GATE_ROSTER.filter(s => touched.has(s.agent)).map(s => ({
+      ...s,
+      focus: `RE-GATE after a fix round. ${s.agent === 'quality-officer'
+        ? 'You certify FINAL state and the state has changed, so re-run your own checks on it in full.'
+        : 'Scoped to YOUR OWN prior findings only — confirm they are resolved and do not open new ' +
+          'dimensions.'}\nYour prior findings: ${JSON.stringify(latest.get(s.agent).findings)}\n` +
+        `The designer applied: ${fix.applied}\nThe designer skipped: ${fix.skipped || 'nothing'}\n\n` +
+        `Your standing checks, which still apply:\n${s.focus}`,
+    }))
+    const again = await dispatch(reSteps, fixPhase)
+    // A re-gate that returns nothing must NOT leave the pre-fix verdict standing. Keeping the stale
+    // entry is how a quality-officer PASS from before a fix survives to become a SHIP — the same
+    // failure as U14, one round later and harder to see.
+    const returned = new Set(again.map(r => r.agent))
+    const stalled = reSteps.map(s => s.agent).filter(role => !returned.has(role))
+    if (stalled.length)
+      return { decision: `PARTIAL — no re-gate result from ${stalled.join(', ')} after a fix landed; ` +
+                         'DO NOT SHIP', ledger, rounds: round,
+        note: 'The artifact changed and these roles did not re-confirm it. Their previous verdict ' +
+              'describes a state that no longer exists, so it cannot stand in (U14, U55). Re-run.' }
+    again.forEach(r => latest.set(r.agent, r))
+  }
+
+  const final = [...latest.values()]
+  const pick = sev => final.flatMap(r =>
+    r.findings.filter(f => f.severity === sev).map(f => ({ agent: r.agent, ...f })))
+  const blockers = pick('BLOCKER'), majors = pick('MAJOR')
+  const environment = pick('ENVIRONMENT'), minors = pick('MINOR')
+  const unverified = final.filter(r => r.verdict === 'UNVERIFIED').map(r => r.agent)
+
+  // A gate that can only ever say "not yet" is a gate people start waiving (U41). When the work
+  // itself is clean and the only thing outstanding is something re-running cannot change, that is
+  // a real terminal state with a checklist — not a failure.
+  const decision =
+    escalated ? 'ESCALATED — the designer could not resolve it; a human decides'
+    : blockers.length ? 'BLOCK'
+    : majors.length ? (round >= MAX_ROUNDS ? 'ESCALATED — fix rounds exhausted' : 'FIX-THEN-REGATE')
+    : unverified.length ? 'UNVERIFIED — reviewed in reduced scope; no compliance layer was loaded'
+    : environment.length ? 'COMP-APPROVED — show internally and to the client; do NOT export or traffic'
+    : 'SHIP'
+
+  return {
+    decision, rounds: round, escalated,
+    blockers, majors, environment, minors,
+    contested: final.flatMap(r => r.findings.filter(f => f.contested).map(f => ({ agent: r.agent, ...f }))),
+    checks: final.map(r => ({ agent: r.agent, checks: r.checks || null })),
+    perAgent: final.map(r => ({ agent: r.agent, verdict: r.verdict, findings: r.findings.length })),
+    ledger,
+    marker: {
+      path: `.gates/${date}-${(targets[0] && (targets[0].name || targets[0].id)) || 'set'}.md`,
+      decision, rounds: round, roster: GATE_ROSTER.map(s => s.agent),
+      blockers: blockers.length, majors: majors.length,
+      environment: environment.length, minors: minors.length,
+      openItems: blockers.concat(majors),
+      clearBeforeExport: environment,
+    },
+  }
+}
+// ──8<───────────────────── END SHARED GATE BLOCK ─────────────────────8<──
+
 // ── Preflight ─────────────────────────────────────────────────────────────────
-// Guard before any dereference. a.targets.map() throws if targets is absent, and a
-// crash tells the caller nothing about what it should have passed.
+// Guard before any dereference. `a.targets.map()` throws if targets is absent, and a crash tells the
+// caller nothing about what it should have passed.
 const a = (typeof args === 'string') ? { context: args } : (args || {})
 
-const problemsIn = []
-if (!Array.isArray(a.targets) || a.targets.length === 0)
-  problemsIn.push({ arg: 'targets', needs: 'array of { id, name, note } — what to gate' })
-if (!a.date)
-  problemsIn.push({ arg: 'date', needs: 'ISO date, e.g. "2026-09-08" — workflows cannot read the clock' })
-
-if (problemsIn.length) {
-  problemsIn.forEach(p => log(`missing arg: ${p.arg} — ${p.needs}`))
-  return {
-    decision: 'INVALID CALL — nothing dispatched', missing: problemsIn, got: a,
-    example: { targets: [{ id: '25:2', name: 'Spring_NotACyclist_UK_EN_1080x1080_v2' }],
-               date: '2026-09-08', location: 'Figma file <fileKey>, page "03 Ad Kit"',
-               context: 'master for approval, UK + DE' },
-  }
-}
-
-const where = a.location ? ` They live in: ${a.location}.` : ''
-const targetIds = a.targets.map(t => t.id || t.name)
-const ledger = []
-
-const record = (agent, purpose, outcome) =>
-  ledger.push({ date: a.date, agent, purpose, outcome, tokens: null, duration_ms: null })
-
-
-// ── Depth ─────────────────────────────────────────────────────────────────────
-// The full gate is 4 roles plus up to 2 fix rounds re-gating the failures: 14 dispatches,
-// ~1.7M tokens, ~60 minutes. That is a shipping gate for regulated work, and it is far too
-// expensive to be the only option.
-//
-//   quick (DEFAULT) — ONE dispatch, ~100k tokens, ~3-5 min. A single reviewer against a
-//     fixed checklist on two renders. No fix rounds, no re-gate: it reports, it does not repair.
-//     What you lose is the thing that caught the worst bug found so far — three roles
-//     independently measuring the same frame and disagreeing with a claimed fix. One reviewer
-//     cannot cross-check itself.
-//
-//   full — the 4-role gate with fix rounds. For work that actually ships.
-const DEPTH = (a.depth || 'quick').toLowerCase()
-
-if (DEPTH === 'quick') {
-  phase('Gate')
-  const res = await agent(
-    `Single-pass creative gate. Targets: ${JSON.stringify(a.targets)}.${where}\n` +
-    `Load ONLY: .creative-team/active, that profile's client.md and compliance.md, and ` +
-    `knowledge/platforms/ for the platforms in scope. Do not explore the tree.\n` +
-    `Render each target ONCE at ~1300px and ONCE at ~110px. Do not zoom-sweep.\n\n` +
-    `Check exactly this list, in order, and stop:\n` +
-    `1. THUMBNAIL — at 110px, name the one thing that survives. If nothing does, that alone is a MAJOR.\n` +
-    `2. PLATFORM SPEC — dimensions and ratio against the placement; safe-zone intrusion converted to ` +
-    `px for this canvas; file weight against the ceiling.\n` +
-    `3. TOKENS — every colour, type size and margin against the profile. Product rendering baked into ` +
-    `an approved asset is NOT a token violation; say so rather than logging it.\n` +
-    `4. MANDATED TEXT — present, verbatim, adjacent to its claim, at spec.\n` +
-    `5. COLLISIONS — anything overlapping, clipped, or crossing a margin.\n` +
-    `6. CTA — does anything read as tappable at thumbnail?\n\n` +
-    `Severity: BLOCKER (defect, must fix) · MAJOR · MINOR · ENVIRONMENT (outside the work — a missing ` +
-    `font, a baked-in asset value — re-gating will not change it).\n` +
-    `Be brief: the findings table and a verdict. No deliberation, no preamble.`,
-    { model: 'sonnet', effort: 'medium', agentType: 'quality-officer',
-      schema: FINDINGS_SCHEMA, phase: 'Gate', label: 'quick-gate' })
-
-  if (!res) return { decision: 'INCOMPLETE — reviewer returned nothing; DO NOT SHIP', depth: 'quick' }
-  const by = s => res.findings.filter(f => f.severity === s)
-  const blockers = by('BLOCKER'), majors = by('MAJOR'), env = by('ENVIRONMENT')
-  const decision = blockers.length ? 'BLOCK'
-    : majors.length ? 'FIX-THEN-REGATE'
-    : env.length ? 'COMP-APPROVED — show internally; do NOT export or traffic'
-    : 'SHIP'
-  return {
-    decision, depth: 'quick', blockers, majors, environment: env, minors: by('MINOR'),
-    perAgent: [{ agent: 'quality-officer', verdict: res.verdict, findings: res.findings.length }],
-    ledger: [{ date: a.date, agent: 'quality-officer', purpose: 'quick gate', outcome: res.verdict,
-               tokens: null, duration_ms: null }],
-    marker: {
-      path: `.gates/${a.date}-${(a.targets[0] && (a.targets[0].name || a.targets[0].id)) || 'set'}.md`,
-      decision, depth: 'quick', blockers: blockers.length, majors: majors.length,
-      environment: env.length, minors: by('MINOR').length,
-      openItems: blockers.concat(majors), clearBeforeExport: env,
-    },
-    caveat: 'ONE reviewer, no cross-check, no fix rounds. A single agent cannot disagree with itself — ' +
-            'run depth:"full" before anything ships to a client.',
-  }
-}
-
-// ── Plan ──────────────────────────────────────────────────────────────────────
-phase('Plan')
-const planRes = await agent(
-  `Work item: built creatives ready for gate. Targets: ${JSON.stringify(a.targets)}.${where} ` +
-  `Context: ${a.context || 'none'}. Load the ACTIVE CLIENT PROFILE first. ` +
-  `Per your Orchestration authority section, output ONLY the dispatch plan. ` +
-  `quality-officer MUST be in the final group — it gates final state, after other roles' fixes land. ` +
-  `Every target must appear in at least one step.`,
-  { ...tier('creative-director'), agentType: 'creative-director', schema: PLAN_SCHEMA, phase: 'Plan' })
-record('creative-director', 'dispatch plan', 'plan')
-
-const plan = planRes.plan
 const problems = []
-const maxGroup = Math.max(...plan.map(s => s.group))
-if (plan.some(s => s.agent === 'quality-officer' && s.group < maxGroup))
-  problems.push('quality-officer is not in the final group — it must gate final state (law: QO last)')
-const covered = new Set(plan.flatMap(s => s.targets))
-const uncovered = targetIds.filter(t => !covered.has(t))
-if (uncovered.length) problems.push(`targets with no reviewer assigned: ${uncovered.join(', ')}`)
+if (!Array.isArray(a.targets) || a.targets.length === 0)
+  problems.push({ arg: 'targets', needs: 'array of { id, name, note } — what to gate. Never gate ' +
+                                         'state that is about to change' })
+if (!a.date || String(a.date).trim() === '')
+  problems.push({ arg: 'date', needs: 'ISO date, e.g. "2026-09-10". SUPPLIED BY THE CALLER, not by ' +
+                                      'the user: workflow scripts cannot read the clock, and the ' +
+                                      'gate marker and ledger rows are dated' })
 
 if (problems.length) {
-  problems.forEach(p => log('INVALID PLAN: ' + p))
-  return { decision: 'INVALID PLAN — DO NOT SHIP', problems, plan, ledger }
-}
-
-// ── Gate ──────────────────────────────────────────────────────────────────────
-const runGates = async (steps, phaseName) => {
-  const out = []
-  for (const g of [...new Set(steps.map(s => s.group))].sort((a, b) => a - b)) {
-    const wave = steps.filter(s => s.group === g)
-    const res = await parallel(wave.map(s => () =>
-      agent(`Gate review. Targets: ${JSON.stringify(s.targets)}.${where} FOCUS: ${s.focus}. ` +
-            `Load the ACTIVE CLIENT PROFILE and any relevant knowledge/platforms/ file first. ` +
-            `READ-ONLY — never modify the artifact. Render each target at ~1300px and judge per your brief. ` +
-            `Mark a finding contested:true if it touches content the client explicitly asked to keep.`,
-        { ...tier(s.agent), agentType: s.agent, schema: FINDINGS_SCHEMA, phase: phaseName, label: s.agent })))
-    res.forEach((r, i) => {
-      record(wave[i].agent, phaseName.toLowerCase(), r ? r.verdict : 'NO RESULT')
-      if (r) out.push({ agent: wave[i].agent, ...r })
-    })
+  problems.forEach(p => log(`missing arg: ${p.arg} — ${p.needs}`))
+  return {
+    decision: 'INVALID CALL — nothing dispatched, nothing charged',
+    missing: problems, got: a,
+    example: {
+      targets: [{ id: '25:2', name: 'Spring_NotACyclist_UK_EN_1080x1350_v2' }],
+      date: '2026-09-10',
+      location: 'Figma file <fileKey>, page "03 Ad Kit"',
+      context: 'master for approval, UK + DE, Meta Feed 4:5',
+    },
   }
-  return out
 }
 
-phase('Gate')
-let results = await runGates(plan, 'Gate')
+// ── Run it ────────────────────────────────────────────────────────────────────
+const gate = await runGate({
+  targets: a.targets,
+  location: a.location,
+  context: a.context,
+  date: a.date,
+  gatePhase: 'Gate',
+  fixPhase: 'Fix',
+})
 
-if (results.length === 0)
-  return { decision: 'INCOMPLETE — no gate results returned; DO NOT SHIP', plan, ledger,
-    note: 'All gate agents failed or stalled. Absence of findings is not absence of defects (U14).' }
-if (results.length < plan.length)
-  return { decision: 'PARTIAL — missing gate results; DO NOT SHIP', plan, ledger,
-    reviewed: results.map(r => r.agent), expected: plan.map(s => s.agent) }
-
-// ── Fix → re-gate ─────────────────────────────────────────────────────────────
-const latest = new Map(results.map(r => [r.agent, r]))
-const actionable = () => [...latest.values()].flatMap(r =>
-  r.findings.filter(f => !f.contested && (f.severity === 'BLOCKER' || f.severity === 'MAJOR'))
-            .map(f => ({ agent: r.agent, ...f })))
-
-let round = 0
-let escalated = null
-while (round < MAX_ROUNDS && actionable().length > 0) {
-  round++
-  phase('Fix')
-  log(`Fix round ${round}/${MAX_ROUNDS} — ${actionable().length} actionable findings`)
-  const fix = await agent(
-    `Production Designer — fix round ${round} of ${MAX_ROUNDS} (2-strike rule applies). ` +
-    `Apply these confirmed findings: ${JSON.stringify(actionable())}. ` +
-    `Do NOT act on anything you judge contested — list it under skipped for the human instead. ` +
-    `Craft laws apply; self-verify before returning. If it cannot be made clean, ESCALATE.`,
-    { ...tier('designer'), agentType: 'designer', schema: FIX_SCHEMA, phase: 'Fix', label: `designer-round-${round}` })
-  record('designer', `fix round ${round}`, fix ? fix.status : 'NO RESULT')
-  if (!fix || fix.status === 'ESCALATE') { escalated = fix; break }
-
-  const failedAgents = new Set(actionable().map(f => f.agent))
-  const reSteps = plan.filter(s => failedAgents.has(s.agent)).map(s => ({
-    ...s,
-    focus: `RE-GATE, scoped to your own prior findings only: ` +
-      `${JSON.stringify([...latest.get(s.agent).findings])}. Designer applied: ${fix.applied}. ` +
-      `Do not open new dimensions; confirm these are resolved.`,
-  }))
-  const reRes = await runGates(reSteps, 'Fix')
-  reRes.forEach(r => latest.set(r.agent, r))
-}
-
-// ── Verdict ───────────────────────────────────────────────────────────────────
 phase('Verdict')
-const final = [...latest.values()]
-const pick = sev => final.flatMap(r => r.findings.filter(f => f.severity === sev).map(f => ({ agent: r.agent, ...f })))
-const blockers = pick('BLOCKER')
-const majors = pick('MAJOR')
-const environment = pick('ENVIRONMENT')
-
-// A gate that can only ever say "not yet" is one people start waiving. When the work itself
-// is clean and the only thing outstanding is something the team cannot fix by re-running,
-// that is a real, terminal state — not a failure.
-const decision =
-  escalated ? 'ESCALATED — designer could not resolve; human required'
-  : blockers.length ? 'BLOCK'
-  : majors.length ? (round >= MAX_ROUNDS ? 'ESCALATED — fix rounds exhausted' : 'FIX-THEN-REGATE')
-  : environment.length ? 'COMP-APPROVED — show internally and to the client; do NOT export or traffic'
-  : 'SHIP'
+log(`Gate: ${gate.decision}`)
 
 return {
-  decision, rounds: round, blockers, majors, environment, minors: pick('MINOR'),
-  contested: final.flatMap(r => r.findings.filter(f => f.contested).map(f => ({ agent: r.agent, ...f }))),
-  perAgent: final.map(r => ({ agent: r.agent, verdict: r.verdict, findings: r.findings.length })),
-  plan,
-  ledger,
-  marker: {
-    path: `.gates/${a.date}-${(a.targets[0] && (a.targets[0].name || a.targets[0].id)) || 'set'}.md`,
-    decision, rounds: round,
-    blockers: blockers.length, majors: majors.length,
-    environment: environment.length, minors: pick('MINOR').length,
-    openItems: blockers.concat(majors),
-    // Actionable checklist with owners, not a vague "not passed"
-    clearBeforeExport: environment,
+  ...gate,
+  // The caller writes these. Workflow scripts have no filesystem access, and a gate whose result was
+  // never recorded did not happen — the Stop hook is right to keep blocking until it is (U37).
+  writeThese: {
+    marker: gate.marker, ledger: gate.ledger,
+    how: 'Write marker.path from marker.decision, marker.rounds and marker.openItems. Append each ' +
+         'ledger row to .gates/ledger.csv as date,agent,purpose,tokens,tool_uses,duration_ms,outcome, ' +
+         'filling tokens/tool_uses/duration_ms from the task usage stats — the script cannot see them, ' +
+         'and a null-token row is an incomplete ledger (U15).',
   },
 }

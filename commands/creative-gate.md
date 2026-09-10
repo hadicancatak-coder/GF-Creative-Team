@@ -1,25 +1,56 @@
 ---
-description: Gate built creatives before anyone sees them — CD plans, role agents review in parallel, consolidated SHIP/FIX/BLOCK verdict.
+description: Gate built creative before anyone sees it — four reviewers in parallel, quality-officer last on final state, consolidated SHIP/FIX/BLOCK verdict.
 ---
 
 Run the creative gate on: $ARGUMENTS
 
-**Two depths. Quick is the default.**
+**One gate.** Four reviewers, each owning a failure class, running in parallel; the `quality-officer`
+alone in the final group because it certifies **final** state, after the other roles' fixes have landed.
+Up to 2 fix → re-gate rounds, then a human decides.
 
-| Depth | Dispatches | Measured | Use it when |
-|---|---|---|---|
-| **`quick`** (default) | **1** | **122,578 tokens · 4m 00s** (measured) | Spot-check. One reviewer, fixed checklist, two renders. Reports; does not fix. |
-| `full` | **14** | **1,705,138 tokens · 60 min** (measured) | The work ships to a client. Four roles cross-checking, up to 2 fix rounds. |
+There is no spot-check variant. The cheaper one this plugin used to offer was cheaper precisely because
+a single reviewer cannot disagree with itself — and that disagreement is the entire mechanism. The worst
+defect ever found in this project was three roles independently measuring the same frame and
+establishing that a fix reported as resolved had never landed in the file.
 
-The full gate's cost is not waste — it is what caught the worst defect found in this project: three roles
-independently measuring the same frame and establishing that a claimed fix had never landed in the file.
-**One reviewer cannot disagree with itself.** That is exactly what quick gives up.
+**`/create-ad` runs this same gate inline**, from the same code. Use this command for creative the chain
+did not produce: built by hand, built before you installed this, or inherited.
 
-Default to quick. Escalate to full before anything reaches a client.
+## The roster
 
-Follow the `creative-gate` skill exactly. If the targets and context are clear enough to pass as
-arguments, prefer running `workflows/creative-gate.js` via the Workflow tool so the plan, the parallel
-gates and the verdict are deterministic and every dispatch lands in the ledger.
+| Role | Owns |
+|---|---|
+| `art-director` | render forensics — thumbnail survival, the measured empty region, CTA affordance, cited asset lineage, reference geometry |
+| `design-analyst` | every number — dimensions and ratio against the placement, safe zones converted to px for this canvas, tokens, fonts resolved **in the renderer**, collisions |
+| `content-creator` | every word in the frame, read off the render — mandated legal text verbatim and adjacent to its claim, character limits, unsubstantiated claims |
+| `quality-officer` | **last, on final state** — regulation and regional rules, export weight against each platform's ceiling, system membership, and the terminal verdict |
 
-If no targets were given, ask which creatives to gate — do not guess, and do not gate state that is
-about to change.
+Reviewers are **READ-ONLY**. Only the designer changes the artifact, and only findings that are neither
+contested nor ENVIRONMENT reach it.
+
+## How to run it
+
+Prefer `workflows/creative-gate.js` through the Workflow tool:
+
+```
+targets   [{ id, name, note }]   REQUIRED   what to gate
+date      string                 REQUIRED   run `date -u +%F` — you supply this, not the user
+location  string                 optional   "Figma file <KEY>, page ...", "./renders/", a URL
+context   string                 optional   what the work is for, and any known reservations
+```
+
+If no targets were given, ask which creatives to gate — do not guess, and **never gate state that is
+about to change.** Otherwise follow the `creative-gate` skill, which covers the profile resolution, the
+verdict table and the marker and ledger you must write afterwards.
+
+## The verdicts
+
+| Verdict | Means | What you may do |
+|---|---|---|
+| `SHIP` | Clean | Export and traffic it |
+| `COMP-APPROVED` | No defects left; only environment items outstanding | Show internally and to the client. **Do not export or traffic** until the listed items clear |
+| `UNVERIFIED` | Reviewed in reduced scope — no compliance layer was loaded | Say so in the first line of what you present. Never treat it as a pass |
+| `FIX-THEN-REGATE` | Majors remain and rounds are left | Fix, re-gate the failed roles |
+| `BLOCK` | A defect blocker stands | Nothing ships |
+| `ESCALATED` | Rounds exhausted, or the designer could not resolve it | A human decides |
+| `PARTIAL` / `INCOMPLETE` | A reviewer stalled | Re-run. Absence of findings is not absence of defects |
