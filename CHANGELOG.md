@@ -4,6 +4,73 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] — 2026-09-11
+
+**Two roles on the default path.** The Art Director is the front door and owns the brief end to end; one
+designer executes it. Everything else is conditional. Three dispatches for one ad, against eight.
+
+### The team now
+
+| Role | When |
+|---|---|
+| **art-director** | **always, first and last.** Interrogates the brief, asks the client the blocking questions, decides the direction, writes the finalised spec. Verifies the build afterwards |
+| **designer** | **always, once.** Builds the spec in Figma, owns every number, self-measures. The only role that writes |
+| `creative-director` | a design system must be built or extended · 2+ creatives for one brand must cohere · the designer and AD disagree |
+| `quality-officer` | regulated category · mandated text · a claim needs substantiation · anything about to be trafficked |
+| `content-creator` | copy is the lead deliverable, or per-placement/per-language field copy is needed |
+| `design-analyst` | a measurement is contested, or the token system needs a drift audit |
+| `financial-controller` | auditing a run afterwards |
+
+The Art Director **asks before anything is built**, in one message, separating blocking questions (no
+platform named; an unsubstantiated claim; mandated text still `TBD`) from assumable ones it decides
+itself and states (master size derived from the platform's recommended resolution; no inventory means a
+type-only build). An unfinished brief is the most expensive thing in the business because it gets
+discovered in pixels instead of in a sentence.
+
+### Added — `scripts/check-build.mjs`, and the arithmetic stops being an agent
+
+Gaps against the spacing scale, type against the type scale, colours against tokens, accent-use count,
+reserved colours, sub-pixel geometry, message-vs-decoration share, total empty span. **Milliseconds,
+free, and it cannot disagree with itself between runs.**
+
+Run against the two real artboards built this week, it reproduces every arithmetic finding the
+88,000-token design-analyst dispatch produced — **and catches four it did not**: two further off-scale
+gaps (360px, 162px; the dispatch found only the 102px one), and both proportion MAJORs, which no
+reviewer could fire on because 96px is inside the type scale.
+
+What stays with a role is **judgement** — whether the picture is any good. Keeping that apart from
+arithmetic is what makes either affordable.
+
+### Harvested from the installed design skills
+
+The `frontend-design` skill carries a calibration of what generated design actually looks like, and it
+is now in the art-director's brief as a checkable list: the cream-ground / high-contrast-serif /
+terracotta cluster, the near-black-plus-acid-accent cluster, broadsheet hairlines, the SaaS-card kit, and
+the template chrome that shows up regardless of subject — ALL-CAPS eyebrows, middle-dot meta strings,
+`WORD — fragment`, tinted near-black, monospace data labels, `→` on buttons.
+
+**It indicts our own output.** The accent invented for this week's fictional brand, `#D4714A`, sits
+**15.2 RGB units** from `#D97757` — the value the skill names as a tell. The whole design (dark ground,
+high-contrast serif display, terracotta accent) is squarely in cluster 1. `check-build.mjs` now measures
+that distance and flags it, so the palette a run invents gets checked against the defaults rather than
+admired.
+
+Also taken: *spend your boldness in one place*, the plan-then-critique-the-plan rhythm, the test **"would
+I have produced this for any other brand in this category?"**, and the typographic tells (one accented
+word in a headline, ALL-CAPS labels, `01 / 02 / 03` markers on content that is not a sequence).
+
+From `canvas-design`: the instinct that when you want to add a shape, the better move is usually to make
+what is already there more considered.
+
+### Superseded, and said so in the file rather than left to rot
+`workflows/create-ad.js` still encodes the 8-dispatch chain and now carries a banner saying so. It has
+not been rewritten to the new shape. `creative-gate.js` remains valid for work that must be formally
+gated before trafficking, but is no longer the default path for making one ad.
+
+### Measured reason for all of it
+The 8-dispatch chain cost **629,267 tokens and 34.3 minutes** for one frame, produced the smaller half
+of the findings, and missed the proportion failure the operator caught by looking at it for five seconds.
+
 ## [3.1.1] — 2026-09-10
 
 ### Found, not fixed — the gate roles cannot see the work they gate (U62, OPEN)

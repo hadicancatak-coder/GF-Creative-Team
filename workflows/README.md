@@ -1,5 +1,12 @@
 # Workflows
 
+> ⚠️ **`create-ad.js` is superseded by the 3.2.0 role restructure and has not been rewritten yet.**
+> The current process is three dispatches — art-director closes the brief, designer builds, art-director
+> verifies — with arithmetic in `scripts/check-build.mjs` and every other role conditional. See
+> `commands/create-ad.md`. The gate in `creative-gate.js` is still valid for work that must be formally
+> gated before trafficking; it is no longer the default path for making one ad.
+
+
 Two deterministic orchestrations, run by the Workflow tool. The engine dispatches, validates and
 consolidates. It never judges, selects, or places pixels.
 

@@ -169,7 +169,36 @@ quality or compliance gate on shippable work.
 
 ---
 
-## How they work together
+## The default path is two roles
+
+```
+brief → ART DIRECTOR ──asks the blocking questions, writes the spec
+                     ↓
+              DESIGNER ──builds it, owns every number
+                     ↓
+      check-build.mjs ──arithmetic: gaps, tokens, type, proportion, colour. Free.
+                     ↓
+         ART DIRECTOR ──verifies the picture on its own merit
+```
+
+**Three dispatches for one ad.** The Art Director is the front door and owns the brief end to end;
+nothing is built until it closes. The Designer executes and does not reinterpret. Everyone below is
+engaged only when the job calls for them:
+
+| Role | Engage when |
+|---|---|
+| `creative-director` | a design system must be built or extended · 2+ creatives for one brand must cohere · the designer and AD disagree |
+| `quality-officer` | regulated category · mandated text · a claim needs substantiation · anything about to be trafficked |
+| `content-creator` | copy is the lead deliverable, or per-placement/per-language field copy is needed |
+| `design-analyst` | a measurement is contested, or the token system needs a drift audit. Routine arithmetic is the script's |
+| `financial-controller` | auditing a run afterwards |
+
+**Why the arithmetic moved to a script.** The design-analyst dispatch cost ~88,000 tokens and minutes to
+compare numbers to numbers. `scripts/check-build.mjs` does it in milliseconds, never disagrees with
+itself between runs, and catches three findings that dispatch missed. What stays with a role is
+judgement: whether the picture is any good. Keeping the two apart is what makes either affordable.
+
+## How they worked together before (the 8-dispatch chain)
 
 ```
 creative-director (concept) → content-creator (copy) → art-director (select)

@@ -1,3 +1,15 @@
+// ⚠️  SUPERSEDED BY THE 3.2.0 ROLE RESTRUCTURE — DO NOT TREAT THIS AS THE CURRENT PROCESS.
+//
+// This script encodes the 8-dispatch chain (concept → copy → select → build → 4-role gate). 3.2.0 moved
+// to a 3-dispatch loop: art-director closes the brief → designer builds → art-director verifies, with
+// the arithmetic done by scripts/check-build.mjs and every other role conditional. `commands/create-ad.md`
+// is the current process; this file has not been rewritten to match it yet.
+//
+// Measured reason for the change: the 8-dispatch chain cost 629,267 tokens and 34.3 minutes for one
+// frame, produced the smaller half of the findings, and missed the proportion failure a human caught by
+// looking. Its own design-analyst dispatch cost ~88,000 tokens to do arithmetic that check-build.mjs now
+// does for free — and misses three findings the script catches.
+//
 export const meta = {
   name: 'create-ad',
   description: 'The one process: brief to built, gated ad creative in Figma — concept, copy, asset, build, gate, verdict',

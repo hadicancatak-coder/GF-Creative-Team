@@ -1,92 +1,89 @@
 ---
-description: Make an ad creative end to end — brief to built, gated artwork in Figma. One process, and the main entry point.
+description: Make an ad creative. Art Director closes the brief, one designer builds it, Art Director verifies. Everything else is conditional.
 ---
 
 Create ad creative for: $ARGUMENTS
 
-**One process. There is no fast mode, and that is deliberate** — the cheap path this plugin used to
-offer was the only one that shipped ungated work, and every defect unique to it (evals U52, U53, U54)
-came from merging two roles into one dispatch. Concept → copy → asset → build → **gate** → verdict, in
-one run. What used to be a second command you had to remember now happens before you see the work.
-
-## Two things from the user, everything else derived
+**Two roles on the default path. That is the whole team for one ad.**
 
 ```
-/create-ad Spring promo for the Drift commuter e-bike, UK + DE, Meta Feed + Stories
+brief → ART DIRECTOR ──asks you the blocking questions, writes the spec
+                     ↓
+              DESIGNER ──builds it in Figma, owns every number
+                     ↓
+        check-build.mjs ──arithmetic, free, instant
+                     ↓
+        ART DIRECTOR ──verifies the picture
 ```
 
-That is enough. The chain needs exactly two facts from the person asking:
+Three dispatches. Everyone else is engaged only when the job actually calls for them.
 
-| | |
+## 1. Art Director — closes the brief
+
+Dispatch `art-director` **first, always**. It loads the client profile, works out what is missing, and
+**asks you the blocking questions in one message.** Answer them; it does not proceed without you.
+
+It separates blocking from assumable honestly — a missing platform blocks, a missing master size does
+not (it derives that from the platform's recommended resolution and tells you which placement it used).
+Expect one round of questions. A second round means it did not think hard enough.
+
+It returns a **build spec**: canvas, proportion, which step of the type scale and why, colour roles and
+accent budget, elements in reading order with copy verbatim, the eye path, and the one thing that must
+survive at thumbnail. **No pixel coordinates** — those belong to the designer.
+
+## 2. Designer — builds it
+
+Dispatch `designer` once, with the spec. It derives every number from the token system by rule, builds,
+self-measures, and reports its deviations. It is the only role that writes to Figma.
+
+Ask it to **export the artboard to PNG on disk** and return `artboardIds` and the render paths. The
+reviewers frequently cannot reach the design tool; a file always works.
+
+When fixing existing work it duplicates the artboard and builds `_v<n>` alongside, so the previous
+version survives as the comparison.
+
+## 3. Run the arithmetic — before you spend a dispatch on it
+
+```bash
+node scripts/check-build.mjs build.json tokens.json
+```
+
+Gaps against the spacing scale, type against the type scale, colours against tokens, accent-use count,
+reserved colours, sub-pixel geometry, message-vs-decoration share, total empty span, and whether the
+accent is a generated-design tell. **Milliseconds, free, and it never disagrees with itself.**
+
+Do not dispatch an agent to do arithmetic.
+
+## 4. Art Director — verifies
+
+Dispatch `art-director` again with the renders. It answers its non-optional checks with numbers —
+thumbnail survivor, proportion, emptiness, affordance, lineage — and judges the picture **on its own
+merit, not against its own spec**, because a spec can be wrong.
+
+## Engage the others only when the job calls for it
+
+| Role | Engage when |
 |---|---|
-| **brief** | the audience, the offer, and the claim the creative must prove |
-| **platforms** | e.g. "Meta Feed + Stories". **Never guessed** — the platform spec decides the size, the safe zones and the character limits |
+| `creative-director` | a **design system** must be created or extended, or **2+ creatives for one brand** must cohere as a set. Also rules when the designer and AD disagree. **Not for one ad against an existing profile.** |
+| `quality-officer` | the category is **regulated**, mandated text applies, a claim needs substantiation, or anything is about to be **trafficked**. Runs last, on final state, and re-runs after any change. |
+| `content-creator` | copy is the **lead deliverable**, a standalone deck is wanted, or per-placement/per-language field copy is needed. |
+| `design-analyst` | a measurement is **contested**, or the token system itself needs a drift audit. Routine arithmetic is the script's job. |
+| `financial-controller` | auditing a run afterwards. |
 
-If either is missing, ask for that one thing in one short message. Do not ask for a list of five
-arguments; three of them have real defaults and the workflow reports back which it took:
+## Before dispatching anything
 
-| Optional | Left out ⇒ |
-|---|---|
-| `masterSize` | derived from the primary placement in `knowledge/platforms/`, at the platform's **recommended** resolution — and the basis is reported, not assumed |
-| `inventoryPath` | **type-only build.** No hero is selected and none is invented; source law forbids drawing one. Pass an asset folder to get a photographic or illustrated hero instead |
-| `destination` | the designer creates a new Figma file and returns its key |
+1. Resolve `.creative-team/active`. No profile? Say so in one line and run in reduced scope — tokens,
+   source law and compliance go unchecked, and that is a caveat, not a blocker.
+2. Confirm the **Figma MCP is connected.** Do not describe an ad you cannot build.
+3. Build the **master size only.** Derive other placements after a human approves it, and build each
+   natively against its own safe zones — a derivative is not a rescale.
 
-**You supply `date` yourself** — run `date -u +%F`. It is not the user's job, and the workflow cannot
-read the clock: the gate marker and every ledger row are dated.
+## Rules that do not bend
 
-## How to run it
-
-Prefer `workflows/create-ad.js` through the Workflow tool, so the dispatch, the gate and the verdict are
-deterministic and every role lands in the ledger:
-
-```
-brief, platforms, date           (required)
-masterSize, inventoryPath, destination, constraints   (optional)
-```
-
-## Before dispatching
-
-1. Resolve the active client profile (`.creative-team/active`). **No profile? Say so in one line and run
-   anyway** — brand tokens, source law and compliance go unchecked, the quality-officer returns
-   `UNVERIFIED` rather than `SHIP`, and that is a caveat on the output, not a reason to stop.
-2. Confirm the **Figma MCP is connected.** The build needs it. If it is not there, say so — do not
-   describe an ad you cannot build.
-3. Build the **master size only.** Derive the rest after a human approves it; never build ten sizes of
-   an idea nobody has approved.
-
-## What the run does
-
-| | Role | |
-|---|---|---|
-| 1 | `creative-director` | the concept — the ONE subject that owns the frame at half a second, and the directive to build from. **Concept comes before copy**: written the other way round the copywriter invents an implicit idea and the headline comes out as a specification rather than a hook (U45) |
-| 2 | `content-creator` | the copy deck, written to that concept, inside the per-placement character limits, with everything unsubstantiated sent to CLIENT-VERIFY rather than into the frame |
-| 3 | `art-director` | the hero, audited across the **complete** inventory. Skipped entirely when there is no inventory — there is nothing to select from, and inventing a hero is forbidden |
-| 4 | `designer` | the build. The only role that writes to Figma. Measures its largest empty region and declares every departure from the directive, however brief the run |
-| 5 | **the gate** | `art-director` + `design-analyst` + `content-creator` **in parallel**, then `quality-officer` alone on final state. Up to 2 fix → re-gate rounds |
-
-Eight dispatches on a clean run. The review fans out, so four reviewers cost roughly the wall-clock of
-one — which is why the gate is affordable enough to be mandatory rather than optional.
-
-## Afterwards — write what the workflow returned
-
-The workflow returns `writeThese.marker` and `writeThese.ledger` and **cannot write them**: workflow
-scripts have no filesystem access. You write them, in the working project:
-
-- `marker.path` → the gate marker, from `marker.decision`, `marker.rounds` and `marker.openItems`
-- each ledger row appended to `.gates/ledger.csv` as
-  `date,agent,purpose,tokens,tool_uses,duration_ms,outcome`
-
-Fill `tokens`, `tool_uses` and `duration_ms` from the task usage stats — the script cannot see them, and
-a null-token row is an incomplete ledger (U15). Without the marker the Stop hook keeps blocking the
-session even though the gate passed. That is the hook working correctly: a gate whose result was never
-recorded did not happen.
-
-## Rules that make this work
-
-- **Never invent a visual element.** Compose, crop, slice and subtract from real assets. Drawing new
-  content is not a fallback; when blocked, escalate.
-- **Never guess a token, a claim figure or a mandated legal line.** Ask.
-- **Deliver, then object.** An imperfect asset produces a build with the objection attached, not a
-  refusal. Refusal is for work that would be harmful, illegal or actively misleading (U43).
-- **Two fix rounds maximum**, then it goes to a human.
-- **Present nothing ungated** — and with the gate inside this command, nothing you present is.
+- **Never invent a visual element.** Compose, crop and subtract from real assets. No inventory means a
+  type-only build; an empty frame with a reason beats a fabricated one.
+- **Never guess a token, a claim figure or a mandated line.** Ask.
+- **Deliver, then object.** An imperfect asset produces a build with the objection attached.
+- **Two fix rounds maximum**, then a human decides.
+- Anything trafficked needs the quality-officer and a gate marker in `.gates/`. The Stop hook enforces
+  it, and the waiver is a human's to give — not yours.
