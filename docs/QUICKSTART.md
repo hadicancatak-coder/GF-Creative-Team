@@ -16,7 +16,7 @@ Working on the plugin itself? Point it at a local directory:
 `claude plugin marketplace add /path/to/GF-Creative-Team`
 
 Verify with `claude plugin list` — you want `gf-creative-team@gf-creative-team` · enabled. Restart
-Claude Code, then `/help` should list all five `/gf-creative-team:*` commands and the seven agents
+Claude Code, then `/help` should list the `/gf-creative-team:*` commands and the seven agents
 should appear in your agent list.
 
 **Figma MCP** must be connected for anything that builds artwork. Review roles work on screenshots
@@ -48,34 +48,26 @@ actually works. Vague profiles produce vague gates.
 **Nothing about a client belongs in `agents/`.** If you are editing a role brief with a fact that is only
 true for one engagement, it goes in the profile.
 
-## 3. Work out what to build
-
-Before any design work:
+## 3. Make an ad
 
 ```
-/gf-creative-team:format-matrix Meta and Google, UK + DE, spring campaign
+/gf-creative-team:create-ad Spring promo for the Drift commuter e-bike, UK + DE, Meta Feed + Stories
 ```
 
-You get the exact asset list — ratios, pixel dimensions, safe zones, character limits, and which assets
-are reusable across platforms. Building the wrong sizes is the cheapest mistake to prevent and the most
-expensive to find late.
+The **Art Director** reads it, loads your profile, and **asks you the blocking questions in one
+message** — it does not start building on an open brief. Answer, and it writes the spec. The
+**designer** builds it. `check-build.mjs` runs the arithmetic for free. The Art Director verifies.
 
-The specs come from `knowledge/platforms/`, traced to each platform's own documentation and dated. If a
-file's `review_by` has passed, the command tells you before it tells you anything else.
+Three dispatches. Everyone else is engaged only when the job calls for them.
 
-## 4. Gate something
-
-After any build round:
+## 4. Review something already built
 
 ```
-/gf-creative-team:creative-gate the four 1080x1080 masters in the Spring campaign
+/gf-creative-team:review-ad the four 1080x1350 masters in the Spring campaign
 ```
 
-The Creative Director writes a dispatch plan, the role agents review in parallel, and you get a
-consolidated **SHIP / FIX-THEN-REGATE / BLOCK**. Findings come back with severity, location and an exact fix.
-
-For a deterministic run with a schema-checked plan, call `workflows/creative-gate.js` through the
-Workflow tool instead.
+Works on creative from anywhere — built by hand, built before you installed this, inherited. Export the
+renders to disk first; the reviewers usually cannot reach the design tool themselves.
 
 ## 5. Turn on enforcement (optional but the point)
 
@@ -88,11 +80,23 @@ The Stop hook has a human waiver hatch: write `.gates/<date>-skipped.md` naming 
 The PostToolUse matcher in `hooks/hooks.json` targets the Figma MCP write tools by default. Using a
 different design tool? Widen or replace that regex — it is the only tool-specific line in the repo.
 
-## 6. Run the evals
+## 6. Run the checks
 
-`evals/universal-cases.md` holds 54 domain-agnostic failure classes with their outcomes recorded. Give
-an agent a case input with **no hint**, and check whether it raises the expected catch. Do this after any
-brief edit — a case that used to pass and now fails is a regression.
+Two layers, and they answer different questions.
+
+```bash
+./scripts/validate.sh          # the repo gate — manifests, role boundaries, spec freshness, links
+node scripts/check-build.mjs --selftest   # the build checker — 14 cases
+```
+
+`check-build.mjs` is the deterministic half of a design review: gaps, type, colours, accent budget, proportion and the generated-design tell. Its selftest covers each check plus a regression guard against the two real artboards this plugin built. `validate.sh` runs it, so one command covers both.
+
+`validate.sh` also **compares the installed plugin copy against your working tree**, file by file, and
+tells you to reinstall if they differ. Editing this repo does not change what runs (eval U51).
+
+Then the part no harness can do: `evals/universal-cases.md` holds 63 domain-agnostic failure classes with
+their outcomes recorded. Give an agent a case input with **no hint**, and check whether it raises the
+expected catch. Do this after any brief edit — a case that used to pass and now fails is a regression.
 
 ## Running without a profile
 

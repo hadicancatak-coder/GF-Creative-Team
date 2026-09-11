@@ -46,12 +46,17 @@ real case that the current seven demonstrably missed. "It would be useful to als
 every extra role costs a dispatch on every run, and the Financial Controller will eventually recommend
 merging any gate that produces zero blockers or majors two audits running.
 
-## Workflows and hooks
+## Process and hooks
 
-- Keep the ESCALATE clause in any chain you adapt. When blocked, escalating is the only legal move.
-- Never let a workflow report success on missing or stalled results (eval U14).
-- Domain facts belong in arguments or the client profile — if you are hardcoding a file key, node ID or
-  absolute path into `workflows/`, that is the bug.
+- **Two commands: `create-ad` and `review-ad`.** Do not add a third process command, and do not add a
+  `depth`, `mode`, `quick` or `fast` switch — `validate.sh` fails on both. A cheap second path was tried
+  twice and was the only source of a whole defect class (U56).
+- **No workflow scripts.** The Art Director asks the client blocking questions mid-flight, and a workflow
+  script cannot pause for a human answer. The commands are the orchestration.
+- **Arithmetic goes in `scripts/check-build.mjs`, never in a role.** If a check can be written as a
+  comparison between two numbers, it is not a dispatch. Add a case to its selftest for anything you add.
+- Keep every escape hatch **optional in the schema**. A required field is a forced answer (U10).
+- Domain facts belong in the client profile or the call arguments, never in a role brief.
 
 ## Style
 
@@ -73,6 +78,10 @@ Skipping this produces the worst kind of test result: a run that appears to exer
 succeeds or fails for unrelated reasons, and gives you a confident wrong conclusion. Three versions of
 performance work in this repo were measured against an installed copy four versions behind. Eval U51.
 
+**`./scripts/validate.sh` now checks this for you** — it compares every installed workflow, agent,
+command and skill against your working tree and warns per file when they differ. It caught the repo's own
+maintainer shipping 3.1.0 while running 3.0.0, three hours after writing the eval about it.
+
 ## Before you open a PR
 
 Run the validator. CI runs the same script, so this is the whole gate:
@@ -83,13 +92,25 @@ Run the validator. CI runs the same script, so this is the whole gate:
 
 It checks workflow and hook syntax, executable bits, JSON manifests, the plugin manifest via
 `claude plugin validate`, frontmatter on every agent/command/skill, that no workflow references an agent
-that does not exist, that every knowledge file carries its frontmatter and cites sources, that README
+that does not exist, that no speed switch has reappeared, that the shared gate block is byte-identical
+across both workflows, that every knowledge file carries its frontmatter and cites sources, that README
 counts match the eval table, that internal links resolve, that no absolute path leaked, and that no doc
 tells a user to write into the plugin directory.
+
+**It also runs the build checker**, which you can run on its own while iterating:
+
+```bash
+node scripts/check-build.mjs --selftest
+node scripts/check-build.mjs build.json tokens.json
+```
+
+14 cases covering each check, plus a regression guard against the two real artboards this plugin built.
+No tokens, no Figma, no network — so there is no excuse for an unchecked change to the rules.
 
 Then, by hand:
 
 - [ ] Evals re-run if you touched a brief, with any regressions noted in the PR
+- [ ] A selftest case added if you changed or added a check
 - [ ] No real client names, compliance text, or design-file keys in the diff
 
 ## Why CI fails on a green codebase

@@ -11,11 +11,13 @@ Stop hook that refuses to let a session end on an ungated build.
 
 ---
 
-## 1. Creative Director — *directs and decides who reviews what*
+## 1. Creative Director — *directs, and rules when roles disagree*
 
 **Give it:** the campaign context and the built work, or a concept before it is built.
-**You get:** a verdict (APPROVE / REVISE / REJECT), at most 5 notes, the set's single biggest weakness —
-and, when gating, a dispatch plan naming which roles review which targets in which order.
+**You get:** the ONE subject that owns the frame, a directive of INTENT — never pixel coordinates, which
+are the designer's to derive — plus the intended proportions and which step of the type scale to spend, a verdict
+(APPROVE / REVISE / REJECT) with at most 5 notes and the set's single biggest weakness — and, when the
+designer escalates a disagreement instead of deciding it, a ruling naming whose reasoning it sets aside.
 
 **Call it when:** a concept is formed but not built, and again as the sign-off on any finished set.
 
@@ -31,11 +33,19 @@ pre-filtered menu of assets, because a shortlist someone else made is a decision
 
 ---
 
-## 2. Art Director — *picks the asset, then verifies the render*
+## 2. Art Director — *picks the asset, verifies the render, and owns proportion*
 
 **Give it:** the complete asset inventory and a directive; later, the built render.
 **You get:** a selection with reasoning and one line per rejected option — or a decision **not** to
 select. Then, on verification: findings with severity, location and a fix in pixels.
+
+**It also owns PROPORTION, and it is the only role that can.** The design-analyst compares values to
+tokens, so a display size inside the scale passes; the content-creator owns words; the quality-officer
+owns compliance. None of them can fire on "this is badly proportioned." So the Art Director reports, with
+numbers: the dominant element and its share of the frame, whether that element is the **message** or the
+**decoration**, the total empty vertical span as a % of height, and which step of the type scale the
+headline should have taken and why. It judges the composition **on its own merit, not against the
+directive** — a directive can be wrong, and this is the only role positioned to say so. *(U58)*
 
 **Call it:** twice per creative. Once before the build to choose, once after to check.
 
@@ -146,7 +156,7 @@ CLIENT-VERIFY list.
 **You get:** spend by agent and purpose, **cost per confirmed BLOCKER/MAJOR**, the top three waste
 sources with numbers, three optimizations with expected savings, and the trend against the last audit.
 
-**Call it:** at milestones, or roughly every 10 dispatches. Never in the per-item loop — it would cost
+**Call it:** at milestones. Never in the per-item loop — it would cost
 more than it saves.
 
 If ledger rows are missing, its first recommendation is always to fix logging. Unmeasured spend cannot
@@ -159,36 +169,41 @@ quality or compliance gate on shippable work.
 
 ---
 
-## How they work together
+## The default path is two roles
 
 ```
-content-creator → creative-director (concept + dispatch plan)
-                        ↓
-   art-director (select) → designer (build) → art-director (verify)
-                        ↓
-     design-analyst + quality-officer (gate; QO last, on final state)
-                        ↓
-                      human
+brief → ART DIRECTOR ──asks the blocking questions, writes the spec
+                     ↓
+              DESIGNER ──builds it, owns every number
+                     ↓
+      check-build.mjs ──arithmetic: gaps, tokens, type, proportion, colour. Free.
+                     ↓
+         ART DIRECTOR ──verifies the picture on its own merit
 ```
 
-Three things make this a team rather than seven prompts:
+**Three dispatches for one ad.** The Art Director is the front door and owns the brief end to end;
+nothing is built until it closes. The Designer executes and does not reinterpret. Everyone below is
+engaged only when the job calls for them:
 
-**Separation of judgment.** The one that builds does not review. The one that measures does not have
-opinions about composition. The one that decides who reviews does not review everything itself. An
-orchestrator that also reviews approves its own work.
+| Role | Engage when |
+|---|---|
+| `creative-director` | a design system must be built or extended · 2+ creatives for one brand must cohere · the designer and AD disagree |
+| `quality-officer` | regulated category · mandated text · a claim needs substantiation · anything about to be trafficked |
+| `content-creator` | copy is the lead deliverable, or per-placement/per-language field copy is needed |
+| `design-analyst` | a measurement is contested, or the token system needs a drift audit. Routine arithmetic is the script's |
+| `financial-controller` | auditing a run afterwards |
 
-**Ordering that is enforced, not suggested.** The engine refuses a dispatch plan that puts the Quality
-Officer anywhere but last, or that leaves a target unreviewed.
-
-**A legal way to stop.** Every role can escalate. The Art Director can decline to select, the Designer
-can refuse to build, the Quality Officer can withhold SHIP. Nothing in the schemas forces a role to
-produce an answer it does not have — that was a real bug once, and eval U28 exists to keep it fixed.
+**Why the arithmetic moved to a script.** The design-analyst dispatch cost ~88,000 tokens and minutes to
+compare numbers to numbers. `scripts/check-build.mjs` does it in milliseconds, never disagrees with
+itself between runs, and catches three findings that dispatch missed. What stays with a role is
+judgement: whether the picture is any good. Keeping the two apart is what makes either affordable.
 
 ## Hiring one without the others
 
 You can. They are separate agents.
 
-- Just want to know what to build? `/format-matrix` — no roles needed at all.
+- Just want to know what to build? Ask the Art Director — deriving the format matrix from the
+  verified platform specs is part of closing the brief.
 - Just want a copy deck? Call `content-creator` alone.
 - Just want a second pair of eyes on a finished set? `art-director` plus `quality-officer` is a real
   review and takes two dispatches.

@@ -1,7 +1,7 @@
 {
   "name": "gf-creative-team",
-  "description": "Growth Fabric Creative Team — seven agents that design ad creative in Figma with Claude: copy, concept, art direction, production, measurement, compliance and cost, with a gate that reviews the work before anyone sees it.",
-  "version": "2.12.0",
+  "description": "Growth Fabric Creative Team — an Art Director that closes your brief and gives you three real routes before anything is built, and one fast designer that builds the one you pick in Figma. Ships a craft layer: ad patterns, composition, typography and colour. Two commands.",
+  "version": "4.1.0",
   "author": {
     "name": "Hadican Catak"
   },

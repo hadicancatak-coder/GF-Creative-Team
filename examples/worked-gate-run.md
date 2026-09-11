@@ -1,6 +1,12 @@
 # Worked example — one gate run
 
 > ⚠️ Uses the **fictional** `clients/example-northwind-cycles/` profile. The shape is real; the client is not.
+>
+> 📜 **Recorded against 2.x**, when the Creative Director wrote a dispatch plan the engine validated, and
+> the gate had a cheaper single-reviewer mode. 3.0.0 has one gate with a **fixed** four-role roster, so
+> there is no plan to validate and no `INVALID PLAN` outcome. The findings, severities and verdicts below
+> are unchanged — and kept verbatim, because a worked example edited to match the current code is a
+> brochure, not a record.
 
 The point of this file: show what the gate actually returns, so you can judge it before installing.
 

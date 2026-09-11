@@ -4,6 +4,495 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] — 2026-09-11
+
+The plugin knew what size to build and what was illegal. It knew **nothing about what makes an ad good**,
+and it produced one idea and defended it. Both fixed.
+
+### Added — `knowledge/craft/`, the layer that was missing
+
+284 lines of usable craft, read by the Art Director every run and pulled by the designer when the spec
+leaves a decision open.
+
+- **`ad-patterns.md`** — the seven load-bearing structures an ad can have: the **Object**, the **Number**,
+  the **Statement**, the **Comparison**, the **Demonstration**, the **System**, the **Surface**. Each with
+  when it works, when it fails, and how to execute it. Plus the anti-patterns: the sandwich, two heroes,
+  the caption problem, decoration outweighing the message, symmetry by default.
+- **`composition.md`** — layout systems (and the rule that two in one frame is the commonest structural
+  failure), proportion with numbers (dominant element 40–70%, total empty 25–40%, no single region above
+  ~20%), optical-over-mathematical adjustments, eye path, and the thumbnail test with its arithmetic.
+- **`typography.md`** — scale contrast ≥3×, line-height and tracking tightening as size grows, breaking
+  on meaning rather than measure, measure and contrast minimums, and the treatments that mark work as
+  generated.
+- **`colour.md`** — roles rather than palettes, the accent as a budget, contrast as arithmetic (knockout
+  on the accent is where it fails), and the generated-design clusters with the euclidean formula.
+
+### Changed — the Art Director gives THREE routes, never one
+
+One idea is not creative work, it is a guess with confidence. A single direction skips the part of the
+job where weak ideas get killed, and leaves the client nothing to react against — so they react against
+the execution instead, which is the expensive place to have the argument.
+
+Three routes, each **a different structural pattern**, each four lines: the pattern, the idea in one
+sentence, **the actual headline written out**, and what it costs. Three rules stop it being theatre:
+
+- **At least one route must be uncomfortable.** Three safe routes is one idea in three costumes.
+- **Kill the obvious idea out loud** — name the one you are not proposing, because it is usually the one
+  the client is already imagining.
+- **A route you cannot source is not a route.** No photography takes four of the seven patterns off the
+  table; say so rather than proposing something that dies at the build.
+
+It specs the recommendation only. Speccing a different pick is one cheap dispatch — concepts are text.
+
+## [4.0.0] — 2026-09-11
+
+**The eight-dispatch process is gone, not deprecated.** Two commands, two roles on the default path, and
+the arithmetic is a script. Breaking: `/creative-gate` and `/format-matrix` are removed, and there are no
+workflow scripts.
+
+### Removed
+- `workflows/create-ad.js`, `workflows/creative-gate.js`, `workflows/README.md` — **deleted.** The Art
+  Director asks the client blocking questions mid-flight, and a workflow script cannot pause for a human
+  answer. The commands are the orchestration now, which also ends the dual-truth problem where the
+  command described one process and the script ran another.
+- `scripts/dry-run.mjs` — deleted with the orchestration it tested. Keeping tests for deleted code is
+  worse than having none.
+- `/creative-gate` → replaced by **`/review-ad`**. `/format-matrix` → folded into the Art Director;
+  deriving the format matrix from the verified platform specs is part of closing a brief.
+
+### The two commands
+
+**`/create-ad`** — art-director closes the brief → designer builds → `check-build.mjs` → art-director
+verifies. Three dispatches.
+
+**`/review-ad`** — script first, then the art-director for the judgement a script cannot make, then the
+quality-officer **only if it ships**. One dispatch for most reviews, two when it traffics.
+
+`/new-client` and `/use-client` remain as setup. They are not process.
+
+### `scripts/check-build.mjs` — now the test suite too
+**14 cases**, covering every check: clean build, decoration outweighing message, under-filled frame,
+off-scale gap, sub-pixel geometry, off-scale type, reserved colour, accent overuse, colour outside the
+token set, the generated-design tell fired and not fired, the unspent top display step — plus a
+**regression guard against the two real artboards this plugin built**, asserting v1 fails on proportion
+and v2 passes.
+
+### `scripts/validate.sh` rewritten for the new shape
+Fails on: a third process command appearing · `creative-gate` or `format-matrix` returning · `workflows/`
+coming back · a depth/speed switch anywhere · a non-designer role holding a write tool · a command naming
+a role with no agent file · **`create-ad` no longer asking the client before building** · a failing
+build-checker selftest · the installed copy differing from the working tree.
+
+### Docs
+README, `METHOD`, `THE-TEAM`, `QUICKSTART`, `CONTRIBUTING` and the renamed `review-ad` skill all moved to
+the two-command shape. METHOD's chain diagram is the new one, and its lesson on preflight now carries the
+stronger version: have the role that owns the brief **ask the human**, once, before anything is built.
+
+### Behavioural test of the new Art Director — it passed, and found a defect in the brief
+
+Given a deliberately useless brief — *"We need an ad for Sorrel & Bay. Something that shows the product
+really works."* — the shipped role, told not to build:
+
+- **Caught the planted trap.** "Really works" is an efficacy claim; `compliance.md` substantiates exactly
+  three strings and bans every speed, duration and percentage figure. It put the question to the brand
+  lead and then **declined to wait on it**, because the open-verification row already rules on it —
+  "holding the job would buy nothing." Deliver-then-object applied as judgement, not as a reflex to stop.
+- **Did not invent a blocker.** The platform is named in the profile, so it did not ask.
+- Derived **1440×1800** from `meta.md` recommended px, 0.00% ratio deviation against a 3% tolerance.
+- Did arithmetic nobody asked for: bone-on-amber measures **2.81:1** and fails the 3:1 large-text floor,
+  so the CTA label is ground-green at **4.63:1** — the only passing option in the palette.
+- **Ran the generated-design calibration numerically**, found the profile's own accent and bone both
+  inside the tell band, and correctly ruled that **a pinned profile wins outright**.
+- Dropped an eyebrow and a divider rule as "my one accessory off," and answered *would I have produced
+  this for any other brand in this category?* by naming the reflex it avoided.
+- **Refused to escalate.** It tested the design-system trigger, resolved it without extending the token
+  set, and flagged forward that the Stories derivation *does* trip the multi-creative trigger.
+
+**The defect it exposed is mine.** The brief said "within ~20 RGB units" without naming the metric. The
+role computed max-channel; `check-build.mjs` computes euclidean. Identical component deltas, different
+number, opposite verdicts at the boundary — `#C96A45` is 18 by one metric and 27.4 by the other. The
+brief now carries the formula. Eval **U63**.
+
+### What this release does not claim
+**No creative has passed a review — zero, not few.** The fix→re-review loop has never completed a round.
+The proportion fixes are pinned by assertions, not by a passing run. And U62 — review roles cannot reach
+the design tool as shipped — remains an environment constraint the plugin works around by passing renders
+on disk rather than one it has solved.
+
+## [3.2.0] — 2026-09-11
+
+**Two roles on the default path.** The Art Director is the front door and owns the brief end to end; one
+designer executes it. Everything else is conditional. Three dispatches for one ad, against eight.
+
+### The team now
+
+| Role | When |
+|---|---|
+| **art-director** | **always, first and last.** Interrogates the brief, asks the client the blocking questions, decides the direction, writes the finalised spec. Verifies the build afterwards |
+| **designer** | **always, once.** Builds the spec in Figma, owns every number, self-measures. The only role that writes |
+| `creative-director` | a design system must be built or extended · 2+ creatives for one brand must cohere · the designer and AD disagree |
+| `quality-officer` | regulated category · mandated text · a claim needs substantiation · anything about to be trafficked |
+| `content-creator` | copy is the lead deliverable, or per-placement/per-language field copy is needed |
+| `design-analyst` | a measurement is contested, or the token system needs a drift audit |
+| `financial-controller` | auditing a run afterwards |
+
+The Art Director **asks before anything is built**, in one message, separating blocking questions (no
+platform named; an unsubstantiated claim; mandated text still `TBD`) from assumable ones it decides
+itself and states (master size derived from the platform's recommended resolution; no inventory means a
+type-only build). An unfinished brief is the most expensive thing in the business because it gets
+discovered in pixels instead of in a sentence.
+
+### Added — `scripts/check-build.mjs`, and the arithmetic stops being an agent
+
+Gaps against the spacing scale, type against the type scale, colours against tokens, accent-use count,
+reserved colours, sub-pixel geometry, message-vs-decoration share, total empty span. **Milliseconds,
+free, and it cannot disagree with itself between runs.**
+
+Run against the two real artboards built this week, it reproduces every arithmetic finding the
+88,000-token design-analyst dispatch produced — **and catches four it did not**: two further off-scale
+gaps (360px, 162px; the dispatch found only the 102px one), and both proportion MAJORs, which no
+reviewer could fire on because 96px is inside the type scale.
+
+What stays with a role is **judgement** — whether the picture is any good. Keeping that apart from
+arithmetic is what makes either affordable.
+
+### Harvested from the installed design skills
+
+The `frontend-design` skill carries a calibration of what generated design actually looks like, and it
+is now in the art-director's brief as a checkable list: the cream-ground / high-contrast-serif /
+terracotta cluster, the near-black-plus-acid-accent cluster, broadsheet hairlines, the SaaS-card kit, and
+the template chrome that shows up regardless of subject — ALL-CAPS eyebrows, middle-dot meta strings,
+`WORD — fragment`, tinted near-black, monospace data labels, `→` on buttons.
+
+**It indicts our own output.** The accent invented for this week's fictional brand, `#D4714A`, sits
+**15.2 RGB units** from `#D97757` — the value the skill names as a tell. The whole design (dark ground,
+high-contrast serif display, terracotta accent) is squarely in cluster 1. `check-build.mjs` now measures
+that distance and flags it, so the palette a run invents gets checked against the defaults rather than
+admired.
+
+Also taken: *spend your boldness in one place*, the plan-then-critique-the-plan rhythm, the test **"would
+I have produced this for any other brand in this category?"**, and the typographic tells (one accented
+word in a headline, ALL-CAPS labels, `01 / 02 / 03` markers on content that is not a sequence).
+
+From `canvas-design`: the instinct that when you want to add a shape, the better move is usually to make
+what is already there more considered.
+
+### Superseded, and said so in the file rather than left to rot
+`workflows/create-ad.js` still encodes the 8-dispatch chain and now carries a banner saying so. It has
+not been rewritten to the new shape. `creative-gate.js` remains valid for work that must be formally
+gated before trafficking, but is no longer the default path for making one ad.
+
+### Measured reason for all of it
+The 8-dispatch chain cost **629,267 tokens and 34.3 minutes** for one frame, produced the smaller half
+of the findings, and missed the proportion failure the operator caught by looking at it for five seconds.
+
+## [3.1.1] — 2026-09-10
+
+### Found, not fixed — the gate roles cannot see the work they gate (U62, OPEN)
+
+The real role agents became dispatchable for the first time, so the shipped configuration was probed
+instead of a substitute. Every gate review in this repo's history was run with unrestricted agents; the
+whitelisted ones had never been exercised.
+
+The `art-director`, dispatched as shipped, reports:
+
+> Tools actually available to me: `Read`, `Glob`, `Grep`, `Bash`, `ToolSearch`. That is the complete set.
+> […] ToolSearch returned `No matching deferred tools found`. […] I cannot render or fetch Figma targets
+> myself in this configuration.
+
+So as shipped:
+
+| Role | Its job | Can it? |
+|---|---|---|
+| `art-director` | render forensics, thumbnail survival, squint hierarchy, proportion | **no** — cannot render |
+| `design-analyst` | read node properties, measure against tokens | **no** |
+| `quality-officer` | check the frame, export weight | **no** |
+| `content-creator` | "read the words back off the RENDER" | **no**, and it has no `ToolSearch` at all |
+
+**All four gate roles are blind to the artifact.** This is lesson 1 — *role separation must be enforced by
+tooling, not asked for in prose* — enforced so hard the reviewers cannot do their jobs.
+
+`scripts/validate.sh` was actively enforcing it: its role-boundary check errors when a non-designer role
+has no `tools:` restriction, and it tested for `Write|Edit|NotebookEdit` — which does not even cover
+`use_figma`, the tool that actually changes a Figma file. It was checking the wrong write surface while
+mandating the blindness.
+
+**There are two independent causes, and each alone is enough.**
+
+1. `tools:` is a strict allowlist and **MCP tools are excluded unless each is named** — documented, and
+   the shipped whitelists named none. The `mcp__Figma__*` server wildcard is not usable here because it
+   would also grant `use_figma`, the write tool, and there is no config-level read-only scoping for an
+   MCP server. So the four review roles now name their read tools individually. **This is
+   documented-correct and it is shipped.**
+2. It was **not sufficient on its own.** After naming them, a live re-probe still returned `Read, Glob,
+   Grep, Bash`. A subagent launched in the background receives a further-restricted set that excludes
+   MCP tools *regardless of its whitelist*, and the harness runs these agents asynchronously. That is an
+   environment constraint the plugin cannot configure its way out of.
+
+**So the gate now ships a fallback that does not depend on the channel at all.** `runGate` takes
+`renders` — paths to exported PNGs — and passes them into every reviewer's prompt as authoritative. Every
+role can `Read` a file even when it cannot reach a design tool. When no renders are supplied, reviewers
+are told explicitly: do not guess and do not skip the check; return a single ENVIRONMENT finding saying
+you could not see the work, and ask for PNGs on disk.
+
+**The art-director had already done exactly that, unprompted.** Probed with no Figma access it returned
+an ENVIRONMENT finding, refused to judge pixels it could not see — *"I will not guess at what is in the
+frame"* — and asked for an exported PNG at ≥1300px. The brief worked under a constraint nobody had
+written it for. The fallback the gate now ships is the one the role asked for.
+
+### Changed
+- The four review roles now name their design-tool **read** tools explicitly, and none of them can reach
+  a write tool. `runGate` accepts `renders` and threads exported PNG paths to every reviewer.
+- The role-boundary check now tests the **real** write surface — `use_figma`, `create_new_file`,
+  `upload_assets`, `create_shader`, `update_shader` — not just `Write|Edit|NotebookEdit`.
+- It also warns, per role, when a gate role's whitelist names no design-tool read access, so the open
+  bug is visible on every run rather than living in a changelog entry.
+- Eval **U62**. Half fixed and half environmental, and the entry says which is which. Its lesson: a tool restriction has two failure modes, and
+  the expensive one is under-permission, because it is silent — the role returns something plausible from
+  whatever it could reach. **Test a restriction by having the role do its job, not by reading its config.**
+
+### This also explains the honest answer to "how many creatives have passed the gate"
+**Zero.** Not many, not some. And this entry is the reason the number has never moved: **the gate has
+never once run as shipped.** Every result in `examples/` was produced by unrestricted stand-ins, which is
+the same class of error as U51 — testing a substitute and attributing the result to the artifact.
+
+## [3.1.0] — 2026-09-10
+
+First end-to-end live run of the one process, against a cold brand the team had never seen. It produced
+real artwork in Figma, the gate returned four MAJORs and zero BLOCKERs — and the operator looked at the
+result and said the design was badly proportioned. He was right, and nothing in the pipeline had
+standing to say so.
+
+### Measured — 8 dispatches · 629,267 tokens · 34.3 minutes
+
+| Phase | Role | Tokens | Wall |
+|---|---|---:|---:|
+| Concept | creative-director | 63,151 | 2m 16s |
+| Copy | content-creator | 61,209 | 1m 48s |
+| Build | designer | 103,253 | 18m 14s |
+| Build | creative-director (ruling, conditional) | 59,086 | 59s |
+| Gate | art-director | 95,521 | 7m 21s |
+| Gate | design-analyst (sonnet) | 87,892 | 4m 35s |
+| Gate | content-creator | 80,936 | 3m 58s |
+| Gate | quality-officer | 78,219 | 3m 38s |
+
+Production is serial: **23.3 min**. The gate fanned out three-wide then the quality-officer: **11.0 min**
+against 19.5 serial — **fan-out saved 8.6 minutes**. The old `full` + `full` route was 21 dispatches and
+~2,705,000 tokens for the same coverage: **4.3x cheaper, 13 fewer dispatches**.
+
+Caveat kept: `effort` tiering was not applied (the harness exposes model, not effort), and the run
+stopped at FIX-THEN-REGATE rather than a verdict. **No creative has still passed a gate.**
+
+### The diagnosis — the pipeline was built to produce defensible work, not good work
+
+Every mechanism in 3.0.0 checks CONFORMANCE: declare deviations, cite sources, measure against tokens,
+mandated text verbatim, never invent an asset. Not one asks whether the result is any good. The frame it
+passed was **50.7% empty vertical space**, with the message at **10.2%** of height and the decoration at
+**25.3%** — and it was token-clean, deviation-free and compliant throughout.
+
+### Fixed
+
+- **The creative-director was writing the layout in pixels.** Its directive carried eight absolute
+  y-coordinates, so the designer had nothing to decide and every spacing value came from the one role
+  that does not own spacing. Absolute coordinates are now forbidden in the directive; the concept states
+  `proportions` (dominant element, its share of frame, message vs decoration) and `typeStep` (which step
+  of the display scale, argued against the others), and the designer owns every number. Eval **U59** —
+  and it records the trap that caused it: the U54 deviation rule created the pressure to specify
+  numerically so that no deviation was possible.
+- **The gate was handed the defence before the evidence.** `create-ad.js` passed the designer's declared
+  deviations AND the creative-director's ruling into the reviewers' context. On the live run the
+  art-director wrote *"per the ruling I am not proposing to shorten it"* about the single element it
+  existed to contest. The gate now receives the brief and the artifact only; deviations and rulings
+  travel to the human in the result. Eval **U60**.
+- **Severity was being treated as a work order.** The fix round routed all four MAJORs to the designer:
+  one was the content-creator's undelivered field copy, one was a Stories derivative the brief
+  explicitly forbids building until the master is approved. Findings now carry `owner`
+  (designer/content-creator/client/none) and `scope` (this-artifact/flagged-forward), and only what the
+  designer can fix on this artifact reaches a fix round. The rest surface as `forHuman`. Eval **U60**.
+- **Nobody owned proportion.** The art-director's brief aimed it at conformance to the directive and the
+  source. It now carries an explicit proportion mandate with numbers — dominant element and its share,
+  message versus decoration, total empty span as a % of height, and the display size argued against the
+  other steps in the scale — and is told to judge the composition **on its own merit, not against the
+  directive**, because a directive can be wrong and it is the only role positioned to say so. Eval
+  **U58**, logged `MISSED — the operator caught it`.
+- **The gate was reviewing 38 targets.** `build.changedIds` was used as the target list, so four roles
+  were told to render thirty 3x120px rectangles at 1300px and zoom-crop their seams. The designer now
+  returns `artboardIds` and the gate reviews the creative, not the node.
+- **`BREVITY` was written for reviewers and applied to producers.** "Be brief: the findings and a
+  verdict" went to the creative-director, content-creator, art-director and designer, none of which
+  return findings or a verdict. Split into `BREVITY` and `BREVITY_BUILD`.
+
+### Evals
+**U58** proportion has no owner · **U59** the director does the designer's job · **U60** the gate is
+anchored, and severity is not a work order · **U61** a silent wrong target is worse than a noisy one.
+61 cases, 14 MISSED — the MISSED count went UP, which is
+what an honest maturity metric looks like when a human finds something the gates did not.
+
+### Validation caught three things this changelog first got wrong
+Written down because this repo's recurring failure is publishing a number nobody checked:
+- The fix for U60 replaced a noisy bug with a silent one. The artboard fallback took `changedIds[0]`,
+  correct only because the builder happened to return the artboard first. It now escalates on genuine
+  ambiguity. Eval **U61**.
+- This entry claimed "46 assertions across 19 scenarios". The harness prints 51 across 21.
+- The installed plugin copy was still 3.0.0 while the tree was 3.1.0 — the exact shape of U51, three
+  hours after writing the eval. `validate.sh` now compares the installed copy against the tree file by
+  file, so the check exists in tooling rather than in a paragraph of CONTRIBUTING.
+
+### Docs
+- **[`examples/sorrel-bay-run.md`](examples/sorrel-bay-run.md)** — the full write-up of the run: the
+  hostile setup, the measured table, what the gate caught verbatim, what it missed, the seven defects the
+  run found in the plugin itself, and the limits on every number in it.
+- README, `docs/METHOD.md`, `docs/THE-TEAM.md`, `docs/QUICKSTART.md`, `workflows/README.md`,
+  `CONTRIBUTING.md` and the `creative-gate` skill all updated to the measured figures and the new role
+  boundaries. The "has not been run end to end" caveats are replaced by the run, and the claim that
+  replaced them is narrower than the caveat was: it has been run **once**, it did **not** pass, and the
+  proportion fixes remain unproven until a re-run.
+- **METHOD lesson 11 — conformance is not quality.** The most important lesson of the day and the only
+  one that came from using the thing rather than building it.
+
+### Harness
+`scripts/dry-run.mjs` is at 51 assertions across 21 scenarios, now pinning: the gate is handed the
+artboard and not every changed node; no deviation or ruling text reaches a reviewer; the
+creative-director is forbidden coordinates; a MAJOR owned by another role never becomes a designer
+dispatch; a flagged-forward MAJOR never consumes a fix round; and a build that changed many nodes without
+naming its artboards ESCALATES rather than guessing which one the gate should review.
+
+## [3.0.0] — 2026-09-10
+
+**One process.** The two-speed design is gone, in both directions, and the gate now runs inside the
+production chain rather than beside it. This is a breaking change: `depth` is no longer accepted anywhere,
+and `scripts/validate.sh` fails the build if it reappears.
+
+### Why — the case against the design this removes
+
+The fast path worked. It took a 60-minute build to 11 minutes. And it was the sole origin of a whole
+defect class, all of it logged in this repo across the last three releases:
+
+| Version | Defect | Only possible because |
+|---|---|---|
+| 2.11.3 | `U52` — a merged concept+copy dispatch reused the `CONCEPT` schema, which has no headline field. The agent hit its 5-retry cap trying to satisfy a prompt its output shape contradicted, and the run died at 114,322 tokens | two roles were merged into one dispatch |
+| 2.12.0 | `U53` — sonnet at medium effort plus a brevity instruction suppressed the designer's craft self-checks, including the ~20% emptiness cap. A frame shipped **64% empty**, unmeasured | speed tuning applied to a whole mode rather than to what an agent writes |
+| 2.12.0 | `U54` — the build left an empty lower **two-thirds** where the directive said lower **third**, and reported it in the directive's own words | no pre-build verify, the thing fast traded away |
+
+It was also, by construction, the only path that produced **ungated** work. And the cheap *gate* had the
+mirror-image flaw: `depth:"quick"` was cheap because one reviewer cannot disagree with itself — which is
+the entire mechanism. The worst defect ever found in this project was three roles independently measuring
+the same frame and establishing that a fix reported as resolved had never landed in the file.
+
+Two pipelines is also two truths. *Which one made this? Was it gated?* became something a human had to
+remember, and the whole discipline of the system is not having to.
+
+So the cost came out of what an agent **writes**, never out of who checks.
+
+### Changed — the one process
+
+- **`/create-ad` is the whole pipeline**: concept → copy → select → build → **gate** → verdict, in one
+  run. Eight dispatches on a clean run, six of them serial. Nothing it hands you is ungated, so there is
+  no second command to remember.
+- **`/creative-gate` is the same gate**, for creative the chain did not produce — built by hand, built
+  before you installed this, or inherited.
+- **The gate roster is fixed and every reviewer sees every target**: `art-director` (render forensics),
+  `design-analyst` (every number), `content-creator` (every word) in parallel, then `quality-officer`
+  alone on final state. Each owns a failure class traced to an eval case.
+- **The creative-director's dispatch-plan step is gone.** It cost a dispatch, added an `INVALID PLAN`
+  failure mode, and could only ever *narrow* coverage — a fixed roster is cheaper and stricter at once.
+  The CD keeps what it actually owns: the concept, the directive, and the tiebreak when a role escalates.
+- **The standalone art-director verify pass is gone.** It measured, serially, the frame the gate's
+  art-director measures anyway — in parallel, alongside three other roles. The gate *is* the verify.
+- `workflows/build-verify-loop.js` is **removed**. It was a third orchestration producing ungated work.
+
+### Changed — two arguments instead of five
+
+`/create-ad` used to refuse a one-line brief and demand five arguments. That is not a pipeline people can
+use, so three of them now resolve to a **declared** default, reported back in the result rather than
+applied silently:
+
+| Argument | Left out ⇒ |
+|---|---|
+| `masterSize` | derived from the primary placement in `knowledge/platforms/` at the platform's recommended resolution, with the basis reported in `sizeBasis` |
+| `inventoryPath` | **type-only build.** No hero is selected and none is invented; source law forbids drawing one. The `Select` phase is not dispatched at all — there is nothing to select from |
+| `destination` | the designer creates a new Figma file and returns its key in `location` |
+
+`brief` and `platforms` stay required — a platform is never guessed, because its spec decides the size,
+the safe zones and the character limits. `date` is required of the **caller**, not the user: workflow
+scripts cannot read the clock, and the marker and ledger rows are dated.
+
+### Fixed
+
+- **The quality-officer could certify a state that a later fix changed.** Re-gating only ran for roles
+  whose own findings were addressed, so a quality-officer `PASS` on round 1 could survive a round-2 fix it
+  never saw — and the gate would emit `SHIP` on its strength. It now re-gates after **any** change, in
+  full, because it is the one role that certifies final state. Eval **U55**.
+- `ENVIRONMENT` findings no longer reach the designer at all. Re-running cannot change them, and a fix
+  round spent on one is pure waste.
+- **A stalled re-gate could leave the pre-fix verdict standing.** If a role failed to return after a fix
+  round, the engine kept its previous result and consolidated on it — so a `PASS` describing a state that
+  no longer existed could become a `SHIP`. It now returns `PARTIAL` and names the roles that did not
+  re-confirm. Same failure as U14, one round later and much harder to see.
+- **A build reporting `DONE` with no changed nodes reached the gate.** Four reviewers would find nothing
+  in nothing and the run returned `SHIP` on an artifact that was never made. It now escalates before the
+  gate: absence of findings is not absence of defects, and absence of nodes is not a build.
+- `UNVERIFIED` is now a first-class verdict rather than a convention. With no compliance layer loaded the
+  quality-officer says so, and the consolidated decision says so too instead of reporting `SHIP` — a
+  reduced-scope review presented as a full one is the one thing worse than no review.
+
+### Added — `scripts/dry-run.mjs`, and the orchestration is finally tested
+
+Every orchestration bug in this repo's history was found by a live run that burned real tokens: a
+preflight that would have interpolated `undefined` into five prompts, a schema that could not hold its own
+prompt (U52, 114,322 tokens), a gate that could report a clean pass on stalled agents (U14). All of them
+are control-flow and schema bugs. **None of them needed a model to find.**
+
+So the harness substitutes the engine — `agent`, `parallel`, `phase` and `log` become stubs that record
+every dispatch and return whatever a scenario says a role returned — and asserts on the routing. 44
+assertions across 17 scenarios, covering: the clean run is exactly 8 dispatches in order with no role
+doing two jobs; concept precedes copy; nothing is dispatched after the quality-officer; a bare one-line
+brief is refused *before* any dispatch; `brief` + `platforms` alone produces a gated build; no inventory
+means `Select` never runs and the designer is forbidden to invent a hero; `ASK-CLIENT` halts before the
+build; a declared conflict reaches the CD; a stalled reviewer yields `PARTIAL`; all stalling yields
+`INCOMPLETE`; an unfixable MAJOR exhausts exactly 2 rounds; a contested finding never reaches the
+designer; `ENVIRONMENT`-only yields `COMP-APPROVED` with a clear-before-export checklist; a build that
+changed no nodes never reaches the gate; a stalled re-gate yields `PARTIAL`; and every schema's
+`required` keys exist as properties — the static form of U52.
+
+**Two of the fixes above were found by writing it**, before it had ever run against a model.
+
+No tokens, no Figma, no network. It runs in CI on every push, and `validate.sh` runs it too.
+
+Eval **U57**.
+
+### Added — the single process is enforced, not requested
+
+`scripts/validate.sh` now also fails on:
+
+- **a reappearing speed switch** — `args.depth`, a `DEPTH` constant, a `depth:` literal, or a "Two
+  speeds" heading anywhere in `workflows/`, `commands/`, `skills/`, `docs/` or the README;
+- **drift in the shared gate block.** Workflow scripts cannot `import`, so the gate is defined once and
+  pasted byte-identically into both workflows between `SHARED GATE BLOCK v1` markers. The validator
+  sha256s both regions and fails if they differ by one character. "There is one gate" is now a property
+  of the build rather than a claim in a README;
+- a non-designer role dispatched with the fix schema, and any role in the gate roster with no agent file.
+
+### Evals
+
+- **U55** — whatever certifies final state re-runs after any change, not only after changes it asked for.
+- **U56** — a pipeline too slow to use gets a cheap second mode instead of being made cheaper, and the
+  cheap mode becomes the sole source of a defect class and the only path that ships ungated work.
+- **U57** — orchestration defects are deterministic and belong in CI, not in a live run's bill.
+- **U49 and U50 keep their recorded failures but have their remedies marked superseded by U56.** Both
+  correctly diagnosed that an unaffordable pipeline gets skipped; both prescribed a second, weaker path.
+  The diagnosis held. The prescription did not, and the eval table says so rather than quietly changing.
+
+`METHOD.md` lesson 8 is rewritten as the mistake it was, and lesson 10 is added. 57 cases, 12 MISSED.
+
+### Not measured, and deliberately absent
+
+**The one process has not been run end to end, and no wall-clock figure for it appears anywhere in this
+release.** The arithmetic is 8 dispatches against the 21 the old two-command route needed, and the
+per-dispatch costs it is built from are measured — but arithmetic is not a measurement. This repo
+published a "~5 min" figure in four places and had to retract it (2.10.3), then published a 5-minute
+target it missed by 6 minutes (2.11.4). The next number here comes from a live run.
+
 ## [2.12.0] — 2026-09-10
 
 First run on a cold client — a brand the team had never seen, in a different category, with a
