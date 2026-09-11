@@ -22,9 +22,17 @@ stack is two systems.
 
 ## Proportion — what the numbers should be
 
-- **The dominant element takes 40–70% of the frame.** Under 30% and nothing owns it. Over 80% and there
-  is nowhere for the eye to rest.
-- **The message must outweigh the decoration.** Measure both as a share of frame. If ornament, texture or
+- **The dominant element takes 40–70% of the frame — by AREA, and only when it has area to take.**
+  Under 30% and nothing owns it; over 80% and there is nowhere for the eye to rest. This applies to
+  objects, images and fields.
+
+  **It does not apply to type-led work, and applying it there produces a false failure.** Set at a
+  typical display ceiling, a two-line headline's *ink* cannot exceed ~10–12% of a feed canvas however
+  large you set it — the glyphs simply do not cover that much surface. For a STATEMENT ad, dominance is
+  **contrast and exclusive occupancy**: the element is the highest-contrast thing in the frame, and it
+  holds a region of the frame alone. Measure it that way and say which measure you used. A reviewer who
+  fails a type-led frame for 11% area dominance has measured the wrong thing.
+- **The message must outweigh the decoration** — this one holds for every pattern, by area. Measure both as a share of frame. If ornament, texture or
   pattern exceeds the thing doing the persuading, the composition is inverted — and no token check will
   ever tell you, because every value can be legal while the proportions are wrong.
 - **Total empty space: 25–40% of the frame.** Below 25% it is crowded. Above 40% it is under-filled and

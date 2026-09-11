@@ -154,7 +154,10 @@ could not perform (U62).
 
 1. **Thumbnail.** At 110px, name the ONE thing that survives. If nothing does, that alone is a MAJOR.
    If what survives is the decoration and not the message, say so — that is an inverted arrival order.
-2. **Proportion, measured.** The dominant element and its share of frame; message vs decoration; the
+2. **Proportion, measured.** The dominant element and its share of frame — and **state which measure you
+   used**: area for object- and image-led work, contrast-and-exclusive-occupancy for type-led work, where
+   glyph ink cannot reach 40% of a canvas at any legal size. Failing a type-led frame on area dominance
+   is measuring the wrong thing. Then: message vs decoration (area, always); the
    total empty vertical span as a % of height. Past ~40% the frame is under-filled, and no per-region
    cap will catch it because the emptiness is distributed. Numbers, not adjectives.
 3. **Emptiness.** The largest single empty region as a % of canvas. Above ~20% and open to the
