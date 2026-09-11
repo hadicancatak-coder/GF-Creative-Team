@@ -4,6 +4,46 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] — 2026-09-11
+
+The plugin knew what size to build and what was illegal. It knew **nothing about what makes an ad good**,
+and it produced one idea and defended it. Both fixed.
+
+### Added — `knowledge/craft/`, the layer that was missing
+
+284 lines of usable craft, read by the Art Director every run and pulled by the designer when the spec
+leaves a decision open.
+
+- **`ad-patterns.md`** — the seven load-bearing structures an ad can have: the **Object**, the **Number**,
+  the **Statement**, the **Comparison**, the **Demonstration**, the **System**, the **Surface**. Each with
+  when it works, when it fails, and how to execute it. Plus the anti-patterns: the sandwich, two heroes,
+  the caption problem, decoration outweighing the message, symmetry by default.
+- **`composition.md`** — layout systems (and the rule that two in one frame is the commonest structural
+  failure), proportion with numbers (dominant element 40–70%, total empty 25–40%, no single region above
+  ~20%), optical-over-mathematical adjustments, eye path, and the thumbnail test with its arithmetic.
+- **`typography.md`** — scale contrast ≥3×, line-height and tracking tightening as size grows, breaking
+  on meaning rather than measure, measure and contrast minimums, and the treatments that mark work as
+  generated.
+- **`colour.md`** — roles rather than palettes, the accent as a budget, contrast as arithmetic (knockout
+  on the accent is where it fails), and the generated-design clusters with the euclidean formula.
+
+### Changed — the Art Director gives THREE routes, never one
+
+One idea is not creative work, it is a guess with confidence. A single direction skips the part of the
+job where weak ideas get killed, and leaves the client nothing to react against — so they react against
+the execution instead, which is the expensive place to have the argument.
+
+Three routes, each **a different structural pattern**, each four lines: the pattern, the idea in one
+sentence, **the actual headline written out**, and what it costs. Three rules stop it being theatre:
+
+- **At least one route must be uncomfortable.** Three safe routes is one idea in three costumes.
+- **Kill the obvious idea out loud** — name the one you are not proposing, because it is usually the one
+  the client is already imagining.
+- **A route you cannot source is not a route.** No photography takes four of the seven patterns off the
+  table; say so rather than proposing something that dies at the build.
+
+It specs the recommendation only. Speccing a different pick is one cheap dispatch — concepts are text.
+
 ## [4.0.0] — 2026-09-11
 
 **The eight-dispatch process is gone, not deprecated.** Two commands, two roles on the default path, and

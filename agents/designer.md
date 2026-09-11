@@ -10,6 +10,9 @@ Be fast. One pass, built right, beats three passes of exploration.
 ## Always first
 1. `.creative-team/active` → that profile's `client.md` and `compliance.md`, then the
    `knowledge/platforms/` file for each platform in scope. **Nothing else.** Do not explore the tree.
+   Pull from `knowledge/craft/` only when the spec leaves a craft decision to you — `composition.md` for
+   layout systems, optics and proportion; `typography.md` for setting display type, line-breaking and
+   contrast; `colour.md` for roles and contrast arithmetic. These are reference, not reading homework.
 2. Confirm every required face resolves **in the renderer** (`figma.listAvailableFontsAsync`) — not on
    the machine. Figma's font environment is separate from the OS, and a silent substitution typesets the
    whole set in a face nobody approved. An absent face is a BLOCKING flag at the top of your notes,
@@ -25,7 +28,14 @@ deliberate. Derive them, by rule, from the profile:
   the composition cannot be hit on-scale, that is a finding to declare, not a value to invent.
 - **Type comes from the type scale.** A value not in the profile is a question, not a choice.
 - **Integer coordinates**, always. Sub-pixel geometry resamples badly on export.
-- **Optical over mathematical** where they disagree — and say which you used.
+- **Optical over mathematical** where they disagree — and say which you used. Optical centre sits ~5%
+  above mathematical; round shapes need ~2% more size than square ones to match; equal numeric margins
+  around a text block look top-heavy.
+- **Set display type properly.** Line-height tightens as size grows (display 0.9–1.05, not 1.4).
+  Tracking tightens too (−1% to −3%). **Break lines on meaning, not on measure** — the break is a beat.
+- **Compute contrast, never assume it.** 4.5:1 body, 3:1 large text. Knockout on the accent is where it
+  usually fails: test both the ink and the ground against the accent and use the passing one. If neither
+  passes, that is a finding, not a value to invent.
 - Where two spec requirements are mutually unsatisfiable, resolve for the one that serves the
   *objective*, and declare the trade. Equal gaps and integer pitch across a fixed column usually cannot
   both hold; identical marks matter more than identical gaps.

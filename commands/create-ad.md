@@ -7,7 +7,9 @@ Create ad creative for: $ARGUMENTS
 **Two roles on the default path. That is the whole team for one ad.**
 
 ```
-brief → ART DIRECTOR ──asks you the blocking questions, writes the spec
+brief → ART DIRECTOR ──asks the blocking questions · THREE routes · specs its pick
+                     ↓
+                  YOU ──pick a route
                      ↓
               DESIGNER ──builds it in Figma, owns every number
                      ↓
@@ -27,9 +29,17 @@ It separates blocking from assumable honestly — a missing platform blocks, a m
 not (it derives that from the platform's recommended resolution and tells you which placement it used).
 Expect one round of questions. A second round means it did not think hard enough.
 
-It returns a **build spec**: canvas, proportion, which step of the type scale and why, colour roles and
-accent budget, elements in reading order with copy verbatim, the eye path, and the one thing that must
-survive at thumbnail. **No pixel coordinates** — those belong to the designer.
+It returns **three routes** — three different structural patterns, not three dressings of one idea —
+each as a pattern, a one-line idea, the actual headline written out, and what it costs. One of them will
+be uncomfortable; that is deliberate, and it is what makes the other two choices rather than defaults.
+It names a recommendation and specs **that one only**.
+
+**Pick a route.** If you take the recommendation, nothing more is needed. If you take another, speccing
+it is one cheap dispatch.
+
+The spec carries: canvas, proportion, which step of the type scale and why, colour roles and accent
+budget, elements in reading order with copy verbatim, the eye path, and the one thing that must survive
+at thumbnail. **No pixel coordinates** — those belong to the designer.
 
 ## 2. Designer — builds it
 

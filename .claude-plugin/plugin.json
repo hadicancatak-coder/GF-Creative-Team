@@ -1,7 +1,7 @@
 {
   "name": "gf-creative-team",
-  "description": "Growth Fabric Creative Team — an Art Director that closes your brief before anything is built, and one fast, deterministic designer that builds it in Figma. Two commands. Arithmetic runs as a script, not an agent. Creative direction, compliance and copy engage only when the job calls for them.",
-  "version": "4.0.0",
+  "description": "Growth Fabric Creative Team — an Art Director that closes your brief and gives you three real routes before anything is built, and one fast designer that builds the one you pick in Figma. Ships a craft layer: ad patterns, composition, typography and colour. Two commands.",
+  "version": "4.1.0",
   "author": {
     "name": "Hadican Catak"
   },
