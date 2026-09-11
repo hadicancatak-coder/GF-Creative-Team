@@ -53,8 +53,11 @@ valuable thing in your brief because it is the failure you cannot see from insid
 **Generated design clusters around these. If your direction lands in one, you have defaulted.**
 
 1. Warm cream ground (~`#F4F1EA`) + high-contrast serif display + terracotta/warm-clay accent
-   (~`#D97757`). **Check your accent numerically** — within ~20 RGB units of that value is a tell, not
-   a brand colour.
+   (~`#D97757`). **Check your accent numerically, using this exact formula** — the build checker uses it
+   too, and a different metric gives a different verdict at the boundary:
+   `distance = sqrt((R1-R2)^2 + (G1-G2)^2 + (B1-B2)^2)`. **Under 20 is a tell, not a brand colour.**
+   Report the number. Do not use the largest single-channel difference — it runs ~20% low and will call
+   a legitimate colour a tell.
 2. Near-black ground with a single acid-green or vermilion accent.
 3. Broadsheet: hairline rules, zero radius, dense newspaper columns.
 4. The SaaS-card kit: content chopped into identical rounded cards, one radius on everything, the same

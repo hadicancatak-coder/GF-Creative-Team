@@ -94,7 +94,7 @@ node scripts/check-build.mjs --selftest   # the build checker — 14 cases
 `validate.sh` also **compares the installed plugin copy against your working tree**, file by file, and
 tells you to reinstall if they differ. Editing this repo does not change what runs (eval U51).
 
-Then the part no harness can do: `evals/universal-cases.md` holds 62 domain-agnostic failure classes with
+Then the part no harness can do: `evals/universal-cases.md` holds 63 domain-agnostic failure classes with
 their outcomes recorded. Give an agent a case input with **no hint**, and check whether it raises the
 expected catch. Do this after any brief edit — a case that used to pass and now fails is a regression.
 

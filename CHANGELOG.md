@@ -48,6 +48,31 @@ README, `METHOD`, `THE-TEAM`, `QUICKSTART`, `CONTRIBUTING` and the renamed `revi
 the two-command shape. METHOD's chain diagram is the new one, and its lesson on preflight now carries the
 stronger version: have the role that owns the brief **ask the human**, once, before anything is built.
 
+### Behavioural test of the new Art Director — it passed, and found a defect in the brief
+
+Given a deliberately useless brief — *"We need an ad for Sorrel & Bay. Something that shows the product
+really works."* — the shipped role, told not to build:
+
+- **Caught the planted trap.** "Really works" is an efficacy claim; `compliance.md` substantiates exactly
+  three strings and bans every speed, duration and percentage figure. It put the question to the brand
+  lead and then **declined to wait on it**, because the open-verification row already rules on it —
+  "holding the job would buy nothing." Deliver-then-object applied as judgement, not as a reflex to stop.
+- **Did not invent a blocker.** The platform is named in the profile, so it did not ask.
+- Derived **1440×1800** from `meta.md` recommended px, 0.00% ratio deviation against a 3% tolerance.
+- Did arithmetic nobody asked for: bone-on-amber measures **2.81:1** and fails the 3:1 large-text floor,
+  so the CTA label is ground-green at **4.63:1** — the only passing option in the palette.
+- **Ran the generated-design calibration numerically**, found the profile's own accent and bone both
+  inside the tell band, and correctly ruled that **a pinned profile wins outright**.
+- Dropped an eyebrow and a divider rule as "my one accessory off," and answered *would I have produced
+  this for any other brand in this category?* by naming the reflex it avoided.
+- **Refused to escalate.** It tested the design-system trigger, resolved it without extending the token
+  set, and flagged forward that the Stories derivation *does* trip the multi-creative trigger.
+
+**The defect it exposed is mine.** The brief said "within ~20 RGB units" without naming the metric. The
+role computed max-channel; `check-build.mjs` computes euclidean. Identical component deltas, different
+number, opposite verdicts at the boundary — `#C96A45` is 18 by one metric and 27.4 by the other. The
+brief now carries the formula. Eval **U63**.
+
 ### What this release does not claim
 **No creative has passed a review — zero, not few.** The fix→re-review loop has never completed a round.
 The proportion fixes are pinned by assertions, not by a passing run. And U62 — review roles cannot reach
