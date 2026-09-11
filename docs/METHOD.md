@@ -9,25 +9,27 @@ org chart. If you cannot name the failure class a role owns, it is not a role.
 
 ## The chain
 ```
-creative-director (concept) → content-creator (copy) → art-director (select)
-                              ↓
-                       designer (build)
-                              ↓
-   art-director + design-analyst + content-creator  (gate, IN PARALLEL)
-                              ↓
-              designer (fix) → the failed roles re-gate     ×2 max
-                              ↓
-              quality-officer (final state, alone, last)
-                              ↓
-                            human
+brief → ART DIRECTOR ──closes the brief: interrogates it, asks the client, writes the spec
+                     ↓
+              DESIGNER ──builds it; owns every number
+                     ↓
+   check-build.mjs ──arithmetic: gaps, tokens, type, proportion, colour. Free.
+                     ↓
+         ART DIRECTOR ──judges the picture on its own merit
+                     ↓
+      quality-officer ──ONLY when regulated or about to be trafficked
+                     ↓
+                    human
 ```
-One chain. There is no shorter variant and no cheaper gate — see lesson 8.
-The orchestrator dispatches and applies decisions. It does not judge, select, or place pixels.
-The separation matters: an orchestrator that also reviews will approve its own work.
 
-The production half is sequential because each role needs the last one's output. The review half is not,
-so it fans out — which is why four reviewers cost roughly the wall-clock of one, and why the gate is
-affordable enough to be mandatory rather than optional.
+**Two roles on the default path.** The front door owns the brief and nothing is built until it closes;
+the builder executes and does not reinterpret. Everyone else is conditional.
+
+**Split arithmetic from judgement and put arithmetic in a script.** Gaps against a scale, colours against
+tokens, shares of a frame — these are comparisons between numbers. A role doing them costs ~88,000 tokens
+per run and can disagree with itself between runs; a script costs nothing and cannot. What needs a role
+is whether the result is any *good*. Conflating the two makes both too expensive to run, which is how a
+review ends up skipped.
 
 ## Laws (ranked; the client profile supplies the specifics)
 1. **Source-only** — elements trace to a real source; invention is never a fallback. Subtract and crop, don't draw.
@@ -100,9 +102,10 @@ A font confirmed installed on the build machine was absent from the environment 
 Check the thing that will do the work, not the thing that resembles it. *(U48)*
 
 **6. Preflight inputs or spend real money on the word "undefined".**
-A command sent a bare string to a workflow expecting five fields. Without a guard it would have
-dispatched five agents against undefined values — silently, with no error, at real cost. Validate before
-you dispatch and name exactly what is missing. *(U34)*
+A command sent a bare string where five fields were expected. Without a guard it would have dispatched
+five agents against undefined values — silently, with no error, at real cost. Validate before you
+dispatch and name exactly what is missing. The stronger version of this lesson: have the role that owns
+the brief **ask the human** for what is missing, once, before anything is built. *(U34)*
 
 **7. Instrument what changes the artifact, not what touches the tool.**
 Creating an empty file counted as a build, so the enforcement hook demanded review of work that did not

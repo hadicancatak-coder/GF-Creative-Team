@@ -4,6 +4,56 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] — 2026-09-11
+
+**The eight-dispatch process is gone, not deprecated.** Two commands, two roles on the default path, and
+the arithmetic is a script. Breaking: `/creative-gate` and `/format-matrix` are removed, and there are no
+workflow scripts.
+
+### Removed
+- `workflows/create-ad.js`, `workflows/creative-gate.js`, `workflows/README.md` — **deleted.** The Art
+  Director asks the client blocking questions mid-flight, and a workflow script cannot pause for a human
+  answer. The commands are the orchestration now, which also ends the dual-truth problem where the
+  command described one process and the script ran another.
+- `scripts/dry-run.mjs` — deleted with the orchestration it tested. Keeping tests for deleted code is
+  worse than having none.
+- `/creative-gate` → replaced by **`/review-ad`**. `/format-matrix` → folded into the Art Director;
+  deriving the format matrix from the verified platform specs is part of closing a brief.
+
+### The two commands
+
+**`/create-ad`** — art-director closes the brief → designer builds → `check-build.mjs` → art-director
+verifies. Three dispatches.
+
+**`/review-ad`** — script first, then the art-director for the judgement a script cannot make, then the
+quality-officer **only if it ships**. One dispatch for most reviews, two when it traffics.
+
+`/new-client` and `/use-client` remain as setup. They are not process.
+
+### `scripts/check-build.mjs` — now the test suite too
+**14 cases**, covering every check: clean build, decoration outweighing message, under-filled frame,
+off-scale gap, sub-pixel geometry, off-scale type, reserved colour, accent overuse, colour outside the
+token set, the generated-design tell fired and not fired, the unspent top display step — plus a
+**regression guard against the two real artboards this plugin built**, asserting v1 fails on proportion
+and v2 passes.
+
+### `scripts/validate.sh` rewritten for the new shape
+Fails on: a third process command appearing · `creative-gate` or `format-matrix` returning · `workflows/`
+coming back · a depth/speed switch anywhere · a non-designer role holding a write tool · a command naming
+a role with no agent file · **`create-ad` no longer asking the client before building** · a failing
+build-checker selftest · the installed copy differing from the working tree.
+
+### Docs
+README, `METHOD`, `THE-TEAM`, `QUICKSTART`, `CONTRIBUTING` and the renamed `review-ad` skill all moved to
+the two-command shape. METHOD's chain diagram is the new one, and its lesson on preflight now carries the
+stronger version: have the role that owns the brief **ask the human**, once, before anything is built.
+
+### What this release does not claim
+**No creative has passed a review — zero, not few.** The fix→re-review loop has never completed a round.
+The proportion fixes are pinned by assertions, not by a passing run. And U62 — review roles cannot reach
+the design tool as shipped — remains an environment constraint the plugin works around by passing renders
+on disk rather than one it has solved.
+
 ## [3.2.0] — 2026-09-11
 
 **Two roles on the default path.** The Art Director is the front door and owns the brief end to end; one

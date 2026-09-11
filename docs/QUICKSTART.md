@@ -16,7 +16,7 @@ Working on the plugin itself? Point it at a local directory:
 `claude plugin marketplace add /path/to/GF-Creative-Team`
 
 Verify with `claude plugin list` — you want `gf-creative-team@gf-creative-team` · enabled. Restart
-Claude Code, then `/help` should list all five `/gf-creative-team:*` commands and the seven agents
+Claude Code, then `/help` should list the `/gf-creative-team:*` commands and the seven agents
 should appear in your agent list.
 
 **Figma MCP** must be connected for anything that builds artwork. Review roles work on screenshots
@@ -48,54 +48,28 @@ actually works. Vague profiles produce vague gates.
 **Nothing about a client belongs in `agents/`.** If you are editing a role brief with a fact that is only
 true for one engagement, it goes in the profile.
 
-## 3. Work out what to build
-
-Before any design work:
-
-```
-/gf-creative-team:format-matrix Meta and Google, UK + DE, spring campaign
-```
-
-You get the exact asset list — ratios, pixel dimensions, safe zones, character limits, and which assets
-are reusable across platforms. Building the wrong sizes is the cheapest mistake to prevent and the most
-expensive to find late.
-
-The specs come from `knowledge/platforms/`, traced to each platform's own documentation and dated. If a
-file's `review_by` has passed, the command tells you before it tells you anything else.
-
-## 4. Make an ad
+## 3. Make an ad
 
 ```
 /gf-creative-team:create-ad Spring promo for the Drift commuter e-bike, UK + DE, Meta Feed + Stories
 ```
 
-Two facts: what the ad is for, and which platforms. The master size comes from the platform spec, and
-if you pass no asset folder you get a type-only build rather than an invented hero — every default taken
-is reported back, not applied silently.
+The **Art Director** reads it, loads your profile, and **asks you the blocking questions in one
+message** — it does not start building on an open brief. Answer, and it writes the spec. The
+**designer** builds it. `check-build.mjs` runs the arithmetic for free. The Art Director verifies.
 
-**One process, and the gate is inside it.** Concept → copy → asset → build → gate → verdict:
-`art-director`, `design-analyst` and `content-creator` review in parallel, then the `quality-officer`
-gates final state alone, with up to two fix rounds. Nothing it hands you is ungated, so there is no
-second command to remember.
+Three dispatches. Everyone else is engaged only when the job calls for them.
 
-Pass `inventoryPath` when you have assets and `destination` when you have a Figma file in mind;
-otherwise the designer creates one and returns the key.
-
-## 5. Gate something you already built
-
-For creative this chain did not produce — built by hand, built before you installed this, or inherited:
+## 4. Review something already built
 
 ```
-/gf-creative-team:creative-gate the four 1080x1350 masters in the Spring campaign
+/gf-creative-team:review-ad the four 1080x1350 masters in the Spring campaign
 ```
 
-Same four reviewers, same code, consolidated **SHIP / COMP-APPROVED / UNVERIFIED / FIX-THEN-REGATE /
-BLOCK**. Findings come back with severity, location and an exact fix.
+Works on creative from anywhere — built by hand, built before you installed this, inherited. Export the
+renders to disk first; the reviewers usually cannot reach the design tool themselves.
 
-For a deterministic run where every dispatch lands in the ledger, call `workflows/creative-gate.js`
-through the Workflow tool.
-
-## 6. Turn on enforcement (optional but the point)
+## 5. Turn on enforcement (optional but the point)
 
 The bundled hooks do two things:
 - log every design-tool write to `.gates/builds.log`
@@ -106,26 +80,21 @@ The Stop hook has a human waiver hatch: write `.gates/<date>-skipped.md` naming 
 The PostToolUse matcher in `hooks/hooks.json` targets the Figma MCP write tools by default. Using a
 different design tool? Widen or replace that regex — it is the only tool-specific line in the repo.
 
-## 7. Run the checks
+## 6. Run the checks
 
 Two layers, and they answer different questions.
 
 ```bash
-./scripts/validate.sh      # the repo gate — manifests, role boundaries, spec freshness, links
-node scripts/dry-run.mjs   # the orchestration — who gets dispatched, in what order, what comes out
+./scripts/validate.sh          # the repo gate — manifests, role boundaries, spec freshness, links
+node scripts/check-build.mjs --selftest   # the build checker — 14 cases
 ```
 
-`dry-run.mjs` stubs the workflow engine and asserts on the routing — **51 assertions, 21 scenarios**:
-the clean run is exactly eight dispatches with no role doing two jobs, nothing runs after the
-quality-officer, a stalled reviewer yields `PARTIAL` rather than a pass, an unfixable finding exhausts
-exactly two rounds, a contested finding never reaches the designer, no deviation or ruling text reaches
-a reviewer, and an ambiguous artboard escalates rather than being guessed. No tokens, no Figma, and CI
-runs it on every push. `validate.sh` runs it too, so one command covers both.
+`check-build.mjs` is the deterministic half of a design review: gaps, type, colours, accent budget, proportion and the generated-design tell. Its selftest covers each check plus a regression guard against the two real artboards this plugin built. `validate.sh` runs it, so one command covers both.
 
 `validate.sh` also **compares the installed plugin copy against your working tree**, file by file, and
 tells you to reinstall if they differ. Editing this repo does not change what runs (eval U51).
 
-Then the part no harness can do: `evals/universal-cases.md` holds 61 domain-agnostic failure classes with
+Then the part no harness can do: `evals/universal-cases.md` holds 62 domain-agnostic failure classes with
 their outcomes recorded. Give an agent a case input with **no hint**, and check whether it raises the
 expected catch. Do this after any brief edit — a case that used to pass and now fails is a regression.
 

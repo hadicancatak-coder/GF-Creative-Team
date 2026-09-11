@@ -156,7 +156,7 @@ CLIENT-VERIFY list.
 **You get:** spend by agent and purpose, **cost per confirmed BLOCKER/MAJOR**, the top three waste
 sources with numbers, three optimizations with expected savings, and the trend against the last audit.
 
-**Call it:** at milestones, or roughly every 10 dispatches. Never in the per-item loop — it would cost
+**Call it:** at milestones. Never in the per-item loop — it would cost
 more than it saves.
 
 If ledger rows are missing, its first recommendation is always to fix logging. Unmeasured spend cannot
@@ -198,47 +198,12 @@ compare numbers to numbers. `scripts/check-build.mjs` does it in milliseconds, n
 itself between runs, and catches three findings that dispatch missed. What stays with a role is
 judgement: whether the picture is any good. Keeping the two apart is what makes either affordable.
 
-## How they worked together before (the 8-dispatch chain)
-
-```
-creative-director (concept) → content-creator (copy) → art-director (select)
-                        ↓
-                 designer (build)
-                        ↓
-  art-director + design-analyst + content-creator   (gate, IN PARALLEL)
-                        ↓
-        designer (fix) → the failed roles re-gate         ×2 max
-                        ↓
-        quality-officer (final state, alone, last)
-                        ↓
-                      human
-```
-
-**One process.** Concept precedes copy, the production half is sequential because each role needs the
-last one's output, and the review half fans out because it does not. There is no shorter variant and no
-cheaper gate — the reasoning, and the three defects that bought it, are in
-[METHOD.md](METHOD.md) lesson 8.
-
-Three things make this a team rather than seven prompts:
-
-**Separation of judgment.** The one that builds does not review. The one that measures does not have
-opinions about composition. The one that decides who reviews does not review everything itself. An
-orchestrator that also reviews approves its own work.
-
-**Ordering that is enforced, not suggested.** The Quality Officer is structurally last and alone,
-because it certifies *final* state — and it re-runs after **any** fix round, even one addressing findings
-it never raised, since the state it signed off on no longer exists. Every other reviewer re-gates scoped
-to its own prior findings; a re-gate that opens new dimensions is a new gate.
-
-**A legal way to stop.** Every role can escalate. The Art Director can decline to select, the Designer
-can refuse to build, the Quality Officer can withhold SHIP. Nothing in the schemas forces a role to
-produce an answer it does not have — that was a real bug once, and eval U28 exists to keep it fixed.
-
 ## Hiring one without the others
 
 You can. They are separate agents.
 
-- Just want to know what to build? `/format-matrix` — no roles needed at all.
+- Just want to know what to build? Ask the Art Director — deriving the format matrix from the
+  verified platform specs is part of closing the brief.
 - Just want a copy deck? Call `content-creator` alone.
 - Just want a second pair of eyes on a finished set? `art-director` plus `quality-officer` is a real
   review and takes two dispatches.

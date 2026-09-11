@@ -102,34 +102,93 @@ export function check (build, t) {
 }
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
-const SELFTEST = process.argv.includes('--selftest')
-if (SELFTEST) {
-  // Real geometry, read from the live Figma file on 2026-09-11. v1 must fail, v2 must be clean-ish.
-  const tokens = { spacing: [16, 24, 32, 48, 64, 96, 128], display: [128, 96, 72], body: [44, 36, 28],
-    margin: 96, colours: { ground: '14281E', ink: 'F2EADF', inkMuted: 'A9B8AE', accent: 'D4714A',
-      reserved: '7A1F2B' }, accentMaxUses: 1 }
-  const v1 = { canvas: { w: 1440, h: 1800 }, nodes: [
-    { id: 'ledger', y: 192, h: 456, role: 'decoration' },
-    { id: 'headline', y: 744, h: 183, role: 'message', fontSize: 96 },
-    { id: 'proof', y: 1287, h: 153, role: 'legal' },
-    { id: 'cta', y: 1542, h: 96, role: 'cta', fill: '#D4714A' }] }
-  const v2 = { canvas: { w: 1440, h: 1800 }, nodes: [
-    { id: 'wordmark', y: 128, h: 52, role: 'brand' },
-    { id: 'ledger', y: 308, h: 128, role: 'decoration' },
-    { id: 'headline', y: 468, h: 488, role: 'message', fontSize: 128 },
-    { id: 'proof', y: 1084, h: 332, role: 'legal' },
-    { id: 'cta', y: 1480, h: 128, role: 'cta', fill: '#D4714A' }] }
+const TOKENS = {
+  spacing: [16, 24, 32, 48, 64, 96, 128], display: [128, 96, 72], body: [44, 36, 28], margin: 96,
+  colours: { ground: '14281E', ink: 'F2EADF', inkMuted: 'A9B8AE', accent: '2E5FA3', reserved: '7A1F2B' },
+  accentMaxUses: 1,
+}
+const frame = nodes => ({ canvas: { w: 1440, h: 1800 }, nodes })
+// A composition that passes everything, used as the base for the negative cases.
+const CLEAN = () => [
+  { id: 'brand', y: 128, h: 52, role: 'brand' },
+  { id: 'ledger', y: 308, h: 128, role: 'decoration' },
+  { id: 'headline', y: 468, h: 488, role: 'message', fontSize: 128, fill: '#F2EADF' },
+  { id: 'proof', y: 1084, h: 332, role: 'legal', fontSize: 28, fill: '#A9B8AE' },
+  { id: 'cta', y: 1480, h: 128, role: 'cta', fill: '#2E5FA3' },
+]
+const mutate = fn => { const n = CLEAN(); fn(n); return n }
+
+const CASES = [
+  ['clean build raises nothing', frame(CLEAN()), TOKENS, []],
+
+  // The two failures that a token-comparing reviewer structurally cannot fire on (U58).
+  ['decoration outweighing the message is a MAJOR',
+    frame(mutate(n => { n[1].h = 700; n[2].h = 120 })), TOKENS, ['decoration outweighs the message']],
+  ['an under-filled frame is a MAJOR',
+    frame([{ id: 'headline', y: 900, h: 120, role: 'message', fontSize: 128, fill: '#F2EADF' }]),
+    TOKENS, ['frame is under-filled']],
+
+  // Arithmetic the design-analyst dispatch did do — reproduced here for free.
+  ['a gap off the spacing scale is a MINOR',
+    frame(mutate(n => { n[4].y = 1482 })), TOKENS, ['gap off the spacing scale']],
+  ['sub-pixel geometry is a MINOR',
+    frame(mutate(n => { n[2].h = 488.4 })), TOKENS, ['sub-pixel geometry']],
+  ['a type size off the scale is a MAJOR',
+    frame(mutate(n => { n[2].fontSize = 110 })), TOKENS, ['type size not in the scale']],
+
+  // Colour discipline.
+  ['the reserved colour anywhere is a BLOCKER',
+    frame(mutate(n => { n[0].fill = '#7A1F2B' })), TOKENS, ['reserved colour present']],
+  ['a second accent use is a MAJOR',
+    frame(mutate(n => { n[0].fill = '#2E5FA3' })), TOKENS, ['accent used too often']],
+  ['a colour outside the token set is a MAJOR',
+    frame(mutate(n => { n[0].fill = '#123456' })), TOKENS, ['colour not in the token set']],
+
+  // The calibration lifted from the frontend-design skill.
+  ['a terracotta accent is flagged as a generated-design tell',
+    frame(CLEAN()), { ...TOKENS, colours: { ...TOKENS.colours, accent: 'D4714A' } },
+    ['generated-design tell']],
+  ['a deliberately non-default accent is not flagged',
+    frame(CLEAN()), TOKENS, []],
+
+  // Informational, not a failure: the top display step left unspent.
+  ['leaving the top display step unspent is reported',
+    frame(mutate(n => { n[2].fontSize = 96 })), TOKENS, ['top display step unspent']],
+]
+
+if (process.argv.includes('--selftest')) {
   let bad = 0
-  for (const [name, b] of [['v1', v1], ['v2', v2]]) {
-    const r = check(b, tokens)
-    console.log(`\n=== ${name} — message ${r.stats.message}% · decoration ${r.stats.decoration}% · empty ${r.stats.emptyPct}%`)
-    if (!r.findings.length) console.log('  (clean)')
-    for (const f of r.findings) console.log(`  ${f.sev.padEnd(8)} ${f.what}: ${f.measured} (expected ${f.expected}) [${f.where}]`)
-    if (name === 'v1' && !r.findings.some(f => f.what.includes('under-filled'))) { console.log('  SELFTEST FAIL: v1 should be flagged under-filled'); bad++ }
-    if (name === 'v1' && !r.findings.some(f => f.what.includes('outweighs'))) { console.log('  SELFTEST FAIL: v1 should be flagged decoration-heavy'); bad++ }
-    if (name === 'v2' && r.findings.some(f => f.what.includes('under-filled') || f.what.includes('outweighs'))) { console.log('  SELFTEST FAIL: v2 should pass proportion'); bad++ }
+  for (const [name, build, tokens, expect] of CASES) {
+    const got = check(build, tokens).findings
+    const missing = expect.filter(e => !got.some(f => f.what.includes(e)))
+    const extra = expect.length === 0 && got.length ? got.map(f => f.what) : []
+    if (missing.length || extra.length) {
+      bad++
+      console.log(`  FAIL  ${name}`)
+      missing.forEach(m => console.log(`          expected a finding matching "${m}"`))
+      extra.forEach(x => console.log(`          unexpected finding: ${x}`))
+      got.forEach(f => console.log(`          got: ${f.sev} ${f.what} — ${f.measured}`))
+    } else {
+      console.log(`  ok    ${name}`)
+    }
   }
-  console.log(`\n${bad} selftest failures`)
+  // Regression guard against the two real artboards built on 2026-09-10/11.
+  const real = [
+    ['v1 (the frame the 4-role gate passed)', [
+      { id: 'ledger', y: 192, h: 456, role: 'decoration' },
+      { id: 'headline', y: 744, h: 183, role: 'message', fontSize: 96 },
+      { id: 'proof', y: 1287, h: 153, role: 'legal' },
+      { id: 'cta', y: 1542, h: 96, role: 'cta' }], true],
+    ['v2 (after the proportion fix)', CLEAN().map(n => ({ ...n, fill: undefined })), false],
+  ]
+  for (const [name, nodes, shouldFail] of real) {
+    const r = check(frame(nodes), TOKENS)
+    const major = r.findings.some(f => f.sev === 'MAJOR' || f.sev === 'BLOCKER')
+    const line = `${name} — message ${r.stats.message}% · decoration ${r.stats.decoration}% · empty ${r.stats.emptyPct}%`
+    if (major === shouldFail) console.log(`  ok    ${line}`)
+    else { bad++; console.log(`  FAIL  ${line} — expected major=${shouldFail}, got ${major}`) }
+  }
+  console.log(`\n${bad} failures across ${CASES.length + real.length} cases`)
   process.exit(bad ? 1 : 0)
 } else if (process.argv[2]) {
   const r = check(JSON.parse(readFileSync(process.argv[2], 'utf8')),

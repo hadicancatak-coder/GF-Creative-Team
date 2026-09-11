@@ -55,34 +55,49 @@ Not a pitch — verbatim output from a live run. Nothing here was prompted for.
 That is what separates seven roles from one prompt that says "you are a senior designer": they check
 each other, and they are allowed to refuse.
 
-## One process
+## Two roles, three dispatches
 
 ```
-concept → copy → select → build → [ AD ‖ DA ‖ CC ] → fix → quality-officer → verdict
-                                   └── in parallel ──┘        └── final state, last ──┘
+brief → ART DIRECTOR ──asks you the blocking questions, writes the spec
+                     ↓
+              DESIGNER ──builds it in Figma, owns every number
+                     ↓
+      check-build.mjs ──gaps, tokens, type, proportion, colour. Milliseconds. Free.
+                     ↓
+         ART DIRECTOR ──verifies the picture on its own merit
 ```
 
-Eight dispatches on a clean run, six of them serial. **The production chain cannot be parallelised** —
-concept feeds copy, copy feeds selection, selection feeds the build. **The review can**, so it does:
-four reviewers cost roughly the wall-clock of one, which is what makes a real gate affordable enough to
-be mandatory instead of optional.
+**The Art Director is the front door and owns the brief.** It interrogates what you gave it, asks the
+two or three questions whose answers would change what gets built, and nothing is built until it closes.
+An unfinished brief is the most expensive thing in this business, because it gets discovered in pixels
+instead of in a sentence.
 
-This plugin shipped a second, faster path twice, and both times it was the wrong answer:
+It separates blocking from assumable honestly. No platform named blocks — the spec decides size, safe
+zones and character limits. A missing master size does not: it derives that from the platform's
+**recommended** resolution and tells you which placement it took it from.
 
-- **Every defect unique to the fast path came from merging two roles into one dispatch** — a merged call
-  whose schema could not hold its own prompt and burned its retry cap (`U52`, 114k tokens to find),
-  speed tuning that silently suppressed the craft self-checks so a frame shipped **64% empty and
-  unmeasured** (`U53`), and a departure from the directive reported as compliance (`U54`).
-- It was also, by construction, the path that produced **ungated** work.
-- The cheap *gate* had the mirror flaw: it was cheap because one reviewer cannot disagree with itself —
-  and that disagreement is the entire mechanism. The worst defect ever found here was three roles
-  independently measuring the same frame and establishing that a fix reported as resolved had never
-  landed in the file.
+**The Designer executes and does not reinterpret.** The spec carries intent, proportion and an argued
+type step — deliberately **no pixel coordinates**, because a director who specifies numerically leaves
+the person who can see the composition with nothing to decide.
 
-So the cost came out of what an agent *writes*, never out of who checks: per-role model and effort
-tiering, naming the files instead of letting agents explore, the review fanned out, and every dispatch
-that re-measured another role's work deleted. `./scripts/validate.sh` fails the build if a `depth`
-switch ever comes back.
+**Everyone else is conditional**, engaged only when the job calls for them.
+
+## The arithmetic is not an agent
+
+`scripts/check-build.mjs` checks gaps against the spacing scale, type against the type scale, colours
+against tokens, accent-use count, reserved colours, sub-pixel geometry, message-vs-decoration share,
+total empty vertical span — and whether the accent is a **generated-design tell** rather than a brand
+colour.
+
+Milliseconds. Free. It cannot disagree with itself between runs.
+
+Run against the two real artboards this plugin built, it reproduces every arithmetic finding a
+**88,000-token** reviewer dispatch produced, and catches **four it missed** — two further off-scale gaps,
+and both proportion failures, which no token-comparing reviewer could fire on because the size was
+inside the scale.
+
+What stays with a role is **judgement**: whether the picture is any good. Keeping that apart from
+arithmetic is what makes either affordable.
 
 ## Why it behaves that way
 
@@ -115,87 +130,58 @@ thing you judge. Sourced and dated in [`knowledge/platforms/meta.md`](knowledge/
 
 | | |
 |---|---|
-| **`/create-ad`** | **The one process.** Brief to built, gated artwork: concept → copy → asset → build → gate → verdict. Two arguments from you; the rest is derived from the platform specs and reported back. Nothing it hands you is ungated. |
-| `/creative-gate` | The **same gate**, on creative the chain did not produce — built by hand, built before you installed this, or inherited. Four reviewers in parallel, quality-officer last on final state. |
-| `/format-matrix` | What to build for these platforms. **Works with no setup at all.** |
-| `/new-client` · `/use-client` | Scaffold and switch client profiles. |
-
-The order matters: **concept comes before copy.** Written the other way round, the copywriter invents an
-implicit idea and the headline comes out as a specification rather than a hook — that was a real defect,
-and it is eval U45.
+| **`/create-ad`** | Art Director closes the brief → Designer builds → script checks → Art Director verifies. Three dispatches. |
+| **`/review-ad`** | Creative that already exists, from anywhere. Script first, then the Art Director, then the Quality Officer **only if it ships**. |
+| `/new-client` · `/use-client` | Scaffold and switch client profiles. Setup, not process. |
 
 ## The roles
 
-| Agent | The job | What you get back |
+| Agent | Engaged | The job |
 |---|---|---|
-| **creative-director** | Concept, the directive, and the tiebreak when two roles disagree | The one subject, the build directive, a ruling |
-| **art-director** | Picks the asset, verifies the render | A selection — **or a refusal and a client ask** |
-| **designer** | Builds. The only one that writes to Figma | Changed node IDs, measured deviations |
-| **design-analyst** | Measures against tokens and platform specs | Property, measured, expected, node ID, fix |
-| **quality-officer** | Last gate: regulation, claims, regional rules | SHIP / COMP-APPROVED / BLOCK |
-| **content-creator** | Copy before design, audits after | Deck + a CLIENT-VERIFY list |
-| **financial-controller** | Reads the run ledger | Cost per confirmed finding, waste sources |
-
-**Hire them separately.** A copy deck is one agent. A second pair of eyes on a finished set is
-`/creative-gate`.
-
-Each gate role owns a failure class, and the roster is fixed — every reviewer sees every target. An
-earlier version asked the creative director which roles to dispatch; that cost a dispatch, added a way
-for the plan itself to be invalid, and could only ever *narrow* coverage.
+| **art-director** | **always, first and last** | Owns the brief: interrogates it, asks you the blocking questions, decides the direction, writes the spec. Verifies the build. Owns **proportion** — the one thing no measurement role can fire on |
+| **designer** | **always, once** | Builds the spec in Figma. Owns every number. The only role that writes |
+| creative-director | conditional | A design system to build or extend · 2+ creatives for one brand that must cohere · a tiebreak between roles |
+| quality-officer | conditional | Regulated category · mandated text · a claim needing substantiation · about to be trafficked |
+| content-creator | conditional | Copy is the lead deliverable, or per-placement/per-language field copy |
+| design-analyst | conditional | A contested measurement, or a token-system drift audit. Routine arithmetic is the script's |
+| financial-controller | conditional | Auditing a run afterwards |
 
 ## Requirements
 
-Claude Code with the Agent and Workflow tools. **The Figma MCP** for anything that builds artwork —
-every review role works on rendered screenshots from any source, the `designer` role does not.
+Claude Code with the Agent tool, and **the Figma MCP** for anything that builds artwork. The review
+roles work from exported PNGs on disk, so they function even where the design tool is unreachable —
+which, for a restricted subagent, it usually is.
 
 ## What is proven, and what is not
 
-**Proven, by running it.** Six orchestration runs, zero agent errors, no prompting from me:
-the workflow dispatches its own roles, finds the active client profile on its own, carries context
-between agents through schemas, and **the designer builds real nodes in Figma** with geometry verified
-by pixel measurement rather than assertion — margins and rhythm hit to the exact token, seams sampled
-across five points to confirm no discontinuity.
+**Proven by running it.** The chain builds real nodes in Figma against a brand it has never seen,
+derives the master size from the platform spec rather than from memory — **1440×1800**, citing the file,
+where the answer most people give is 1080×1350 — refuses to invent an asset that does not exist, and
+carries mandated legal text verbatim and adjacent to the claim it qualifies. Roles disagree in the open:
+the designer escalated a copy collision rather than deciding it, and the creative director struck its own
+directive on two counts.
 
-**Proven, without running it.** The orchestration itself is now tested. `scripts/dry-run.mjs` stubs the
-engine and asserts on the routing — the clean run is exactly eight dispatches in order with no role
-doing two jobs, nothing is dispatched after the quality-officer, a stalled reviewer yields `PARTIAL`
-rather than a clean-looking pass, an unfixable finding exhausts exactly two rounds, a contested finding
-never reaches the designer, and every schema's required fields exist. It runs in CI on every push and
-costs nothing. Every orchestration bug in this repo's history was this shape, and every one of them was
-previously found by a live run that burned real tokens.
+**Proven without running it.** `scripts/check-build.mjs` — **14 cases**, covering each check plus a
+regression guard against the two real artboards this plugin built. `scripts/validate.sh` fails the build
+if a speed switch reappears, if a non-designer role holds a write tool, if a command names a role with no
+agent file, if `create-ad` stops asking the client before building, or if the installed plugin copy
+differs from the working tree.
 
-Role boundaries are enforced by tooling, not asked for: only the designer holds a write tool, and CI
-fails if that changes. So is the single process: CI fails if a `depth` switch reappears, and it sha256s
-the shared gate block in both workflows to fail if the two copies ever drift apart.
+**Not proven.** **No creative has passed a review — zero, not few.** The fix→re-review loop has never
+completed a round. The Quality Officer and Financial Controller have never returned a verdict on real
+work. And it has never been run for a real brand.
 
-**Not proven.** No creative has passed a gate. The quality-officer and financial-controller have never
-been dispatched; no gate marker and no ledger row has ever been written. And it has never been run on a
-real brand — every run so far used a fictional profile and a single house illustration.
+**What a live run taught, at a cost.** The previous eight-dispatch process cost **629,267 tokens and
+34.3 minutes** for one frame. It produced the smaller half of the findings, and it passed a frame that
+was **50.7% empty vertical space** with the message at 10.2% of height and the decoration at 25.3% — a
+failure a human named in five seconds by looking. That is eval U58, logged `MISSED`, and it is why the
+Art Director now owns proportion with numbers and why the arithmetic became a script.
 
-**The one process has now been run end to end, once, on a brand it had never seen** — and the number
-below is measured, not derived: **8 dispatches, 629,267 tokens, 34.3 minutes**, producing real artwork in
-Figma. The full run is written up in [examples/sorrel-bay-run.md](examples/sorrel-bay-run.md), including
-what it cost, what the gate caught, and what it did not.
-
-**What that run did not do is pass.** It reached `FIX-THEN-REGATE`, correctly. **No creative has ever
-passed this gate — zero, not few** — and the fix→re-gate loop has still never completed a round.
-
-**And there is an open bug that probably explains why.** Probed as shipped, the four gate roles cannot
-reach the design tool at all: their `tools:` whitelists admit no Figma tool and `ToolSearch` cannot
-recover one. Every gate result in this repo was produced by unrestricted stand-ins, not by the roles as
-they ship. That is eval **U62**, recorded OPEN, and it is the first thing to fix.
-
-**And the operator looked at the result and said the proportions were wrong.** He was right. The frame
-was 50.7% empty vertical space, the message 10.2% of height, the decoration 25.3% — and it was
-token-clean, deviation-free and compliant throughout. Four roles and 629k tokens had nothing to say
-about it, because every check in the system was a conformance check. That is eval U58, logged
-`MISSED — the operator caught it`, and it is why the art-director now carries a proportion mandate with
-numbers in it.
-
-The runs are written up in [examples/first-live-run.md](examples/first-live-run.md), including what they
-cost, what they refused to do, and the bugs they found in this plugin — a copywriter that built the
-artwork itself, a command that would have spent 600k tokens on the word `undefined`, and a gate that
-fired on work that did not exist.
+**An open bug, stated rather than buried.** Probed as shipped, the review roles could not reach the
+design tool at all: a `tools:` whitelist excludes MCP tools unless each is named, and a background
+subagent is denied them regardless. The roles now name their read tools and the process passes renders on
+disk, which is a channel that cannot be lost — but the underlying restriction is an environment
+constraint the plugin cannot configure away. Eval **U62**.
 
 ## Eleven lessons from building it
 

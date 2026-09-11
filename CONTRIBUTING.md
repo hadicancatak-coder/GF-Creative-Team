@@ -46,25 +46,17 @@ real case that the current seven demonstrably missed. "It would be useful to als
 every extra role costs a dispatch on every run, and the Financial Controller will eventually recommend
 merging any gate that produces zero blockers or majors two audits running.
 
-## Workflows and hooks
+## Process and hooks
 
-- **There is one process and one gate.** Do not add a `depth`, `mode`, `quick` or `fast` argument.
-  `validate.sh` fails the build if one appears, and the reasoning is eval U56: every defect unique to the
-  cheap path came from merging two roles into one dispatch, and it was the only path that shipped ungated
-  work. If the chain is too slow, cut what an agent *writes* — not who checks.
-- **The gate lives in one block, pasted into both workflows.** Workflow scripts cannot `import`, so
-  `SHARED GATE BLOCK v1` is duplicated byte-for-byte in `create-ad.js` and `creative-gate.js`, and
-  `validate.sh` sha256s both regions. Edit one copy, run the validator, copy it across. Never hand-edit
-  one side only.
-- **Add a dry-run scenario for any routing change.** `scripts/dry-run.mjs` stubs the engine, so a new
-  branch in the control flow costs nothing to cover and every orchestration bug in this repo's history
-  was this shape.
-- Keep the ESCALATE clause in any chain you adapt. When blocked, escalating is the only legal move.
-- Keep every escape hatch **optional in the schema**. A required field is a forced answer: requiring
-  `chosenPath` once forced the art-director to nominate a least-bad asset (U10).
-- Never let a workflow report success on missing or stalled results (eval U14).
-- Domain facts belong in arguments or the client profile — if you are hardcoding a file key, node ID or
-  absolute path into `workflows/`, that is the bug.
+- **Two commands: `create-ad` and `review-ad`.** Do not add a third process command, and do not add a
+  `depth`, `mode`, `quick` or `fast` switch — `validate.sh` fails on both. A cheap second path was tried
+  twice and was the only source of a whole defect class (U56).
+- **No workflow scripts.** The Art Director asks the client blocking questions mid-flight, and a workflow
+  script cannot pause for a human answer. The commands are the orchestration.
+- **Arithmetic goes in `scripts/check-build.mjs`, never in a role.** If a check can be written as a
+  comparison between two numbers, it is not a dispatch. Add a case to its selftest for anything you add.
+- Keep every escape hatch **optional in the schema**. A required field is a forced answer (U10).
+- Domain facts belong in the client profile or the call arguments, never in a role brief.
 
 ## Style
 
@@ -105,25 +97,20 @@ across both workflows, that every knowledge file carries its frontmatter and cit
 counts match the eval table, that internal links resolve, that no absolute path leaked, and that no doc
 tells a user to write into the plugin directory.
 
-**It also runs the orchestration dry run**, which you can run on its own while iterating:
+**It also runs the build checker**, which you can run on its own while iterating:
 
 ```bash
-node scripts/dry-run.mjs          # every scenario, verbose
-node scripts/dry-run.mjs --quiet  # failures only
+node scripts/check-build.mjs --selftest
+node scripts/check-build.mjs build.json tokens.json
 ```
 
-This is the test to reach for first when you change a workflow. It substitutes the engine — `agent`,
-`parallel`, `phase` and `log` become stubs that record every dispatch — and asserts on the routing: who
-ran, in what order, with what schema, and what verdict came out. No tokens, no Figma, no network, so
-there is no excuse for a routing change arriving uncovered.
-
-What it cannot tell you is whether an agent is any *good*. That is what the evals are for, and keeping
-the two apart is what makes either affordable to run.
+14 cases covering each check, plus a regression guard against the two real artboards this plugin built.
+No tokens, no Figma, no network — so there is no excuse for an unchecked change to the rules.
 
 Then, by hand:
 
 - [ ] Evals re-run if you touched a brief, with any regressions noted in the PR
-- [ ] A dry-run scenario added if you changed the routing
+- [ ] A selftest case added if you changed or added a check
 - [ ] No real client names, compliance text, or design-file keys in the diff
 
 ## Why CI fails on a green codebase
